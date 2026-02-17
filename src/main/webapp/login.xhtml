@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<f:facet name="first">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+		<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+	</f:facet>
+	<title>Clientes</title>
+</h:head>
+
+<h:body styleClass="login-body">
+	<h:form id="login_form">
+		<p:growl id="growl" life="5000" />
+		<p:dialog modal="true" widgetVar="statusDialog" header="Verificando usuario..." draggable="false" closable="false" resizable="false">
+			<div align="center">
+	              <i class="pi pi-spinner pi-spin" style="font-size:3rem;"></i>
+			</div>
+	    </p:dialog>
+		<div id="login-wrapper">
+			<p:panel>
+				<f:facet name="header">
+					Acceso para clientes
+				</f:facet>
+				<div>
+					<p:graphicImage name="images/logo.png" library="layouts" width="100%" height="auto"/>
+				</div>
+				<div style="padding: 1rem;">
+					<p:inputText id="usuario" placeholder="Usuario" required="true" value="#{mbLogin.clienteContacto.usuario}" requiredMessage="Usuario requerido" style="width: 100%;"/>
+					<p:message for="usuario" />
+				</div>
+				<div style="padding: 1rem;">
+					<p:password id="contraseña" placeholder="Contraseña" required="true" feedback="false" redisplay="true" value="#{mbLogin.clienteContacto.password}" requiredMessage="Contraseña requerida" style="width: 100%;"/>
+					<p:message for="contraseña" />
+				</div>
+				<div style="padding-top: 2rem; padding-bottom: 1rem; padding-left: 1rem; padding-right: 1rem;">
+					<p:commandButton value="Entrar" icon="pi pi-sign-in" actionListener="#{mbLogin.login}" process="@this login_form" update="login_form" style="width: 100%;" onclick="PF('statusDialog').show();" oncomplete="PF('statusDialog').hide();"/>
+				</div>
+			</p:panel>
+		</div>
+		<h:outputStylesheet name="css/primeicons.css" library="omega-layout" />
+		<h:outputStylesheet name="css/primeflex.min.css" library="omega-layout" />
+		<h:outputStylesheet name="css/layout-#{guestPreferences.layout}.css" library="omega-layout" />
+	</h:form>
+</h:body>
+
+</html>

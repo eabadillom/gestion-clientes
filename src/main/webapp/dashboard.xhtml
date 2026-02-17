@@ -1,0 +1,339 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="head">
+        <h:outputScript name="js/chart.js" library="demo"/>
+        <script type="text/javascript">
+            $(function () {
+                var salesChart = new Chart(document.getElementById("sales-chart").getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                        datasets: [
+                            {
+                                label: 'First Dataset',
+                                data: [65, 59, 80, 81, 56, 55, 40],
+                                fill: false,
+                                borderColor: '#007be5'
+                            },
+                            {
+                                label: 'Second Dataset',
+                                data: [28, 48, 40, 19, 86, 27, 90],
+                                fill: false,
+                                borderColor: '#20d077'
+                            }
+                        ]
+                    }
+                });
+            });
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+
+        <div class="dashboard p-grid ui-fluid">
+            <div class="p-col-12 p-md-4">
+                <div class="card summary p-d-flex p-jc-between">
+                    <div>
+                        <span class="title">Users</span>
+                        <span class="detail">Number of visitors</span>
+                    </div>
+                    <div class="p-d-flex p-ai-center">
+                        <span class="count visitors p-p-2">12</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-col-12 p-md-4">
+                <div class="card summary p-d-flex p-jc-between">
+                    <div>
+                        <span class="title">Sales</span>
+                        <span class="detail">Number of purchases</span>
+                    </div>
+                    <div class="p-d-flex p-ai-center">
+                        <span class="count purchases p-p-2">534</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-col-12 p-md-4">
+                <div class="card summary p-d-flex p-jc-between">
+                    <div>
+                        <span class="title">Revenue</span>
+                        <span class="detail">Income for today</span>
+                    </div>
+                    <div class="p-d-flex p-ai-center">
+                        <span class="count revenue p-p-2">$3,200</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-col-12 p-md-6 p-lg-3">
+                <div class="card overview-box paypal">
+                    <div class="p-d-flex p-jc-between">
+                        <i class="logo pi pi-paypal p-mb-3"/>
+                        <p:commandButton id="paypal-button" type="button" icon="pi pi-ellipsis-v"
+                                         styleClass="rounded-button ui-button-flat ui-button-plain"/>
+                        <p:menu overlay="true" trigger="paypal-button" my="left top" at="left bottom">
+                            <p:menuitem value="Display More" icon="pi pi pi-chart-bar" url="#"/>
+                            <p:menuitem value="Settings" icon="pi pi-cog" url="#"/>
+                        </p:menu>
+                    </div>
+                    <h5 class="p-mb-3">PayPal</h5>
+                    <p class="p-mb-1"><strong>$421</strong> / $1212</p>
+                    <p:progressBar value="35" labelTemplate="" displayOnly="true"/>
+                </div>
+            </div>
+
+            <div class="p-col-12 p-md-6 p-lg-3">
+                <div class="card overview-box amazon">
+                    <div class="p-d-flex p-jc-between">
+                        <i class="logo pi pi-amazon p-mb-3"/>
+                        <p:commandButton id="amazon-button" type="button" icon="pi pi-ellipsis-v"
+                                         styleClass="rounded-button ui-button-flat ui-button-plain"/>
+                        <p:menu overlay="true" trigger="amazon-button" my="left top" at="left bottom">
+                            <p:menuitem value="Display More" icon="pi pi-chart-bar" url="#"/>
+                            <p:menuitem value="Settings" icon="pi pi-cog" url="#"/>
+                        </p:menu>
+                    </div>
+                    <h5 class="p-mb-3">Amazon</h5>
+                    <p class="p-mb-1"><strong>$6752</strong> / $9550</p>
+                    <p:progressBar value="70" labelTemplate="" displayOnly="true"/>
+                </div>
+            </div>
+
+            <div class="p-col-12 p-md-6 p-lg-3">
+                <div class="card overview-box youtube">
+                    <div class="p-d-flex p-jc-between">
+                        <i class="logo pi pi-youtube p-mb-3"/>
+                        <p:commandButton id="youtube-button" type="button" icon="pi pi-ellipsis-v"
+                                         styleClass="rounded-button ui-button-flat ui-button-plain"/>
+                        <p:menu overlay="true" trigger="youtube-button" my="left top" at="left bottom">
+                            <p:menuitem value="Display More" icon="pi pi-chart-bar" url="#"/>
+                            <p:menuitem value="Settings" icon="pi pi-cog" url="#"/>
+                        </p:menu>
+                    </div>
+                    <h5 class="p-mb-3">YouTube</h5>
+                    <p class="p-mb-1"><strong>$1132</strong> / $6987</p>
+                    <p:progressBar value="13" labelTemplate="" displayOnly="true"/>
+                </div>
+            </div>
+
+            <div class="p-col-12 p-md-6 p-lg-3">
+                <div class="card overview-box apple">
+                    <div class="p-d-flex p-jc-between">
+                        <i class="logo pi pi-apple p-mb-3"/>
+                        <p:commandButton id="apple-button" type="button" icon="pi pi-ellipsis-v"
+                                         styleClass="rounded-button ui-button-flat ui-button-plain"/>
+                        <p:menu overlay="true" trigger="apple-button" my="left top" at="left bottom">
+                            <p:menuitem value="Display More" icon="pi pi-chart-bar" url="#"/>
+                            <p:menuitem value="Settings" icon="pi pi-cog" url="#"/>
+                        </p:menu>
+                    </div>
+                    <h5 class="p-mb-3">Apple</h5>
+                    <p class="p-mb-1"><strong>$58990</strong> / $65650</p>
+                    <p:progressBar value="90" labelTemplate="" displayOnly="true"/>
+                </div>
+            </div>
+
+            <div class="p-col-12 p-md-6 p-lg-4">
+                <p:panel header="Tasks" style="height:100%">
+                    <ul class="task-list">
+                        <li>
+                            <p:selectBooleanCheckbox/>
+                            <span class="task-name">Sales reports</span>
+                            <p:commandButton type="button" icon="pi pi-check"></p:commandButton>
+                        </li>
+                        <li>
+                            <p:selectBooleanCheckbox/>
+                            <span class="task-name">Pay the invoices</span>
+                            <p:commandButton type="button" icon="pi pi-check"></p:commandButton>
+                        </li>
+                        <li>
+                            <p:selectBooleanCheckbox/>
+                            <span class="task-name">Dinner with Tony</span>
+                            <p:commandButton type="button" icon="pi pi-check"></p:commandButton>
+                        </li>
+                        <li>
+                            <p:selectBooleanCheckbox/>
+                            <span class="task-name">Team meeting</span>
+                            <p:commandButton type="button" icon="pi pi-check"></p:commandButton>
+                        </li>
+                        <li>
+                            <p:selectBooleanCheckbox/>
+                            <span class="task-name">Plan the new theme</span>
+                            <p:commandButton type="button" icon="pi pi-check"></p:commandButton>
+                        </li>
+                        <li>
+                            <p:selectBooleanCheckbox/>
+                            <span class="task-name">Client meeting</span>
+                            <p:commandButton type="button" icon="pi pi-check"></p:commandButton>
+                        </li>
+                    </ul>
+                </p:panel>
+            </div>
+
+            <div class="p-col-12 p-md-6 p-lg-4">
+                <p:panel header="Contact Us" style="background:#fff;height:100%">
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <p:selectOneMenu id="cities" autoWidth="false">
+                                <f:selectItem itemLabel="Select City" itemValue=""/>
+                                <f:selectItem itemLabel="New York" itemValue="New York"/>
+                                <f:selectItem itemLabel="Rome" itemValue="Rome"/>
+                                <f:selectItem itemLabel="London" itemValue="London"/>
+                                <f:selectItem itemLabel="Istanbul" itemValue="Istanbul"/>
+                                <f:selectItem itemLabel="Paris" itemValue="Paris"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-col-12">
+                            <p:inputText placeholder="Name"/>
+                        </div>
+                        <div class="p-col-12">
+                            <p:inputText placeholder="Age"/>
+                        </div>
+                        <div class="p-col-12">
+                            <p:inputTextarea rows="2" placeholder="Message" autoResize="false"/>
+                        </div>
+                    </div>
+                    <p:commandButton type="button" value="Send" icon="pi pi-plus"/>
+                </p:panel>
+            </div>
+            <div class="p-col-12 p-lg-4">
+                <p:panel header="Contacts" style="height:100%">
+                    <ul class="contacts">
+                        <li>
+                            <a href="#">
+                                <p:graphicImage name="images/avatar_1.png" library="omega-layout" width="35"/>
+                                <span class="name">Claire Williams</span>
+                                <span class="email">clare@pf-omega.com</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <p:graphicImage name="images/avatar_2.png" library="omega-layout" width="35"/>
+                                <span class="name">Jason Dourne</span>
+                                <span class="email">jason@pf-omega.com</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <p:graphicImage name="images/avatar_3.png" library="omega-layout" width="35"/>
+                                <span class="name">Jane Davidson</span>
+                                <span class="email">jane@pf-omega.com</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <p:graphicImage name="images/avatar_4.png" library="omega-layout" width="35"/>
+                                <span class="name">Tony Corleone</span>
+                                <span class="email">tony@pf-omega.com</span>
+                            </a>
+                        </li>
+                    </ul>
+                </p:panel>
+            </div>
+
+            <div class="p-col-12 p-md-4">
+                <p:panel header="Recent Sales" style="height:100%">
+                    <p:dataTable id="productsTable" var="product" value="#{dataTableDemoView.products1}" reflow="true"
+                                 paginatorPosition="bottom"
+                                 rowKey="#{product.id}" paginator="true" rows="5">
+                        <p:column headerText="Id" sortBy="#{product.id}">
+                            <h:outputText value="#{product.id}"/>
+                        </p:column>
+                        <p:column headerText="Category" sortBy="#{product.category}">
+                            <h:outputText value="#{product.category}"/>
+                        </p:column>
+                        <p:column headerText="Price" sortBy="#{product.price}">
+                            <h:outputText value="#{product.price}">
+                                <f:convertNumber currencySymbol="$" type="currency"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Status" sortBy="#{product.inventoryStatus}">
+                            <span class="product-badge status-#{product.inventoryStatus.name().toLowerCase()}">#{product.inventoryStatus}</span>
+                        </p:column>
+                        <p:column style="text-align: center">
+                            <p:commandButton icon="pi pi-search"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </div>
+            <div class="p-col-12 p-md-8">
+                <p:panel header="Sales Chart" style="height:100%">
+                    <canvas id="sales-chart"/>
+                </p:panel>
+            </div>
+            <div class="p-col-12 p-md-8">
+                <p:panel header="Calendar" style="height:100%">
+                    <p:schedule value="#{calendarDemoView.eventModel}"/>
+                </p:panel>
+            </div>
+            <div class="p-col-12 p-md-4">
+                <p:panel header="Activity" style="height:100%">
+                    <div class="activity-header">
+                        <div class="p-grid">
+                            <div class="p-col-6">
+                                <span style="font-weight:bold">Last Activity</span>
+                                <p>Updated 1 minute ago</p>
+                            </div>
+                            <div class="p-col-6" style="text-align:right">
+                                <p:commandButton type="button" icon="pi pi-refresh"/>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="activity-list">
+                        <li>
+                            <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+                                <h5 class="activity p-m-0">Income</h5>
+                                <div class="count">$900</div>
+                            </div>
+                            <p:progressBar value="95"/>
+                        </li>
+                        <li>
+                            <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+                                <h5 class="activity p-m-0">Tax</h5>
+                                <div class="count" style="background-color:#f9c851">$250</div>
+                            </div>
+                            <p:progressBar value="24"/>
+                        </li>
+                        <li>
+                            <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+                                <h5 class="activity p-m-0">Invoices</h5>
+                                <div class="count" style="background-color:#20d077">$125</div>
+                            </div>
+                            <p:progressBar value="55"/>
+                        </li>
+                        <li>
+                            <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+                                <h5 class="activity p-m-0">Expenses</h5>
+                                <div class="count" style="background-color:#f9c851">$250</div>
+                            </div>
+                            <p:progressBar value="15"/>
+                        </li>
+                        <li>
+                            <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+                                <h5 class="activity p-m-0">Bonus</h5>
+                                <div class="count" style="background-color:#007be5">$350</div>
+                            </div>
+                            <p:progressBar value="5"/>
+                        </li>
+                        <li>
+                            <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+                                <h5 class="activity p-m-0">Revenue</h5>
+                                <div class="count" style="background-color:#ef6262">$500</div>
+                            </div>
+                            <p:progressBar value="25"/>
+                        </li>
+                    </ul>
+                </p:panel>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

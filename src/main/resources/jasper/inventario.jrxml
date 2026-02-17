@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="inventario_jr6" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d92aa4c1-bf5c-4f8d-a7f6-c15af772f513">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySQL-Gestion-Azure.jrdax"/>
+	<parameter name="idCliente" class="java.lang.Integer"/>
+	<parameter name="fecha" class="java.util.Date"/>
+	<parameter name="imagen" class="java.lang.String"/>
+	<parameter name="idPlanta" class="java.lang.Integer">
+		<parameterDescription><![CDATA[planta_cve o id_planta]]></parameterDescription>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select * from (
+	select
+		folio,
+		cliente,
+		numero_cte,
+		folio_cliente,
+		ingreso,
+		sum(cantidad) as cantidad,
+		unidad_cobro,
+		sum(tarima) as tarima,
+		sum(peso) as peso,
+		producto_cve,
+		producto,
+		caducidad,
+		codigo,
+		sap,
+		po,
+		cam_cve,
+		camara,
+		plt_cve,
+		planta,
+		lote,
+		valor,
+		sum(base_cargo) as base_cargo,
+		sum(resultado) as resultado,
+		cod_posicion
+	from (
+		select
+		    cddEnt.folio            as folio,
+		    cli.cte_nombre          as cliente,
+		    cli.numero_cte          as numero_cte,
+		    cddEnt.folio_cliente    as folio_cliente,
+		    cddEnt.fecha_ingreso    as ingreso,
+		    parEnt.PARTIDA_CVE,
+		    (parEnt.cantidad_total - COALESCE(salidas.cantidad, 0)) as cantidad,
+		    udm.unidad_de_manejo_ds as unidad_cobro,
+		    CEILING((parEnt.cantidad_total - COALESCE(salidas.cantidad, 0)) * parEnt.no_tarimas / parEnt.CANTIDAD_TOTAL ) as tarima,
+		    (parEnt.peso_total - COALESCE(salidas.peso, 0)) as peso,
+		    prd.producto_cve        as producto_cve,
+		    prd.producto_ds         as producto, 
+		    detPart.dtp_caducidad   as caducidad,
+		    prd.numero_prod         as codigo,
+		    detPart.dtp_sap         as sap,
+		    detPart.dtp_po          as po,
+		    cam.camara_cve          as cam_cve,
+		    cam.camara_abrev        as camara,
+		    plt.planta_cve          as plt_cve,
+		    plt.planta_abrev        as planta,
+		    detPart.dtp_lote        as lote,
+			COALESCE(parEnt.valorMercancia,0) as valor,
+			(parEnt.valorMercancia / parEnt.CANTIDAD_TOTAL) as base_cargo,
+			( cantidad * parEnt.valorMercancia / parEnt.CANTIDAD_TOTAL)  as resultado,
+		    pos.cod_posicion
+		from partida parEnt
+		inner join (
+			select *
+			from constancia_de_deposito cdd
+			WHERE cdd.status = 1
+				and (cdd.cte_cve = $P{idCliente} OR $P{idCliente} IS NULL)
+				AND cdd.fecha_ingreso <= $P{fecha}
+		) cddEnt on parEnt.folio = cddEnt.folio
+		inner join unidad_de_producto udp on udp.unidad_de_producto_cve = parEnt.unidad_de_producto_cve
+		inner join producto prd on prd.producto_cve = udp.producto_cve
+		inner join unidad_de_manejo udm on udm.unidad_de_manejo_cve = udp.unidad_de_manejo_cve
+		inner join camara cam on cam.camara_cve = parEnt.camara_cve
+		inner join planta plt on plt.planta_cve = cam.planta_cve
+		inner join cliente cli on cli.cte_cve = cddEnt.cte_cve
+		inner join 
+		(
+		    select tdp.* from detalle_partida tdp
+		    inner join (
+				select
+					dp.partida_cve,
+		            max(dp.det_part_cve) as det_part_cve
+				from detalle_partida dp
+				
+				group by dp.partida_cve
+		    ) tmdp on tdp.partida_cve = tmdp.partida_cve and tdp.det_part_cve = tmdp.det_part_cve
+		) detPart on detPart.partida_cve = parEnt.partida_cve
+		left outer join posicion_partida pp on parEnt.partida_cve = pp.ID_PARTIDA
+		left outer join posicion pos on pp.ID_POSICION = pos.id_posicion
+		left outer join (
+			select 
+		    	dcs.partida_cve,
+		    	sum(COALESCE(dcs.peso,0)) as peso,
+		    	sum(COALESCE(dcs.cantidad,0)) as cantidad
+		    from constancia_salida cSal
+		    inner join detalle_constancia_salida dcs on dcs.constancia_cve = cSal.id
+		    WHERE cSal.status = 1 
+		    	AND cSal.fecha <= $P{fecha}
+		    group by
+				dcs.PARTIDA_CVE
+		) salidas ON parEnt.partida_cve = salidas.partida_cve
+		where
+			cddEnt.status <> 4
+			and parEnt.no_tarimas >= 1.000
+			
+			AND (plt.planta_cve  = $P{idPlanta} OR $P{idPlanta} IS NULL )
+	
+	) t1
+	group by
+		folio,
+		cliente,
+		numero_cte,
+		folio_cliente,
+		ingreso,
+		unidad_cobro,
+		producto_cve,
+		producto,
+		caducidad,
+		codigo,
+		sap,
+		po,
+		cam_cve,
+		camara,
+		plt_cve,
+		planta,
+		lote,
+		valor,
+		cod_posicion
+	/*---------------------------------------------------------------------*/
+	
+	
+	union all 
+	
+	/*---------------------------------------------------------------------*/
+	
+	select
+		folio,
+		cliente,
+		numero_cte,
+		folio_cliente,
+		ingreso,
+		sum(cantidad) as cantidad,
+		unidad_cobro,
+		sum(tarima) as tarima,
+		sum(peso) as peso,
+		producto_cve,
+		producto,
+		caducidad,
+		codigo,
+		sap,
+		po,
+		cam_cve,
+		camara,
+		plt_cve,
+		planta,
+		lote,
+		valor,
+		sum(base_cargo) as base_cargo,
+		sum(resultado) as resultado,
+		cod_posicion
+	from (
+		select
+		    cddEnt.folio            as folio,
+		    cli.cte_nombre          as cliente,
+		    cli.numero_cte          as numero_cte,
+		    cddEnt.folio_cliente    as folio_cliente,
+		    cddEnt.fecha_ingreso    as ingreso,
+		    parEnt.PARTIDA_CVE,
+		    (parEnt.cantidad_total - COALESCE(salidas.cantidad, 0)) as cantidad,
+		    udm.unidad_de_manejo_ds as unidad_cobro,
+		    parEnt.no_tarimas as tarima,
+		    (parEnt.peso_total - COALESCE(salidas.peso, 0)) as peso,
+		    prd.producto_cve        as producto_cve,
+		    prd.producto_ds         as producto, 
+		    detPart.dtp_caducidad   as caducidad,
+		    prd.numero_prod         as codigo,
+		    detPart.dtp_sap         as sap,
+		    detPart.dtp_po          as po,
+		    cam.camara_cve          as cam_cve,
+		    cam.camara_abrev        as camara,
+		    plt.planta_cve          as plt_cve,
+		    plt.planta_abrev        as planta,
+		    detPart.dtp_lote        as lote,
+			COALESCE(parEnt.valorMercancia,0) as valor,
+			(parEnt.valorMercancia / parEnt.CANTIDAD_TOTAL) as base_cargo,
+			( cantidad * parEnt.valorMercancia / parEnt.CANTIDAD_TOTAL)  as resultado,
+		    pos.cod_posicion
+		from partida parEnt
+		inner join (
+			select *
+			from constancia_de_deposito cdd
+			WHERE cdd.status = 1
+				and (cdd.cte_cve = $P{idCliente} OR $P{idCliente} IS NULL)
+				AND cdd.fecha_ingreso <= $P{fecha}
+		) cddEnt on parEnt.folio = cddEnt.folio
+		inner join unidad_de_producto udp on udp.unidad_de_producto_cve = parEnt.unidad_de_producto_cve
+		inner join producto prd on prd.producto_cve = udp.producto_cve
+		inner join unidad_de_manejo udm on udm.unidad_de_manejo_cve = udp.unidad_de_manejo_cve
+		inner join camara cam on cam.camara_cve = parEnt.camara_cve
+		inner join planta plt on plt.planta_cve = cam.planta_cve
+		inner join cliente cli on cli.cte_cve = cddEnt.cte_cve
+		inner join 
+		(
+		    select tdp.* from detalle_partida tdp
+		    inner join (
+				select
+					dp.partida_cve,
+		            max(dp.det_part_cve) as det_part_cve
+				from detalle_partida dp
+				
+				group by dp.partida_cve
+		    ) tmdp on tdp.partida_cve = tmdp.partida_cve and tdp.det_part_cve = tmdp.det_part_cve
+		) detPart on detPart.partida_cve = parEnt.partida_cve
+		left outer join posicion_partida pp on parEnt.partida_cve = pp.ID_PARTIDA
+		left outer join posicion pos on pp.ID_POSICION = pos.id_posicion
+		left outer join (
+			select 
+		    	dcs.partida_cve,
+		    	sum(COALESCE(dcs.peso,0)) as peso,
+		    	sum(COALESCE(dcs.cantidad,0)) as cantidad
+		    from constancia_salida cSal
+		    inner join detalle_constancia_salida dcs on dcs.constancia_cve = cSal.id
+		    WHERE cSal.status = 1 
+		    	AND cSal.fecha <= $P{fecha}
+		    group by
+				dcs.PARTIDA_CVE
+		) salidas ON parEnt.partida_cve = salidas.partida_cve
+		where
+			cddEnt.status <> 4
+			and parEnt.no_tarimas < 1.000
+			AND (plt.planta_cve  = $P{idPlanta} OR $P{idPlanta} IS NULL )
+	
+	) t2
+	group by
+		folio,
+		cliente,
+		numero_cte,
+		folio_cliente,
+		ingreso,
+		unidad_cobro,
+		producto_cve,
+		producto,
+		caducidad,
+		codigo,
+		sap,
+		po,
+		cam_cve,
+		camara,
+		plt_cve,
+		planta,
+		lote,
+		valor,
+		cod_posicion
+		
+		
+) I
+WHERE I.cantidad > 0
+ORDER BY cliente,numero_cte, producto]]>
+	</queryString>
+	<field name="folio" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="folio"/>
+		<property name="com.jaspersoft.studio.field.label" value="folio"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CONSTANCIA_DE_DEPOSITO"/>
+	</field>
+	<field name="cliente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="cliente"/>
+		<property name="com.jaspersoft.studio.field.label" value="cliente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CLIENTE"/>
+	</field>
+	<field name="numero_cte" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="numero_cte"/>
+		<property name="com.jaspersoft.studio.field.label" value="numero_cte"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CLIENTE"/>
+	</field>
+	<field name="folio_cliente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="folio_cliente"/>
+		<property name="com.jaspersoft.studio.field.label" value="folio_cliente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CONSTANCIA_DE_DEPOSITO"/>
+	</field>
+	<field name="ingreso" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="ingreso"/>
+		<property name="com.jaspersoft.studio.field.label" value="ingreso"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CONSTANCIA_DE_DEPOSITO"/>
+	</field>
+	<field name="cantidad" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="cantidad"/>
+		<property name="com.jaspersoft.studio.field.label" value="cantidad"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="#tmpResultado"/>
+	</field>
+	<field name="unidad_cobro" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="unidad_cobro"/>
+		<property name="com.jaspersoft.studio.field.label" value="unidad_cobro"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="UNIDAD_DE_MANEJO"/>
+	</field>
+	<field name="tarima" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="tarima"/>
+		<property name="com.jaspersoft.studio.field.label" value="tarima"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="#tmpResultado"/>
+	</field>
+	<field name="peso" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="peso"/>
+		<property name="com.jaspersoft.studio.field.label" value="peso"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="#tmpResultado"/>
+	</field>
+	<field name="producto_cve" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="producto_cve"/>
+		<property name="com.jaspersoft.studio.field.label" value="producto_cve"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="PRODUCTO"/>
+	</field>
+	<field name="producto" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="producto"/>
+		<property name="com.jaspersoft.studio.field.label" value="producto"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="PRODUCTO"/>
+	</field>
+	<field name="caducidad" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="caducidad"/>
+		<property name="com.jaspersoft.studio.field.label" value="caducidad"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="DETALLE_PARTIDA"/>
+	</field>
+	<field name="codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="codigo"/>
+		<property name="com.jaspersoft.studio.field.label" value="codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="PRODUCTO"/>
+	</field>
+	<field name="sap" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sap"/>
+		<property name="com.jaspersoft.studio.field.label" value="sap"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="DETALLE_PARTIDA"/>
+	</field>
+	<field name="po" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="po"/>
+		<property name="com.jaspersoft.studio.field.label" value="po"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="DETALLE_PARTIDA"/>
+	</field>
+	<field name="cam_cve" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="cam_cve"/>
+		<property name="com.jaspersoft.studio.field.label" value="cam_cve"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CAMARA"/>
+	</field>
+	<field name="camara" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="camara"/>
+		<property name="com.jaspersoft.studio.field.label" value="camara"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="CAMARA"/>
+	</field>
+	<field name="plt_cve" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="plt_cve"/>
+		<property name="com.jaspersoft.studio.field.label" value="plt_cve"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="PLANTA"/>
+	</field>
+	<field name="planta" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="planta"/>
+		<property name="com.jaspersoft.studio.field.label" value="planta"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="PLANTA"/>
+	</field>
+	<field name="lote" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="lote"/>
+		<property name="com.jaspersoft.studio.field.label" value="lote"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="DETALLE_PARTIDA"/>
+	</field>
+	<field name="valor" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="valor"/>
+		<property name="com.jaspersoft.studio.field.label" value="valor"/>
+	</field>
+	<field name="base_cargo" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="base_cargo"/>
+		<property name="com.jaspersoft.studio.field.label" value="base_cargo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="#tmpResultado"/>
+	</field>
+	<field name="resultado" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="resultado"/>
+		<property name="com.jaspersoft.studio.field.label" value="resultado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="#tmpResultado"/>
+	</field>
+	<field name="cod_posicion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="cod_posicion"/>
+		<property name="com.jaspersoft.studio.field.label" value="cod_posicion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="posicion"/>
+	</field>
+	<variable name="cantidadProducto" class="java.math.BigDecimal" resetType="Group" resetGroup="ProductoGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad}]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal("0.00")]]></initialValueExpression>
+	</variable>
+	<variable name="pesoProducto" class="java.math.BigDecimal" resetType="Group" resetGroup="ProductoGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{peso}]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal("0.0")]]></initialValueExpression>
+	</variable>
+	<group name="ProductoGroup">
+		<groupExpression><![CDATA[$F{producto}]]></groupExpression>
+		<groupHeader>
+			<band height="13">
+				<textField>
+					<reportElement x="0" y="0" width="752" height="13" uuid="1fc2bada-43e0-46a2-8219-99eb7de443af">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<bottomPen lineWidth="2.0" lineColor="#2196F3"/>
+					</box>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="14">
+				<textField pattern="#,##0.###;#,##0">
+					<reportElement x="396" y="0" width="80" height="13" uuid="8414ff21-6a38-4b53-8365-92d858d75a6c">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{pesoProducto}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="476" y="0" width="70" height="13" uuid="f7e874ab-b7d3-4fd2-844b-0b1d321a5e7d">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[piezas]]></text>
+				</staticText>
+				<textField pattern="#,##0.###;#,##0.###">
+					<reportElement x="546" y="0" width="98" height="13" uuid="6c1a1c2e-7ba2-48ae-b8a9-2754d705f96a">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{cantidadProducto}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="75" splitType="Stretch">
+			<staticText>
+				<reportElement x="143" y="0" width="466" height="21" forecolor="#2196F3" uuid="c16b6d91-db69-4142-9c43-2b857dcbace5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE INVENTARIO]]></text>
+			</staticText>
+			<image>
+				<reportElement x="0" y="0" width="170" height="62" uuid="2724158f-4062-4add-8439-7b4b150a2081">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA[$P{imagen}]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="62" width="48" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="14944891-68f9-48c2-bcf5-3ac3aee0cdd5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Ingreso]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="48" y="62" width="46" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="7a789e35-acad-47fd-92b5-7987f5e3d0d2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Folio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="94" y="62" width="62" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="9d79b8ce-c01b-49b8-a817-abcd0d1acf8d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Caducidad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="156" y="62" width="80" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="b2b279c2-8003-4476-93a3-896ffccee879"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Código]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="236" y="62" width="80" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="8f3516aa-4c4f-44fe-96a8-a10b67bf9048">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Lote]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="316" y="62" width="80" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="9b7abb55-1f1f-42f7-b85e-ac983ef0a441"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Tarima]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="396" y="62" width="80" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="6a4c0638-2756-424f-8d47-f225c6cfa660">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Cantidad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="476" y="62" width="70" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="e8046895-5662-40ae-a6b1-38d4f7d1abff">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Unidad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="546" y="62" width="98" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="b8e3450c-5e07-49a0-9036-08b33ac1af69"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Peso (kg)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="644" y="62" width="108" height="13" forecolor="#FFFFFF" backcolor="#2196F3" uuid="b3a79524-b0a0-4574-bcc7-4f8208048fda">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[Planta]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="342" y="21" width="29" height="13" uuid="fef554b8-c788-4ded-b81e-6c0dc6515608">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[Al]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="371" y="21" width="100" height="13" uuid="a50d5e73-de64-4bcc-8faa-a7b19a9d8dba"/>
+				<textFieldExpression><![CDATA[$P{fecha}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="143" y="34" width="466" height="16" uuid="ed22ff75-c898-4797-886c-532fff86eea3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="0" y="0" width="48" height="14" uuid="2ae5203c-270f-4b10-9340-32fb87a2900d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ingreso}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="48" y="0" width="46" height="14" uuid="77a43aac-539c-4c76-a9c0-4b3d8cf2971f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_cliente}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="94" y="0" width="62" height="14" uuid="0ecfe7d4-4c89-490c-bdad-51dd3e4b874c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{caducidad}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="156" y="0" width="80" height="14" uuid="7b6178de-9a33-4e6e-85de-f675362ae894"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="236" y="0" width="80" height="14" uuid="df85dc97-f25c-4849-b32f-a7fc1704b037"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lote}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="316" y="0" width="80" height="14" uuid="0f3597e4-59d7-4ce2-9094-41f0e2e9e768"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tarima}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.###;#,##0">
+				<reportElement x="396" y="0" width="80" height="14" uuid="b8915c70-a539-4c9d-aaef-db77620ed250"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{peso}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="476" y="0" width="70" height="14" uuid="7f591ffd-ac2e-4929-b554-6f3cfc0d15d9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unidad_cobro}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.###;#,##0.###">
+				<reportElement x="546" y="0" width="98" height="14" uuid="99e45777-16fd-42df-99a8-1cdaf3935ed0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="644" y="0" width="108" height="14" uuid="9c49d49a-8fa2-43e8-badd-5caa146d329e">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{planta}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</summary>
+</jasperReport>

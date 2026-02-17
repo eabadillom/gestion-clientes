@@ -1,0 +1,42 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:po="http://primefaces.org/omega">
+    <h:form id="menuform">
+        <div class="sidebar">
+            <div class="sidebar-scroll-content">
+                <div class="logo">
+                    <p:link outcome="/inventario">
+                        <p:graphicImage name="images/logo.png" library="layouts" width="113"/>
+                    </p:link>
+                </div>
+                <div class="profile">
+                    <a id="profile-button" href="#">
+                        <span class="username"><p:outputLabel value="#{sidebarBean.cliente.nombre}"/></span>
+                    </a>
+                    
+                </div>
+                <div class="menu">
+                    <po:menu widgetVar="OmegaMenuWidget">
+                        <p:submenu id="reportes" label="Reportes" icon="pi pi-book">
+                            <p:menuitem id="om_chart" value="Inventario" icon="pi pi-book" outcome="/inventario"/>
+                            <p:menuitem id="om_media" value="Entrada" icon="pi pi-directions" outcome="/entrada"/>
+                            <p:menuitem id="om_misc" value="Salida" icon="pi pi-directions-alt" outcome="/salida"/>
+                            <p:menuitem id="om_rFact" value="Facturacion" icon="pi pi-chart-line" outcome="/repFacturacion"/>
+                        </p:submenu>
+                        <!-- <p:menuitem id="entradas" value="Emisión de Entradas" icon="pi pi-send" outcome="/emisionentradas"/> -->
+                        <p:menuitem id="salidas" value="Emisión de Salidas" icon="pi pi-send" outcome="/emisionsalidas"/>
+                         <p:menuitem id="estadocuenta" value="Estado de Cuenta" icon="pi pi-wallet" outcome="/EstadoCuenta"/>
+                        <p:submenu id="usuario" label="Usuario" icon="pi pi-user">
+                        	<p:menuitem id="usr_pwd" value="Cambiar contraseña" icon="pi pi-key" outcome="password" />
+                        </p:submenu>
+                        <p:menuitem value="Salir" icon="pi pi-sign-out" actionListener="#{sidebarBean.logout}"/>
+                    </po:menu>
+                </div>
+            </div>
+        </div>
+    </h:form>
+</ui:composition>

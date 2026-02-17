@@ -1,0 +1,215 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Reporte de Facturacion</ui:define>
+	<ui:define name="head">
+		<h:outputScript library="js" name="calendar_es.js" />
+		<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
+	</ui:define>
+
+	<ui:define name="content">
+	<h:form id="form" target="_blank" enctype="multipart/form-data">
+	<p:growl id="messages"  showDetail="true" />
+		
+			<div class="p-grid ui-fluid">
+				<div class="p-col-12 p-md-12">
+					<div class="card">
+						
+						<p:fieldset legend="Periodo">	
+						<p:divider>
+							<span class="ui-float-label">
+                        <p:datePicker id="fechaI" value="#{repfacturacion.fecha_ini}" maxdate="#{repfacturacion.maxDate}" process="@this" showIcon="true">
+                        	<p:ajax process="@this"></p:ajax>
+                        </p:datePicker>
+                        <p:outputLabel for="fechaI" value="Del:" />
+                    		</span>
+                    		</p:divider>
+                    		
+                    		<p:divider>
+						<span class="ui-float-label">
+                        <p:datePicker id="fechaF" value="#{repfacturacion.fecha_fin}" maxdate="#{repfacturacion.maxDate}" process="@this" showIcon="true">
+							<p:ajax process="@this"></p:ajax>
+                        </p:datePicker>
+                        <p:outputLabel for="fechaF" value="al:" />
+                    	</span>
+						</p:divider>	
+							
+					<div class="p-col-2 p-md-2">
+						<p:commandButton id="bottomConsulta" update="dt-Fac" value="Consultar" styleClass="ui-button-info" icon="pi pi-search" action="#{repfacturacion.ConsultaFactura()}" process="@this" />
+					</div>
+					
+					</p:fieldset>
+					</div>
+					<style type="text/css">
+
+							.green {
+								background-color: #a5e594 !important;
+								background-image: none !important;
+								color: #11971f !important;
+								padding: 15px;
+								border-radius: 5px 5px 5px 5px;
+								font-weight: bold;
+							}
+							
+							.red {
+								background-color: #e99989 !important;
+								background-image: none !important;
+								color:  #922b21 !important;
+								padding: 5px;
+								border-radius: 5px 5px 5px 5px;
+								font-weight: bold;
+							}
+							
+							.yellow {
+								background-color: #efe370 !important;
+								background-image: none !important;
+								color: #bb7b1c !important;
+								padding: 5px;
+								border-radius: 5px 5px 5px 5px;
+								font-weight: bold;
+							}
+							
+							.gray{
+								background-color: #d4d5d0 !important;
+								background-image: none !important;
+								color: #85929e !important;
+								padding: 5px;
+								border-radius: 5px 5px 5px 5px;
+								font-weight: bold;
+							}
+
+						</style>
+					<p:dataTable id="dt-Fac" widgetVar="dtSerieFac" var="lista" value="#{repfacturacion.listaFactura}" rowKey="#{lista.id}"  reflow="true" 
+				selection="#{repfacturacion.facturaSelect}" rowSelectMode="single" paginator="true" rows="10" paginatorPosition="bottom" >
+
+				<p:column headerText="Factura" width="3rem" style="text-align:center">
+					<p:commandLink value="#{lista.nomSerie}-#{lista.numero}"  oncomplete="PF('dg-factura').show()" >
+					 <f:setPropertyActionListener value="#{lista}" target="#{repfacturacion.facturaSelect}"></f:setPropertyActionListener>
+					</p:commandLink>
+				</p:column>
+				<p:column headerText="Fecha" width="3rem" style="text-align:center" >
+					<h:outputText value="#{lista.fecha}" >
+					<f:convertDateTime pattern="dd/MM/yyyy"></f:convertDateTime>
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Subtotal" width="3rem" style="text-align:right;">
+					<h:outputText value="#{lista.subtotal}">
+						<f:convertNumber pattern="$##,###.00" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="IVA" width="3rem" style="text-align:right;">
+					<h:outputText value="#{lista.iva}">
+						<f:convertNumber pattern="$##,###.00" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Total" width="3rem" style="text-align:right;">
+					<h:outputText value="#{lista.total}" >
+						<f:convertNumber pattern="$##,###.00" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Status" width="4rem" style="text-align:center"  >
+					<h:outputText value="#{lista.status.nombre}" styleClass="#{lista.status.id le 1 ? 'yellow' : lista.status.id le 2 ? 'red' : lista.status.id le 3 ? 'green' : lista.status.id le 4 ? 'gray' : null}" /> 
+				</p:column>
+				<p:column headerText="Timbrado" width="4rem" style="text-align:center">
+					<h:outputText value="#{(empty lista.uuid) ? '--' : 'SI'}"/>
+				</p:column>
+				<p:column width="3rem" style="text-align: center;">
+					<p:commandButton id="btnCFDI-PDF" rendered="#{not empty lista.uuid}" actionListener="#{repfacturacion.cargaFactura(lista)}" styleClass="ui-button-raised ui-button-secondary" oncomplete="PF('dg-cfdi').show()" icon="pi pi-file-pdf" style="width: 4rem; height: 2.5rem;">
+						<f:setPropertyActionListener value="#{lista}" target="#{repfacturacion.facturaSelect}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+				<p:column width="3rem" style="text-align: center;">
+					<p:commandButton id="btnCFDI-XML" rendered="#{not empty lista.uuid}" actionListener="#{repfacturacion.cargaFactura(lista)}" styleClass="ui-button-raised ui-button-secondary" oncomplete="PF('dg-cfdiXML').show()" style='width: 4rem; height: 2.5rem;' value="XML">
+						<f:setPropertyActionListener value="#{lista}" target="#{repfacturacion.facturaSelect}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+             <p:columnGroup type="footer" >
+                <p:row>
+                    <p:column colspan="2" style="text-align:left"  />
+                    <p:column>
+                        <f:facet name="footer">
+						<div align="right">
+							<p:outputLabel value="#{repfacturacion.subtotal}">
+								<f:convertNumber pattern="$##,###.00" />
+							</p:outputLabel>
+						</div>
+					</f:facet>
+                    </p:column>
+                    <p:column >
+                         <f:facet name="footer">
+						<div align="right">
+							<h:outputText value="#{repfacturacion.iva}" >
+								<f:convertNumber pattern="$##,###.00" />
+							</h:outputText>
+						</div>
+					</f:facet>
+                    </p:column>
+                    <p:column>
+                         <f:facet name="footer">
+						<div align="right">
+							<h:outputText value="#{repfacturacion.total}">
+								<f:convertNumber pattern="$##,###.00" />
+							</h:outputText>
+						</div>
+					</f:facet>
+                    </p:column>
+					<p:column colspan="4">
+					</p:column>
+                </p:row>
+            </p:columnGroup>
+            
+							
+			</p:dataTable>	
+					
+				</div>
+			</div>
+		</h:form>
+		
+		<p:commandButton id="btnlistaF" styleClass="ui-button-raised ui-button-secondary" oncomplete="PF('dg-listadoFacturas').show()" style='width:250px; height:40px' value="Descargar listado de facturas PDF">
+					<f:setPropertyActionListener value="#{lista}" target="#{repfacturacion.facturaSelect}"></f:setPropertyActionListener>
+					</p:commandButton>
+		
+		<p:dialog header="Descargar pre-factura" showEffect="fade" modal="true" widgetVar="dg-factura" responsive="true">
+			<h:form enctype="multipart/form-data">
+				<p:outputPanel class="ui-fluid">
+						<p:commandButton value="Descargar PDF" process="@this " ajax="false" actionListener="#{repfacturacion.generateReport()}" 
+													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
+				</p:outputPanel>
+				    </h:form>
+		</p:dialog>
+
+		<p:dialog header="Descargar CFDI (PDF)" showEffect="fade" modal="true" widgetVar="dg-cfdi" responsive="true">
+			<h:form enctype="multipart/form-data">
+				<p:outputPanel class="ui-fluid">
+						<p:commandButton value="Descargar PDF" process="@this " ajax="false" actionListener="#{repfacturacion.descargaCFDIPDF}" 
+													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
+				   
+				</p:outputPanel>
+				    </h:form>
+		</p:dialog>
+		
+		<p:dialog header="Descargar CFDI (XML)" showEffect="fade" modal="true" widgetVar="dg-cfdiXML" responsive="true">
+			<h:form enctype="multipart/form-data">
+				<p:outputPanel class="ui-fluid">
+						<p:commandButton value="Descargar XML" process="@this " ajax="false" actionListener="#{repfacturacion.descargaCFDIXML}" 
+													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-code" iconPos="right"/>
+				   
+				</p:outputPanel>
+				    </h:form>
+		</p:dialog>
+		
+		<p:dialog header="Descargar lista de facturas" showEffect="fade" modal="true" widgetVar="dg-listadoFacturas" responsive="true">
+			<h:form enctype="multipart/form-data">
+				<p:outputPanel class="ui-fluid">
+						<p:commandButton value="Descargar listado" process="@this " ajax="false" actionListener="#{repfacturacion.listadoFacturasPDF}" 
+													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
+				   
+				</p:outputPanel>
+				    </h:form>
+		</p:dialog>
+		
+	</ui:define>
+</ui:composition>

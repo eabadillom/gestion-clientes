@@ -1,0 +1,33 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui">
+    <div class="topbar">
+        <div id="topbar-left">
+            <a id="omega-menu-button" href="#">
+                <span class="pi pi-bars"/>
+            </a>
+
+            <span class="topbar-title">
+            	<ui:insert name="title"/>
+           	</span>
+        </div>
+        <a id="options-menu-button" href="#">
+            <span class="pi pi-ellipsis-h"/>
+        </a>
+        <span>
+        	<p:outputLabel value="#{sidebarBean.clienteContacto.contacto.nombre} #{sidebarBean.clienteContacto.contacto.apellido1} #{sidebarBean.clienteContacto.contacto.apellido2}" />
+        </span>
+        <div id="topbar-icons">
+			<p:commandButton value="Salir" icon="pi pi-fw pi-sign-out" action="#{mbLogin.logout}" process="@this"/>
+            <!-- <a href="login.xhtml">
+                <span class="topbar-item-text">
+               	</span>
+                <span class="topbar-icon pi pi-sign-out"/>
+            </a> -->
+        </div>
+    </div>
+    
+</ui:composition>
