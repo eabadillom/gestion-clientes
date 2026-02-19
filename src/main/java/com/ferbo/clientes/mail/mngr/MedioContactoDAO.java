@@ -141,6 +141,7 @@ public class MedioContactoDAO  extends DAO{
 			}
 			
 		} finally {
+                        close(rs);
 			close(ps);
 		}
 		return rows;

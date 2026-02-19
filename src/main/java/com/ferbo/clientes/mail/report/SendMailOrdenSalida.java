@@ -166,7 +166,6 @@ public class SendMailOrdenSalida extends Thread {
 
 		} catch (Exception ex) {
 			log.error("Problema general para crear el formato de reporte de orden de salida...", ex);
-			ex.printStackTrace();
 		}
 	}
 
@@ -306,10 +305,8 @@ public class SendMailOrdenSalida extends Thread {
 			mailUtil.sendJndiMailMessage(MailHelper.JNDI_MAIL_INVENTARIO);
 
 		} catch (JRException ex) {
-			ex.printStackTrace();
 			log.error("Problema para generar la orden de salida...", ex);
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			log.error("Problema para enviar el correo electronico para la orden de salida " + folio, ex);
 		}
 

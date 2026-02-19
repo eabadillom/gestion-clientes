@@ -420,6 +420,7 @@ public class MbEmisionSalidas implements Serializable {
 			severity = FacesMessage.SEVERITY_INFO;
 			
 		} catch(ClientesException ex) {
+                        log.error("Problema con la emisión de salidas...", ex);
 			Conexion.rollback(conn);
 			mensaje = ex.getMessage();
 			severity = FacesMessage.SEVERITY_WARN;
