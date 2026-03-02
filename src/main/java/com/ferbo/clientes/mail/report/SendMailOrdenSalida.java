@@ -16,6 +16,7 @@ import java.util.TimeZone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ferbo.clientes.business.SalidasBL;
 import com.ferbo.clientes.mail.beans.Adjunto;
 import com.ferbo.clientes.mail.beans.Camara;
 import com.ferbo.clientes.mail.beans.ClienteContacto;
@@ -25,7 +26,6 @@ import com.ferbo.clientes.mail.beans.Mail;
 import com.ferbo.clientes.mail.beans.MedioContacto;
 import com.ferbo.clientes.mail.beans.Partida;
 import com.ferbo.clientes.mail.beans.Planta;
-import com.ferbo.clientes.mail.beans.PreSalida;
 import com.ferbo.clientes.mail.beans.Usuario;
 import com.ferbo.clientes.mail.business.ContactosBL;
 import com.ferbo.clientes.mail.mngr.CamaraDAO;
@@ -34,8 +34,9 @@ import com.ferbo.clientes.mail.mngr.MailDAO;
 import com.ferbo.clientes.mail.mngr.MedioContactoDAO;
 import com.ferbo.clientes.mail.mngr.PartidaDAO;
 import com.ferbo.clientes.mail.mngr.PlantaDAO;
-import com.ferbo.clientes.mail.mngr.PreSalidaDAO;
 import com.ferbo.clientes.mail.mngr.UsuarioDAO;
+import com.ferbo.clientes.model.Salida;
+import com.ferbo.clientes.model.SalidaDetalle;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.MailHelper;
@@ -110,7 +111,7 @@ public class SendMailOrdenSalida extends Thread {
 	}
 
 	public void exec(String folio) {
-		PreSalida[] detOrden = null;
+		Salida salida = null;
 		List<Integer> alPlantas = null;
 		Boolean isHorarioNoLaboral = null;
 		Date fechaSalida = null;
@@ -121,30 +122,32 @@ public class SendMailOrdenSalida extends Thread {
 		Integer diaSalida = null;
 
 		try {
-			detOrden = PreSalidaDAO.get(conn, folio);
-			alPlantas = new ArrayList<Integer>();
-			for (PreSalida orden : detOrden) {
+                        salida = SalidasBL.consultarSalida(conn, folio);
+                        alPlantas = new ArrayList<Integer>();
+                        
+                        if (horaSalida == null)
+                            horaSalida = new Date(salida.getHoraSalida().getTime());
 
-				if (horaSalida == null)
-					horaSalida = new Date(orden.getHoraSalida().getTime());
-				
-				if(fechaSalida == null)
-					fechaSalida = new Date(orden.getFechaSalida().getTime());
+                        if(fechaSalida == null)
+                            fechaSalida = new Date(salida.getFechaSalida().getTime());
+                                
+                        List<SalidaDetalle> listSalidaDetalle = SalidasBL.consultarSalidasDetalles(conn, salida);
+                        
+                        for(SalidaDetalle detSalida : listSalidaDetalle){
+                            Partida partida = PartidaDAO.get(conn, detSalida.getIdPartida());
+                            ConstanciaDeposito deposito = ConstanciaDepositoDAO.getConstanciaDeposito(conn, partida.getFolio());
 
-				Partida partida = PartidaDAO.get(conn, orden.getIdPartida());
-				ConstanciaDeposito deposito = ConstanciaDepositoDAO.getConstanciaDeposito(conn, partida.getFolio());
+                            if (idCliente == null)
+                                idCliente = new Integer(deposito.getIdCliente());
 
-				if (idCliente == null)
-					idCliente = new Integer(deposito.getIdCliente());
+                            Camara camara = CamaraDAO.getCamara(conn, partida.getIdCamara());
+                            if (alPlantas.contains(camara.getPlanta())) {
+                                    continue;
+                            }
 
-				Camara camara = CamaraDAO.getCamara(conn, partida.getIdCamara());
-				if (alPlantas.contains(camara.getPlanta())) {
-					continue;
-				}
-
-				alPlantas.add(new Integer(camara.getPlanta()));
-			}
-			
+                            alPlantas.add(new Integer(camara.getPlanta()));
+                        }
+                        
 			diaSalida = DateUtils.getDiaSemana(fechaSalida);
 			horaLimite = new Date(horaSalida.getTime());
 			
@@ -171,7 +174,7 @@ public class SendMailOrdenSalida extends Thread {
 
 	private void process(Connection conn, String folio, List<Integer> alPlantas, Boolean isHorarioEspecial) {
 		for (Integer idPlanta : alPlantas) {
-			this.processReport(conn, folio, idPlanta, isHorarioEspecial);
+                    	this.processReport(conn, folio, idPlanta, isHorarioEspecial);
 		}
 	}
 
