@@ -112,6 +112,12 @@ public class MbSalida implements Serializable {
 		this.fechaFin = fechaFin;
 	}
 
-	
+        public StreamedContent getFile() {
+            return file;
+        }
+
+        public void setFile(StreamedContent file) {
+            this.file = file;
+        }
 
 }
