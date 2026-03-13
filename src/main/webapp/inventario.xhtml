@@ -30,7 +30,9 @@
 								<p:commandButton value="Consultar" process="@this" update=":dia"
 									rendered="true" ajax="false"
 									actionListener="#{mbInventario.generateReport}"
-									styleClass="p-mr-2 p-mb-2" icon="pi pi-check" iconPos="right" />
+                                                                        styleClass="p-mr-2 p-mb-2" icon="pi pi-check" iconPos="right" >
+                                                                    <p:fileDownload value="#{mbInventario.file}" />
+                                                                </p:commandButton>
 							</div>
 						</div>
 					</div>
