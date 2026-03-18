@@ -69,8 +69,10 @@ public class ChangePasswordBean implements Serializable {
 		int rows = -1;
 		
 		try {
+                        conn = Conexion.getConnection();
+                        
 			cteContactoManager = new ClienteContactoDAO();
-			cteContacto = cteContactoManager.get(this.cteContacto.getUsuario());
+			cteContacto = cteContactoManager.get(conn, this.cteContacto.getUsuario());
 			
 			if(cteContacto.getUsuario().equals(this.cteContacto.getUsuario()) == false)
 				throw new ClientesException("El usuario indicado es incorrecto.");
@@ -93,8 +95,6 @@ public class ChangePasswordBean implements Serializable {
 			newPasswordSHA512 = security.getSHA512(this.newPassword);
 			
 			cteContacto.setPassword(newPasswordSHA512);
-			
-			conn = Conexion.getConnection();
 			
 			rows = cteContactoManager.update(conn, cteContacto);
 			conn.commit();

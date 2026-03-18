@@ -64,11 +64,11 @@ public class MbLogin implements Serializable {
     	try {
                 faceContext = FacesContext.getCurrentInstance();
     		log.info("Autenticando al usuario {}", this.clienteContacto.getUsuario());
-    		conn = Conexion.dsConexion();
+    		conn = Conexion.getConnection();
     		clienteContactoManager = new ClienteContactoDAO();
     		clienteManager = new ClienteDAO();
         	
-        	usuario = clienteContactoManager.get(clienteContacto.getUsuario());
+        	usuario = clienteContactoManager.get(conn, clienteContacto.getUsuario());
         	
         	if(usuario == null) {
         		this.espera();
