@@ -294,7 +294,7 @@ public class MbEmisionEntradas implements Serializable {
 		} catch (Exception e) {
 			severity = FacesMessage.SEVERITY_ERROR;
 			mensaje = "Error al agregar producto";
-			log.info("Error al clonar ingreso_producto"+e);
+			log.info("Error al clonar ingreso_producto...", e);
 		}finally {
 			Conexion.close(conn);
 			message = new FacesMessage(severity,"Registro producto",mensaje);
@@ -326,7 +326,7 @@ public class MbEmisionEntradas implements Serializable {
 		}catch (Exception e) {
 			severity = FacesMessage.SEVERITY_ERROR;
 			mensaje = "El producto no se pudo eliminar";
-			log.info("Error al eliminar producto" + e.getMessage());
+			log.info("Error al eliminar producto...", e.getMessage());
 		}finally {
 			message = new FacesMessage(severity,"Eliminacion de producto",mensaje);
 			FacesContext.getCurrentInstance().addMessage(null, message);
@@ -405,7 +405,7 @@ public class MbEmisionEntradas implements Serializable {
 			severity = FacesMessage.SEVERITY_ERROR;
 			mensaje = "El servicio no se registro";
 			
-			log.info("Error al agregar el servicio");
+			log.info("Error al agregar el servicio...", e);
 			
 		}finally {
 			message = new FacesMessage(severity, "Servicio", mensaje);
@@ -434,7 +434,7 @@ public class MbEmisionEntradas implements Serializable {
 			severity = FacesMessage.SEVERITY_ERROR;
 			mensaje = "Servicio no eliminado";
 			
-			log.info("Error al eliminar servicio");
+			log.info("Error al eliminar servicio...", e);
 		}finally {
 			
 			message = new FacesMessage(severity, "Servicio", mensaje);
@@ -481,6 +481,7 @@ public class MbEmisionEntradas implements Serializable {
 			mensaje = "El archivo se cargó correctamente.";
 			severity = FacesMessage.SEVERITY_INFO;
 		} catch(ClientesException ex) {
+                        log.error("Problema para subir el archivo...", ex);
 			mensaje = ex.getMessage();
 			severity = FacesMessage.SEVERITY_WARN;
 		} catch (Exception ex) {
@@ -576,10 +577,12 @@ public class MbEmisionEntradas implements Serializable {
 			mensaje = "La entrada se registro correctamente";
 			
 		} catch(ClientesException ex) {
+                        log.error("La entrada no se pudo guardar...", ex);
 			Conexion.rollback(conn);
 			severity = FacesMessage.SEVERITY_WARN;
 			mensaje = ex.getMessage();
 		} catch (SQLException e) {
+                        log.error("Problema para guardar en la base de datos...", e);
 			Conexion.rollback(conn);
 			severity = FacesMessage.SEVERITY_ERROR;
 			mensaje = "La entrada no se pudo registrar Correctamente";

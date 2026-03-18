@@ -105,8 +105,7 @@ public class MBEstadoCuenta implements Serializable {
 					.build();
 		
 		} catch (SQLException e) {
-			
-			e.printStackTrace();
+			log.info("Problema en base de datos...", e);
 		}finally {
 			Conexion.close(conn);
 		}
@@ -125,6 +124,7 @@ public class MBEstadoCuenta implements Serializable {
 		
 		Date finMes;
 		Connection conn = null;
+                mesActual = DateUtils.getFirstDayOfMonth(mesActual);
 		finMes = DateUtils.getLastDayOfMonth(mesActual);
 		try {
 			conn = Conexion.getConnection();
@@ -157,6 +157,7 @@ public class MBEstadoCuenta implements Serializable {
 			message = new FacesMessage(mensaje);
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		} finally {
+                        Conexion.close(conn);
 			PrimeFaces.current().ajax().update("form:messages");
 		}
 	}

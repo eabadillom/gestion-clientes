@@ -109,10 +109,9 @@ public class EmisionSalidasDAO {
 		return bean;
 	}
 	
-	public List<Inventario> getInventario(Cliente cliente, Integer idPlanta) {
+	public List<Inventario> getInventario(Connection conn, Cliente cliente, Integer idPlanta) {
 		List<Inventario> beans = null;
 		Inventario bean = null;
-		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int idx = 1;
@@ -134,7 +133,6 @@ public class EmisionSalidasDAO {
 		} finally {
 			Conexion.close(rs);
 			Conexion.close(ps);
-			Conexion.close(conn);
 		}
 		return beans;
 	}	

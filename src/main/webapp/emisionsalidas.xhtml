@@ -5,10 +5,7 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/template.xhtml">
 	<ui:define name="title">Emisión de Salidas</ui:define>
-	<ui:define name="head">
-		<h:outputScript src="https://code.jquery.com/jquery-3.4.1.min.js"
-			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-			crossorigin="anonymous"></h:outputScript>
+        <ui:define name="head">
 		<h:outputScript library="js" name="calendar_es.js" />
 		<h:outputScript library="js" name="funciones.js" />
 		<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
@@ -25,9 +22,9 @@
 					</div>
 					<div class="p-col-3 p-md-3">
 						<p:outputLabel for="plantas" value="Planta" />
-						<p:selectOneMenu id="plantas" value="#{mbEmisionSalidas.idPlanta}" filter="true" filterMatchMode="startsWith">
-							<f:selectItem itemLabel="Selecione la planta" noSelectionOption="true" />
-							<f:selectItems var="planta" value="#{mbEmisionSalidas.listaPlantas}" itemLabel="#{planta.descripcion}" itemValue="#{planta.id}" />
+                                                <p:selectOneMenu id="plantas" value="#{mbEmisionSalidas.plantaSelected}" converter="entityConverter" filter="true" filterMatchMode="startsWith">
+							<f:selectItem itemLabel="--Selecione la planta--" noSelectionOption="true" />
+							<f:selectItems var="planta" value="#{mbEmisionSalidas.listaPlantas}" itemLabel="#{planta.descripcion}" itemValue="#{planta}" />
 							<p:ajax listener="#{mbEmisionSalidas.muestraInventario}" update="dt-products folioSalida" />
 						</p:selectOneMenu>
 					</div>
@@ -40,14 +37,14 @@
 					<div class="p-col-6 p-md-6">
 						<p:outputLabel for="nombreOperador" value="Nombre del Operador" />
 								<p:inputText id="nombreOperador"
-									value="#{mbEmisionSalidas.nombreOperador}" required="true"
+                                                                        value="#{mbEmisionSalidas.salida.nombreTransportista}" required="true"
 									requiredMessage="Nombre del Operador requerido" />
 								<p:message for="nombreOperador" />
 					</div>
 					<div class="p-col-3 p-md-3">
 						<p:outputLabel for="placasUnidad" value="Placas Unidad" />
 								<p:inputText id="placasUnidad"
-									value="#{mbEmisionSalidas.placas}" required="true"
+                                                                        value="#{mbEmisionSalidas.salida.placasTransporte}" required="true"
 									requiredMessage="Placas de Unidad requerida" />
 								<p:message for="placasUnidad" />
 					</div>
@@ -149,8 +146,7 @@
 						reflow="true" styleClass="servicio-table"
 						selection="#{mbEmisionSalidas.listaServiciosSelect}"
 						rowKey="#{serviciosExtras.idServicioExtra}" 
-						rowSelectMode="add"
-						tableStyle="width:auto">
+						rowSelectMode="add">
 						<f:facet name="header">
 							<div class="products-table-header">
 								<span class="filter-container ui-input-icon-left">
@@ -184,11 +180,6 @@
 						<p:column headerText="Unidad">
 							<h:outputText value="#{serviciosExtras.unidadManejo}"/>
 						</p:column>
-						<p:column headerText="Observación"
-							sortBy="#{serviciosExtras.observacion}">
-							<p:inputText value="#{serviciosExtras.observacion}"
-								disabled="#{!serviciosExtras.habilitado}"></p:inputText>
-						</p:column>
 					</p:dataTable>
 				</p:panel>
 			</div>
@@ -196,10 +187,10 @@
 				<p:panel header="Observaciones generales">
 					<div class="p-grid ui-fluid p-col-12">
 						<div class="p-col-10 p-md-10">
-							<p:inputText value="#{mbEmisionSalidas.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES"/>
+                                                    <p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES"/>
 						</div>
 						<div class="p-col-2 p-md-2">
-							<p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" onclick="PF('dialogCarga').show()" process="@this"/>
+                                                    <p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" onclick="PF('dialogCarga').show()" process="@this"/>
 						</div>
 					</div>
 				</p:panel>
@@ -215,7 +206,7 @@
 				<p:panel id="pnlCarga" class="ui-fluid">
 					<div class="p-grid ui-fluid p-col-12">
 						<div class="p-col-12 p-md-12">
-							<p:fileUpload value="#{mbEmisionSalidas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" icon="pi pi-upload"/>
+							<p:fileUpload value="#{mbEmisionSalidas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" uploadIcon="pi pi-upload"/>
 						</div>
 						<div class="p-col-6 p-md-6">
 							<p:commandButton value="Agregar" icon="pi pi-check" actionListener="#{mbEmisionSalidas.cargarArchivo}"  process="@this pnlCarga" update="pnlCarga" styleClass="mt-3 ui-button-outlined block"/>

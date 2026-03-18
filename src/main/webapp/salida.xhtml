@@ -31,7 +31,9 @@
 								<p:datePicker id="fechaFin" showIcon="true" styleClass="p-mr-4 p-mb-2" placeholder="Fin del periodo" value="#{mbSalidas.fechaFin}"/>
 							</div>
 							<div class="p-col-2 p-md-2">
-								<p:commandButton value="Consultar" process="@this fechaInicio fechaFin" rendered="true" ajax="false" actionListener="#{mbSalidas.generateReport}" styleClass="p-mr-2 p-mb-2" icon="pi pi-check" iconPos="right"/>
+                                                                <p:commandButton value="Consultar" process="@this fechaInicio fechaFin" rendered="true" ajax="false" actionListener="#{mbSalidas.generateReport}" styleClass="p-mr-2 p-mb-2" icon="pi pi-check" iconPos="right" >
+                                                                    <p:fileDownload value="#{mbSalidas.file}" />
+                                                                </p:commandButton>
 							</div>
 						</div>
 					</div>

@@ -1,14 +1,14 @@
 package com.ferbo.clientes.beans;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -19,10 +19,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.util.Conexion;
-import com.ferbo.clientes.util.JasperReportUtil;
+import com.ferbo.gestion.reports.jasper.ReporteSalidasJR;
 
 @Named(value = "mbSalidas")
 @ViewScoped
@@ -40,6 +42,9 @@ public class MbSalida implements Serializable {
 	private HttpServletRequest request;
 	private HttpSession session;
 	private Cliente cliente;
+        
+        private ReporteSalidasJR reporteSalidasJR;
+        private StreamedContent file;
 
 	public MbSalida() {
 		this.fechaInicio = new Date();
@@ -54,6 +59,7 @@ public class MbSalida implements Serializable {
         request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
         session = request.getSession(false);
 		this.cliente = (Cliente) session.getAttribute("cliente");
+                log.info("El cliente {} ha ingresado a reportes de salidas.", this.cliente.getNombre());
 	}
 
 	public void generateReport() {
@@ -65,19 +71,14 @@ public class MbSalida implements Serializable {
 		File logoFile = new File(getClass().getResource(sLogoPath).getFile());
 		log.info("Imagen: " + logoFile.getPath());
 
-		JasperReportUtil jasperReportUtil = new JasperReportUtil();
-		Map<String, Object> parameters = new HashMap<String, Object>();
 		Connection connection = null;
-		parameters = new HashMap<String, Object>();
 		try {
 			connection = Conexion.dsConexion();
-			parameters.put("REPORT_CONNECTION", connection);
-			parameters.put("idCliente", this.cliente.getIdCliente());
-			parameters.put("fechaInicio", this.fechaInicio);
-			parameters.put("fechaFin", this.fechaFin);
-			parameters.put("imagen", logoFile.getPath());
-			log.info("Parametros: " + parameters.toString());
-			jasperReportUtil.createPdf(getNameFilePdf(), parameters, reportFile.getPath());
+                        reporteSalidasJR = new ReporteSalidasJR(connection, sLogoPath);
+                        byte[] bytes = reporteSalidasJR.getPDF(fechaInicio, fechaFin, cliente.getIdCliente(), null, null);
+                        InputStream input = new ByteArrayInputStream(bytes);
+                        this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
+                        log.info("Terminando generacion de reporte de salidas...");
 		} catch (SQLException ex) {
 			log.error("Problema en base de datos...", ex);
 		} catch (Exception ex) {
@@ -91,7 +92,8 @@ public class MbSalida implements Serializable {
 		DateFormat dateFormatPeriodo = new SimpleDateFormat("yyyy-mm-dd");
 		String strDatePeriodoI = dateFormatPeriodo.format(getFechaInicio());
 		String strDatePeriodoF = dateFormatPeriodo.format(getFechaFin());
-		return "salidas_" + strDatePeriodoI + "_" + strDatePeriodoF + ".pdf";
+                String nombreArchivo = String.format("Salidas_%s-%s.pdf", strDatePeriodoI, strDatePeriodoF);
+		return nombreArchivo;
 	}
 
 	public Date getFechaInicio() {
@@ -110,6 +112,12 @@ public class MbSalida implements Serializable {
 		this.fechaFin = fechaFin;
 	}
 
-	
+        public StreamedContent getFile() {
+            return file;
+        }
+
+        public void setFile(StreamedContent file) {
+            this.file = file;
+        }
 
 }

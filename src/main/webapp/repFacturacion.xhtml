@@ -21,7 +21,7 @@
 						<p:fieldset legend="Periodo">	
 						<p:divider>
 							<span class="ui-float-label">
-                        <p:datePicker id="fechaI" value="#{repfacturacion.fecha_ini}" maxdate="#{repfacturacion.maxDate}" process="@this" showIcon="true">
+                        <p:datePicker id="fechaI" value="#{repfacturacion.fecha_ini}" maxdate="#{repfacturacion.maxDate}" showIcon="true">
                         	<p:ajax process="@this"></p:ajax>
                         </p:datePicker>
                         <p:outputLabel for="fechaI" value="Del:" />
@@ -30,7 +30,7 @@
                     		
                     		<p:divider>
 						<span class="ui-float-label">
-                        <p:datePicker id="fechaF" value="#{repfacturacion.fecha_fin}" maxdate="#{repfacturacion.maxDate}" process="@this" showIcon="true">
+                        <p:datePicker id="fechaF" value="#{repfacturacion.fecha_fin}" maxdate="#{repfacturacion.maxDate}" showIcon="true">
 							<p:ajax process="@this"></p:ajax>
                         </p:datePicker>
                         <p:outputLabel for="fechaF" value="al:" />

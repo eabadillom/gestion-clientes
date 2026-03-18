@@ -321,7 +321,7 @@
 				<p:panel id="pnlCarga" class="ui-fluid">
 					<div class="p-grid ui-fluid p-col-12">
 						<div class="p-col-12 p-md-12">
-							<p:fileUpload value="#{mbEmisionEntradas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" icon="pi pi-upload"/>
+							<p:fileUpload value="#{mbEmisionEntradas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" uploadIcon="pi pi-upload"/>
 						</div>
 						<div class="p-col-6 p-md-6">
 							<p:commandButton value="Agregar" icon="pi pi-check" actionListener="#{mbEmisionEntradas.cargarArchivo}"  process="@this pnlCarga" update="pnlCarga" styleClass="mt-3 ui-button-outlined block"/>
