@@ -1,7 +1,5 @@
 package com.ferbo.clientes.manager;
 
-import static com.ferbo.clientes.util.Conexion.getConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,7 +41,6 @@ public class SerieConstanciaDAO extends DAO{
 		try {
 			sql = SELECT.concat("WHERE id_cliente = ? AND id_planta = ? AND tp_serie = ? ");
 			
-			conn = getConnection();
 			ps = conn.prepareStatement(sql);
 			setInteger(ps, idx++, idCliente);
 			setInteger(ps, idx++, idPlanta);

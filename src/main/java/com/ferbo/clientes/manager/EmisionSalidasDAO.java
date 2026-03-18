@@ -1,7 +1,5 @@
 package com.ferbo.clientes.manager;
 
-import static com.ferbo.clientes.util.Conexion.getConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,7 +114,6 @@ public class EmisionSalidasDAO {
 		ResultSet rs = null;
 		int idx = 1;
 		try {
-			conn = getConnection();
 			ps = conn.prepareStatement(SELECT_INVENTARIO);
 			log.debug(SELECT_INVENTARIO);
 			ps.setInt(idx++, cliente.getIdCliente());

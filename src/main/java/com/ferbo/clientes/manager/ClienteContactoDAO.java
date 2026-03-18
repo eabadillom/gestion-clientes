@@ -1,7 +1,5 @@
 package com.ferbo.clientes.manager;
 
-import static com.ferbo.clientes.util.Conexion.getConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,13 +40,11 @@ public class ClienteContactoDAO extends DAO {
 		return bean;
 	}
 
-	public ClienteContacto login(ClienteContacto clienteContacto){
-		Connection connection = null;
+	public ClienteContacto login(Connection connection, ClienteContacto clienteContacto){
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		SecurityUtil securityUtil = null;
 		try {
-			connection = getConnection();
 			preparedStatement = connection.prepareStatement(SELECT_CLIENTE_CONTACTO);
 			preparedStatement.setString(1, clienteContacto.getUsuario());
 
@@ -67,21 +63,18 @@ public class ClienteContactoDAO extends DAO {
 		} finally {
 			Conexion.close(resultSet);
 			Conexion.close(preparedStatement);
-			Conexion.close(connection);
 		}
 		return clienteContacto;
 	}
 	
-	public ClienteContacto get(String usuario) {
+	public ClienteContacto get(Connection conn, String usuario) {
 		ClienteContacto bean = null;
-		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		String sql = null;
 		int idx = 1;
 		
 		try {
-			conn = Conexion.dsConexion();
 			sql = SELECT + " WHERE nb_usuario = ? ";
 			ps = conn.prepareStatement(sql);
 			ps.setString(idx++, usuario);
@@ -103,14 +96,12 @@ public class ClienteContactoDAO extends DAO {
 		return bean;
 	}
 
-	public Cliente getCliente(ClienteContacto clienteContacto) {
-		Connection connection = null;
+	public Cliente getCliente(Connection connection, ClienteContacto clienteContacto) {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		ClienteContacto clienteContacto2 = login(clienteContacto);
+		ClienteContacto clienteContacto2 = login(connection, clienteContacto);
 		Cliente cliente = null;
 		try {
-			connection = getConnection();
 			preparedStatement = connection.prepareStatement(SELECT_CLIENTE);
 			preparedStatement.setInt(1, clienteContacto2.getIdCliente());
 			resultSet = preparedStatement.executeQuery();
@@ -125,7 +116,6 @@ public class ClienteContactoDAO extends DAO {
 		} finally {
 			Conexion.close(resultSet);
 			Conexion.close(preparedStatement);
-			Conexion.close(connection);
 		}
 		return cliente;
 	}
