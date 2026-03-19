@@ -4,7 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:pe="http://primefaces.org/ui/extensions"
 	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
-	<ui:define name="title">Reporte de Facturacion</ui:define>
+	<ui:define name="title">Reporte de Facturación</ui:define>
 	<ui:define name="head">
 		<h:outputScript library="js" name="calendar_es.js" />
 		<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
@@ -107,7 +107,7 @@
 						<f:convertNumber pattern="$##,###.00" />
 					</h:outputText>
 				</p:column>
-				<p:column headerText="Status" width="10rem" style="text-align:center"  >
+				<p:column headerText="Status" width="10rem" style="text-align:center">
 					<h:outputText value="#{lista.status.nombre}" styleClass="#{lista.status.id le 1 ? 'yellow' : lista.status.id le 2 ? 'red' : lista.status.id le 3 ? 'green' : lista.status.id le 4 ? 'gray' : null}" /> 
 				</p:column>
 				<p:column headerText="Timbrado" width="4rem" style="text-align:center">
@@ -166,45 +166,37 @@
 		<p:commandButton id="btnlistaF" styleClass="ui-button-raised ui-button-secondary" oncomplete="PF('dg-listadoFacturas').show()" style='width:250px; height:40px' value="Descargar listado de facturas PDF">
 			<f:setPropertyActionListener value="#{lista}" target="#{repfacturacion.facturaSelect}"></f:setPropertyActionListener>
 		</p:commandButton>
-		
 		<p:dialog header="Descargar pre-factura" showEffect="fade" modal="true" widgetVar="dg-factura" responsive="true">
-			<h:form enctype="multipart/form-data">
+			<h:form enctype="multipart/form-data" target="_blank">
 				<p:outputPanel class="ui-fluid">
 				<p:commandButton value="Descargar PDF" process="@this " ajax="false" actionListener="#{repfacturacion.generateReport()}" 
 					styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
 				</p:outputPanel>
 			</h:form>
 		</p:dialog>
-
 		<p:dialog header="Descargar CFDI (PDF)" showEffect="fade" modal="true" widgetVar="dg-cfdi" responsive="true">
-			<h:form enctype="multipart/form-data">
+			<h:form enctype="multipart/form-data" target="_blank">
 				<p:outputPanel class="ui-fluid">
 						<p:commandButton value="Descargar PDF" process="@this " ajax="false" actionListener="#{repfacturacion.descargaCFDIPDF}" 
-													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
-				   
+							styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
 				</p:outputPanel>
-				    </h:form>
+			</h:form>
 		</p:dialog>
-		
 		<p:dialog header="Descargar CFDI (XML)" showEffect="fade" modal="true" widgetVar="dg-cfdiXML" responsive="true">
-			<h:form enctype="multipart/form-data">
+			<h:form enctype="multipart/form-data" target="_blank">
 				<p:outputPanel class="ui-fluid">
 						<p:commandButton value="Descargar XML" process="@this " ajax="false" actionListener="#{repfacturacion.descargaCFDIXML}" 
-													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-code" iconPos="right"/>
-				   
+							styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-code" iconPos="right"/>
 				</p:outputPanel>
-				    </h:form>
+			</h:form>
 		</p:dialog>
-		
 		<p:dialog header="Descargar lista de facturas" showEffect="fade" modal="true" widgetVar="dg-listadoFacturas" responsive="true">
 			<h:form enctype="multipart/form-data">
 				<p:outputPanel class="ui-fluid">
 						<p:commandButton value="Descargar listado" process="@this " ajax="false" actionListener="#{repfacturacion.listadoFacturasPDF}" 
-													styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
-				   
+							styleClass="ui-button-outlined ui-button-secondary"  icon="pi pi-file-pdf" iconPos="right"/>
 				</p:outputPanel>
-				    </h:form>
+			</h:form>
 		</p:dialog>
-		
 	</ui:define>
 </ui:composition>
