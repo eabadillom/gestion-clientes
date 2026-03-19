@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -61,8 +62,16 @@ public class MbLogin implements Serializable {
     	Connection conn = null;
     	
     	
+    	String context = null;
+		ExternalContext externalContext = null;
+		String destino = null;
+    	
     	try {
-                faceContext = FacesContext.getCurrentInstance();
+    		faceContext = FacesContext.getCurrentInstance();
+    		externalContext = faceContext.getExternalContext();
+    		context = externalContext.getRequestContextPath();
+    		destino = context + "/bienvenido.xhtml";
+    		
     		log.info("Autenticando al usuario {}", this.clienteContacto.getUsuario());
     		conn = Conexion.getConnection();
     		clienteContactoManager = new ClienteContactoDAO();
@@ -115,7 +124,7 @@ public class MbLogin implements Serializable {
             log.info("Usuario autenticado correctamente: {}", usuario.getUsuario());
             message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Acceso correcto", null);
             FacesContext.getCurrentInstance().addMessage(null, message);
-            faceContext.getExternalContext().redirect("bienvenido.xhtml");
+            faceContext.getExternalContext().redirect(destino);
     	} catch(ClientesException ex) {
     		log.error("Problema con la validación del usuario: " + this.getClienteContacto().getUsuario(), ex);
     		clienteContacto = new ClienteContacto();
