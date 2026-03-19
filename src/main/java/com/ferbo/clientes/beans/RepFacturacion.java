@@ -49,7 +49,7 @@ import com.ferbo.facturama.tools.FacturamaException;
 
 @Named(value = "repfacturacion")
 @ViewScoped
-public class repFacturacion implements Serializable {
+public class RepFacturacion implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private Date fecha;
@@ -63,7 +63,7 @@ public class repFacturacion implements Serializable {
 	private Integer idCliente;
 	private FacesContext context;
 	private HttpServletRequest request;
-	HttpSession session;
+	private HttpSession session;
 	private StreamedContent file;
 	private BigDecimal subtotal;
 	private BigDecimal Total;
@@ -71,12 +71,12 @@ public class repFacturacion implements Serializable {
     private CfdiBL cfdiBL = null;
     private String statusNombre;
     
-	private static Logger log = (Logger) LogManager.getLogger(repFacturacion.class);
+	private static Logger log = (Logger) LogManager.getLogger(RepFacturacion.class);
 	@Inject
 	private MbLogin login;
 
 
-	public repFacturacion() {
+	public RepFacturacion() {
 		
 
 		fecha_ini = new Date();
@@ -114,12 +114,10 @@ public class repFacturacion implements Serializable {
 					.build();
 		
 		} catch (SQLException e) {
-			
 			e.printStackTrace();
 		}finally {
 			Conexion.close(conn);
 		}
-		// listaClientes = clienteDAO.buscarHabilitados(true);
 		Date today = new Date();
 		maxDate = new Date(today.getTime());
 
