@@ -33,15 +33,15 @@
 					<p:graphicImage name="images/logo.png" library="layouts" width="100%" height="auto"/>
 				</div>
 				<div style="padding: 1rem;">
-					<p:inputText id="usuario" placeholder="Usuario" required="true" value="#{mbLogin.clienteContacto.usuario}" requiredMessage="Usuario requerido" style="width: 100%;"/>
+					<p:inputText id="usuario" placeholder="Usuario" required="true" value="#{mbLogin.clienteContacto.usuario}" requiredMessage="Usuario requerido" style="width: 20rem; text-align: center;"/>
 					<p:message for="usuario" />
 				</div>
 				<div style="padding: 1rem;">
-					<p:password id="contraseña" placeholder="Contraseña" required="true" feedback="false" redisplay="true" value="#{mbLogin.clienteContacto.password}" requiredMessage="Contraseña requerida" style="width: 100%;"/>
+					<p:password id="contraseña" placeholder="Contraseña" required="true" feedback="false" redisplay="true" value="#{mbLogin.clienteContacto.password}" requiredMessage="Contraseña requerida" style="width: 20rem; text-align: center;"/>
 					<p:message for="contraseña" />
 				</div>
 				<div style="padding-top: 2rem; padding-bottom: 1rem; padding-left: 1rem; padding-right: 1rem;">
-					<p:commandButton value="Entrar" icon="pi pi-sign-in" actionListener="#{mbLogin.login}" process="@this login_form" update="login_form" style="width: 100%;" onclick="PF('statusDialog').show();" oncomplete="PF('statusDialog').hide();"/>
+					<p:commandButton value="Entrar" icon="pi pi-sign-in" actionListener="#{mbLogin.login}" process="@this login_form" update="login_form" style="width: 15rem;" onclick="PF('statusDialog').show();" oncomplete="PF('statusDialog').hide();"/>
 				</div>
 			</p:panel>
 		</div>
