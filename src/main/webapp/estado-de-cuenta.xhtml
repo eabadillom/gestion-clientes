@@ -1,0 +1,70 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Estado de cuenta</ui:define>
+	<ui:define name="content">
+		<h:form id="form" enctype="multipart/form-data">
+			<p:growl id="messages" showDetail="true" />
+			<p:dialog modal="true" widgetVar="statusInfoDialog" header="Cargando información..." draggable="false" closable="false" resizable="false">
+				<div align="center">
+					<i class="pi pi-spinner pi-spin" style="font-size:3rem;"></i>
+				</div>
+			</p:dialog>
+			<div class="p-grid ui-fluid">
+				<div class="p-field p-col-6 p-md-2">
+					<p:outputLabel value="Periodo" />
+					<p:datePicker id="yearMonth" view="month" value="#{mbEstadoCuenta.mesActual}" pattern="MM/yyyy" yearNavigator="true" yearRange="2000:2030" maxdate="#{mbEstadoCuenta.maxDate}" >
+						<p:ajax process="@this" />
+						<p:ajax event="change" listener="#{mbEstadoCuenta.establecerPeriodo()}" />
+					</p:datePicker>
+				</div>
+				<div class="p-field p-col-6 p-md-2">
+					<p:outputLabel value="." style="color: rgba(255, 255, 255, 0);" />
+					<p:commandButton value="Consultar" actionListener="#{mbEstadoCuenta.Consultar}" process="@this" styleClass="ui-button-raised ui-button-secondary" update="form:dt-estadoResultado" onclick="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();"/>
+				</div>
+			</div>
+			<p:dataTable id="dt-estadoResultado" widgetVar="dtestadoResultado" var="resultadoDT" value="#{mbEstadoCuenta.listaestadoCuenta}" reflow="true" size="small">
+				<f:facet name="header" >
+					<div style="text-align: right;">Saldo inicial: 
+						<h:outputText value="#{mbEstadoCuenta.saldoInicial}">
+							<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
+						</h:outputText>
+					</div>
+				</f:facet>
+				<p:column headerText="Fecha" style="text-align:center">
+					<h:outputText value="#{resultadoDT.fecha}" >
+					<f:convertDateTime pattern="dd/MM/yyyy"/>
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Movimiento" style="text-align:center">
+					<h:outputText value="#{resultadoDT.movimiento}" />
+				</p:column>
+				<p:column headerText="Folio" style="text-align:center">
+					<h:outputText value="#{resultadoDT.nomSerie}-#{resultadoDT.folio}" />
+				</p:column>
+				<p:column headerText="Cargos" style="text-align: right;">
+					<h:outputText value="#{resultadoDT.debe}" >
+						<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Abonos" style="text-align: right;">
+					<h:outputText value="#{resultadoDT.haber}" >
+						<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Saldo" style="text-align: right;">
+					<h:outputText value="#{resultadoDT.parcial}" >
+						<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
+					</h:outputText>
+				</p:column>
+			</p:dataTable>
+			<div align="center">
+				<p:commandButton value="Descargar" process="@this" actionListener="#{mbEstadoCuenta.exportarPDF}" styleClass="ui-button-secondary"  icon="pi pi-file-pdf" iconPos="left" ajax="false">
+					<p:fileDownload value="#{mbEstadoCuenta.file}" />
+				</p:commandButton>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

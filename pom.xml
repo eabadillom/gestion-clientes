@@ -18,7 +18,7 @@
 	</properties>
 
 	<dependencies>
-                <dependency>
+		<dependency>
 			<groupId>com.ferbo</groupId>
 			<artifactId>gestion-reports</artifactId>
 			<version>1.0.1-RELEASE</version>
@@ -124,7 +124,7 @@
 			<version>6.20.0</version>
 		</dependency>
                 
-                <dependency>
+		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
 			<version>2.4.21</version>
@@ -176,7 +176,11 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.28</version>
 		</dependency>
-	
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>font-awesome</artifactId>
+			<version>5.15.4</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

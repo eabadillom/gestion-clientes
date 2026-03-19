@@ -115,7 +115,7 @@ public class MbLogin implements Serializable {
             log.info("Usuario autenticado correctamente: {}", usuario.getUsuario());
             message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Acceso correcto", null);
             FacesContext.getCurrentInstance().addMessage(null, message);
-            faceContext.getExternalContext().redirect("inventario.xhtml");
+            faceContext.getExternalContext().redirect("bienvenido.xhtml");
     	} catch(ClientesException ex) {
     		log.error("Problema con la validación del usuario: " + this.getClienteContacto().getUsuario(), ex);
     		clienteContacto = new ClienteContacto();
@@ -141,8 +141,6 @@ public class MbLogin implements Serializable {
     	ClienteContacto clienteContacto = null;
     	
     	try {
-//    		clienteContacto = (ClienteContacto)session.getAttribute("usuario");
-//    		log.info("El usuario intenta finalizar su sesión: " + clienteContacto.getUsuario());
     		session = request.getSession(false);
     		session.setAttribute("usuario", null);
     		session.setAttribute("idCliente", null);

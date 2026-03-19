@@ -36,7 +36,9 @@ import java.util.UUID;
 @ViewScoped
 public class CrudDemoView implements Serializable {
     
-    private List<Product> products;
+    private static final long serialVersionUID = -1426189065191243104L;
+
+	private List<Product> products;
 
     private Product selectedProduct;
 

@@ -4,7 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/template.xhtml">
-	<ui:define name="title">Emisión de Salidas</ui:define>
+	<ui:define name="title">Orden de retiro</ui:define>
         <ui:define name="head">
 		<h:outputScript library="js" name="calendar_es.js" />
 		<h:outputScript library="js" name="funciones.js" />
@@ -13,11 +13,10 @@
 	<ui:define name="content">
 		<h:form id="form">
 			<p:growl id="messages" showDetail="true" />
-			<h5>Control de Salida</h5>
 			<p:panel header="Datos generales">
 				<div class="p-grid ui-fluid p-col-12">
 					<div class="p-col-6 p-md-6">
-						<p:outputLabel for="nombreCliente" value="Nombre del cliente" />
+						<p:outputLabel for="nombreCliente" value="Cliente" />
 						<p:inputText id="nombreCliente" placeholder="#{mbEmisionSalidas.cliente.nombre}" readonly="true" />
 					</div>
 					<div class="p-col-3 p-md-3">
