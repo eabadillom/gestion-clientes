@@ -15,25 +15,23 @@
                 </div>
                 <div class="profile">
                     <a id="profile-button" href="#">
-                        <span class="username"><p:outputLabel value="#{sidebarBean.cliente.nombre}"/></span>
+                        <span class="username"><p:outputLabel value="#{sidebarBean.clienteContacto.contacto.nombre} #{sidebarBean.clienteContacto.contacto.apellido1} #{sidebarBean.clienteContacto.contacto.apellido2}"/></span>
                     </a>
-                    
                 </div>
                 <div class="menu">
                     <po:menu widgetVar="OmegaMenuWidget">
                         <p:submenu id="reportes" label="Reportes" icon="pi pi-book">
-                            <p:menuitem id="om_chart" value="Inventario" icon="pi pi-book" outcome="/reportes/inventario"/>
+                            <p:menuitem id="om_chart" value="Inventario" icon="fa fa-solid fa-warehouse" outcome="/reportes/inventario"/>
                             <p:menuitem id="om_media" value="Entradas" icon="pi pi-directions" outcome="/reportes/entrada"/>
                             <p:menuitem id="om_misc" value="Salidas" icon="pi pi-directions-alt" outcome="/reportes/salida"/>
-                            <p:menuitem id="om_rFact" value="Facturación" icon="pi pi-chart-line" outcome="/reportes/facturacion"/>
+                            <p:menuitem id="om_rFact" value="Facturación" icon="fa fa-solid fa-file-invoice-dollar" outcome="/reportes/facturacion"/>
                         </p:submenu>
-                        <!-- <p:menuitem id="entradas" value="Emisión de Entradas" icon="pi pi-send" outcome="/orden/ingreso"/> -->
-                        <p:menuitem id="salidas" value="Orden de retiro" icon="pi pi-send" outcome="/orden/retiro"/>
+                        <p:menuitem id="salidas" value="Orden de retiro" icon="pi pi-sign-out" outcome="/orden/retiro"/>
                          <p:menuitem id="estadocuenta" value="Estado de Cuenta" icon="pi pi-wallet" outcome="/estado-de-cuenta"/>
                         <p:submenu id="usuario" label="Usuario" icon="pi pi-user">
                         	<p:menuitem id="usr_pwd" value="Cambiar contraseña" icon="pi pi-key" outcome="/password" />
                         </p:submenu>
-                        <p:menuitem value="Salir" icon="pi pi-sign-out" actionListener="#{sidebarBean.logout}"/>
+                        <p:menuitem value="Salir" icon="fa fa-solid fa-power-off" actionListener="#{sidebarBean.logout}"/>
                     </po:menu>
                 </div>
             </div>

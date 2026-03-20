@@ -35,23 +35,24 @@ public class MbInventario implements Serializable {
 	private static Logger log = LogManager.getLogger(MbInventario.class);
 
 	private Date fechaCorte;
-	
+	private Date hoy;
+
 	private FacesContext faceContext;
 	private HttpServletRequest request;
 	private HttpSession session;
 	private Cliente cliente;
-        private ReporteInventarioJR reporteInventarioJR;
-        private StreamedContent file;
+	private ReporteInventarioJR reporteInventarioJR;
+	private StreamedContent file;
 	
 	@PostConstruct
 	public void init() {
 		this.fechaCorte = new Date();
-		
-		faceContext = FacesContext.getCurrentInstance();
-                request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
-                session = request.getSession(false);
+		this.hoy = new Date();
+		this.faceContext = FacesContext.getCurrentInstance();
+		this.request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
+		this.session = request.getSession(false);
 		this.cliente = (Cliente) session.getAttribute("cliente");
-                log.info("El cliente {} ha ingresado a reportes de inventario.", this.cliente.getNombre());
+		log.info("El cliente {} ha ingresado a reportes de inventario.", this.cliente.getNombre());
 	}
 	
 	public void generateReport() {
@@ -66,11 +67,11 @@ public class MbInventario implements Serializable {
 		Connection connection = null;
 		try {
 			connection = Conexion.getConnection();
-                        reporteInventarioJR = new ReporteInventarioJR(connection, sLogoPath);
-                        byte[] bytes = reporteInventarioJR.getPDFReporteInventario(this.cliente.getIdCliente(), null);
-                        InputStream input = new ByteArrayInputStream(bytes);
-                        this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
-                        log.info("Terminando generacion de reporte de inventarios...");
+			this.reporteInventarioJR = new ReporteInventarioJR(connection, sLogoPath);
+			byte[] bytes = this.reporteInventarioJR.getPDFReporteInventario(this.cliente.getIdCliente(), null);
+			InputStream input = new ByteArrayInputStream(bytes);
+			this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
+			log.info("Terminando generacion de reporte de inventarios...");
 		} catch (SQLException ex) {
 			log.error("Problema en base de datos...", ex);
 		} catch(Exception ex) {
@@ -83,7 +84,7 @@ public class MbInventario implements Serializable {
 	public String getNameFilePdf() {
 		DateFormat dateFormatPeriodo = new SimpleDateFormat("yyyy-mm-dd"); 
 		String strDatePeriodo = dateFormatPeriodo.format(getFechaCorte());
-                String nombreArchivo = String.format("Inventario_%s.pdf", strDatePeriodo);
+		String nombreArchivo = String.format("Inventario_%s.pdf", strDatePeriodo);
 		return nombreArchivo;
 	}
 	
@@ -95,12 +96,19 @@ public class MbInventario implements Serializable {
 		this.fechaCorte = periodo;
 	}
 
-        public StreamedContent getFile() {
-            return file;
-        }
+	public StreamedContent getFile() {
+		return file;
+	}
 
-        public void setFile(StreamedContent file) {
-            this.file = file;
-        }
+	public void setFile(StreamedContent file) {
+		this.file = file;
+	}
+	
+	public Date getHoy() {
+		return hoy;
+	}
 
+	public void setHoy(Date hoy) {
+		this.hoy = hoy;
+	}
 }
