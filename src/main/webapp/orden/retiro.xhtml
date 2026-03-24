@@ -5,48 +5,45 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/template.xhtml">
 	<ui:define name="title">Orden de retiro</ui:define>
-        <ui:define name="head">
+	<ui:define name="head">
 		<h:outputScript library="js" name="calendar_es.js" />
 		<h:outputScript library="js" name="funciones.js" />
+		<h:outputScript library="js" name="primefaces_locale.js" />
 	</ui:define>
 	<ui:define name="content">
 		<h:form id="form">
 			<p:growl id="messages" showDetail="true" />
 			<p:panel header="Datos generales">
-				<div class="p-grid ui-fluid p-col-12">
-					<div class="p-col-6 p-md-6">
+				<div class="p-grid ui-fluid">
+					<div class="p-col-12 p-md-6">
 						<p:outputLabel for="nombreCliente" value="Cliente" />
 						<p:inputText id="nombreCliente" placeholder="#{mbEmisionSalidas.cliente.nombre}" readonly="true" />
 					</div>
-					<div class="p-col-3 p-md-3">
+					<div class="p-col-6 p-md-3">
 						<p:outputLabel for="plantas" value="Planta" />
-                                                <p:selectOneMenu id="plantas" value="#{mbEmisionSalidas.plantaSelected}" converter="entityConverter" filter="true" filterMatchMode="startsWith">
+						<p:selectOneMenu id="plantas" autoWidth="false" value="#{mbEmisionSalidas.plantaSelected}" converter="entityConverter" filter="true" filterMatchMode="startsWith">
 							<f:selectItem itemLabel="--Selecione la planta--" noSelectionOption="true" />
 							<f:selectItems var="planta" value="#{mbEmisionSalidas.listaPlantas}" itemLabel="#{planta.descripcion}" itemValue="#{planta}" />
 							<p:ajax listener="#{mbEmisionSalidas.muestraInventario}" update="dt-products folioSalida" />
 						</p:selectOneMenu>
 					</div>
-					<div class="p-col-3 p-md-3">
+					<div class="p-col-6 p-md-3">
 						<p:outputLabel for="fechaSalida" value="Fecha - Hora de Salida" />
 						<p:datePicker id="fechaSalida" showIcon="true"  mindate="#{mbEmisionSalidas.fechaMin}" required="true" requiredMessage="Indique la fecha y hora de salida de la mercancía" showTime="true" value="#{mbEmisionSalidas.fecha}" pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6">
 							<p:ajax event="dateSelect" listener="#{mbEmisionSalidas.onChangeFecha}"/>
 						</p:datePicker>
 					</div>
-					<div class="p-col-6 p-md-6">
+					<div class="p-col-12 p-md-6">
 						<p:outputLabel for="nombreOperador" value="Nombre del Operador" />
-								<p:inputText id="nombreOperador"
-                                                                        value="#{mbEmisionSalidas.salida.nombreTransportista}" required="true"
-									requiredMessage="Nombre del Operador requerido" />
-								<p:message for="nombreOperador" />
+							<p:inputText id="nombreOperador" value="#{mbEmisionSalidas.salida.nombreTransportista}" required="true" requiredMessage="Nombre del Operador requerido" oninput="this.value = this.value.toUpperCase()" />
+							<p:message for="nombreOperador" />
 					</div>
-					<div class="p-col-3 p-md-3">
+					<div class="p-col-6 p-md-3">
 						<p:outputLabel for="placasUnidad" value="Placas Unidad" />
-								<p:inputText id="placasUnidad"
-                                                                        value="#{mbEmisionSalidas.salida.placasTransporte}" required="true"
-									requiredMessage="Placas de Unidad requerida" />
-								<p:message for="placasUnidad" />
+						<p:inputText id="placasUnidad" value="#{mbEmisionSalidas.salida.placasTransporte}" required="true" requiredMessage="Placas de Unidad requerida" oninput="this.value = this.value.toUpperCase()"/>
+						<p:message for="placasUnidad" />
 					</div>
-					<div class="p-col-3 p-md-3">
+					<div class="p-col-6 p-md-3">
 						<p:outputLabel for="folioSalida" value="Folio de solicitud" />
 						<p:inputText id="folioSalida" placeholder="FOLIO" value="#{mbEmisionSalidas.folioSalida}" readonly="true" />
 					</div>
@@ -108,7 +105,7 @@
 								minValue="0"
 								maxValue="#{inventario.existencia}"
 								disabled="#{!inventario.habilitado}">
-								<p:ajax event="keyup" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
+								<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
 							</p:inputNumber>
 						</p:column>
 						<p:column headerText="Peso Aprox.(Kg)">
@@ -185,10 +182,10 @@
 				<p:panel header="Observaciones generales">
 					<div class="p-grid ui-fluid p-col-12">
 						<div class="p-col-10 p-md-10">
-                                                    <p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES"/>
+							<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()"/>
 						</div>
 						<div class="p-col-2 p-md-2">
-                                                    <p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" onclick="PF('dialogCarga').show()" process="@this"/>
+							<p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" onclick="PF('dialogCarga').show()" process="@this"/>
 						</div>
 					</div>
 				</p:panel>
