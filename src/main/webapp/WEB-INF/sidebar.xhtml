@@ -20,13 +20,13 @@
                 </div>
                 <div class="menu">
                     <po:menu widgetVar="OmegaMenuWidget">
+                        <p:menuitem id="salidas" value="Orden de retiro" icon="pi pi-sign-out" outcome="/orden/retiro"/>
                         <p:submenu id="reportes" label="Reportes" icon="pi pi-book">
                             <p:menuitem id="om_chart" value="Inventario" icon="fa fa-solid fa-warehouse" outcome="/reportes/inventario"/>
                             <p:menuitem id="om_media" value="Entradas" icon="pi pi-directions" outcome="/reportes/entrada"/>
                             <p:menuitem id="om_misc" value="Salidas" icon="pi pi-directions-alt" outcome="/reportes/salida"/>
                             <p:menuitem id="om_rFact" value="Facturación" icon="fa fa-solid fa-file-invoice-dollar" outcome="/reportes/facturacion"/>
                         </p:submenu>
-                        <p:menuitem id="salidas" value="Orden de retiro" icon="pi pi-sign-out" outcome="/orden/retiro"/>
                          <p:menuitem id="estadocuenta" value="Estado de Cuenta" icon="pi pi-wallet" outcome="/estado-de-cuenta"/>
                         <p:submenu id="usuario" label="Usuario" icon="pi pi-user">
                         	<p:menuitem id="usr_pwd" value="Cambiar contraseña" icon="pi pi-key" outcome="/password" />
