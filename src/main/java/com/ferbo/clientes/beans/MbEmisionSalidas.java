@@ -8,13 +8,10 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -30,26 +27,28 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.file.UploadedFile;
 
-import com.ferbo.clientes.dao.SerieOrdenDAO;
+import com.ferbo.clientes.business.InventarioBL;
+import com.ferbo.clientes.business.PlantaBL;
+import com.ferbo.clientes.business.SalidasBL;
+import com.ferbo.clientes.business.SerieOrdenBL;
+import com.ferbo.clientes.business.ServiciosExtrasBL;
 import com.ferbo.clientes.mail.beans.Adjunto;
 import com.ferbo.clientes.mail.beans.Planta;
-import com.ferbo.clientes.mail.mngr.PlantaDAO;
 import com.ferbo.clientes.mail.report.SendMailOrdenSalida;
-import com.ferbo.clientes.manager.EmisionSalidasDAO;
-import com.ferbo.clientes.manager.PreSalidaDAO;
-import com.ferbo.clientes.manager.SerieConstanciaDAO;
-import com.ferbo.clientes.manager.ServiciosExtrasDAO;
 import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.model.ClienteContacto;
 import com.ferbo.clientes.model.Inventario;
-import com.ferbo.clientes.model.PreSalida;
-import com.ferbo.clientes.model.PreSalidaObservaciones;
+import com.ferbo.clientes.model.Salida;
+import com.ferbo.clientes.model.SalidaDetalle;
 import com.ferbo.clientes.model.SerieConstancia;
 import com.ferbo.clientes.model.SerieOrden;
+import com.ferbo.clientes.model.ServicioSalida;
 import com.ferbo.clientes.model.ServiciosExtras;
 import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
+import com.ferbo.clientes.util.FacesUtils;
+import java.sql.SQLException;
 
 @Named(value = "mbEmisionSalidas")
 @ViewScoped
@@ -57,22 +56,19 @@ public class MbEmisionSalidas implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private static Logger log = LogManager.getLogger(MbEmisionSalidas.class);
-	private EmisionSalidasDAO emisionSalidasDAO;
-	private ServiciosExtras serviciosExtras;
-	private List<Inventario> listaInventario;
+	
+        private List<Inventario> listaInventario;
 	private List<Inventario> listaInventarioSelect;
 	private SerieConstancia serieConstancia;
-	private List<PreSalida> listaPresalida;
+        private Salida salida;
+        private List<SalidaDetalle> listaSalidaDetalle;
+        private List<ServicioSalida> listaServicioSalida;
 	private List<ServiciosExtras> listaServicios;
 	private List<ServiciosExtras> listaServiciosSelect;
-	private List<Planta> listaPlantas;
-	private PreSalida preSalida;
+	private Planta plantaSelected;
+        private List<Planta> listaPlantas;
 	private Date fecha;
-	private String placas;
-	private String nombreOperador;
 	private Date fechaMin;
-	private Integer idPlanta;
-	private String observaciones;
 	private UploadedFile attachmentFile;
 	private List<Adjunto> archivosList;
 	private Adjunto selectedAttachment;
@@ -80,7 +76,6 @@ public class MbEmisionSalidas implements Serializable {
 	private BigDecimal limite = new BigDecimal("10485760").setScale(2, BigDecimal.ROUND_HALF_UP);
 	private BigDecimal megabyte = new BigDecimal("1048576").setScale(2, BigDecimal.ROUND_HALF_UP);
 	private SerieOrden serie;
-	private SerieOrdenDAO serieDAO = null;
 	
 	private boolean isOrdenRegistrada = false;
 	
@@ -93,132 +88,115 @@ public class MbEmisionSalidas implements Serializable {
 	private String folioSalida;
 	
 	public MbEmisionSalidas() {
-		this.serieDAO = new SerieOrdenDAO();
+            this.listaInventarioSelect = new ArrayList<Inventario>();
+            this.listaServiciosSelect = new ArrayList<ServiciosExtras>();
+            
+            this.fecha = new Date();
+            DateUtils.setMinuto(this.fecha, 0);
+            DateUtils.setSegundo(this.fecha, 0);
+            DateUtils.setMilisegundo(this.fecha, 0);
+            this.log.info("Fecha / Hora por defecto: {}", this.fecha);
+            this.fechaMin = new Date();
+            
+            this.archivosList = new ArrayList<Adjunto>();
+            this.tamanioTotal = new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP);
+            
+            this.context = FacesContext.getCurrentInstance();
+            this.request = (HttpServletRequest) this.context.getExternalContext().getRequest();
+            this.session = this.request.getSession(false);
+            this.cliente = (Cliente) this.session.getAttribute("cliente");
+            this.cteContacto = (ClienteContacto) this.request.getSession(false).getAttribute("usuario");
+            
+            String mensaje = String.format("Usuario %s ingresa a Registro de orden de salida.", this.cteContacto.getUsuario());
+            log.info(mensaje);
 	}
 	
 	@PostConstruct
 	public void init() {
-		Connection conn = null;
-		
-		try {
-			this.context = FacesContext.getCurrentInstance();
-			this.request = (HttpServletRequest) context.getExternalContext().getRequest();
-			this.session = request.getSession(false);
-			this.cliente = (Cliente) session.getAttribute("cliente");
-			
-			conn = Conexion.dsConexion();
-			
-			listaInventarioSelect = new ArrayList<Inventario>();
-			listaServiciosSelect = new ArrayList<ServiciosExtras>();
-			emisionSalidasDAO = new EmisionSalidasDAO();
-			
-			ServiciosExtrasDAO serviciosDAO = new ServiciosExtrasDAO();
-			listaServicios = serviciosDAO.getServiciosExtras(this.cliente);
-			
-			listaPlantas = Arrays.asList(PlantaDAO.getPlantas(conn));
-			
-			fecha = new Date();
-			DateUtils.setMinuto(fecha, 0);
-			DateUtils.setSegundo(fecha, 0);
-			DateUtils.setMilisegundo(fecha, 0);
-			
-			log.info("Fecha / Hora por defecto: {}", this.fecha);
-			
-			placas = null;
-			nombreOperador = null;
-			fechaMin = new Date();
-			cteContacto = (ClienteContacto) request.getSession(false).getAttribute("usuario");
-			
-			
-			
-			this.archivosList = new ArrayList<Adjunto>();
-			this.tamanioTotal = new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP);
-			
-			String mensaje = String.format("Usuario %s ingresa a Registro de orden de salida.", cteContacto.toString());
-			log.info(mensaje);
-		} catch(Exception ex) {
-			log.error("Problema para obtener información de la base de datos...", ex);
-		} finally {
-			Conexion.close(conn);
-		}
+            Connection conn = null;
+            this.crearSalida();
+            
+            try {
+                conn = Conexion.dsConexion();
+
+                this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, cliente);
+                this.listaPlantas = Arrays.asList(PlantaBL.obtenerPlantas(conn));
+            } catch(Exception ex) {
+                log.error("Problema para obtener información de la base de datos...", ex);
+            } finally {
+                Conexion.close(conn);
+            }
+	}
+        
+        public void crearSalida(){
+            salida = new Salida();
+        }
+        
+        public void muestraInventario() {
+            Connection conn = null;
+            try {
+                conn = Conexion.dsConexion();
+                
+                this.getFolio(conn);
+                conn.commit();
+                
+                if(this.plantaSelected != null) {
+                    listaInventario = InventarioBL.obtenerInventario(conn, this.cliente, this.plantaSelected);
+                } else {
+                    listaInventario = new ArrayList<Inventario>();
+                }
+            } catch(ClientesException | SQLException ex) {
+                log.error("Problema para obtener información de la base de datos...", ex);
+                Conexion.rollback(conn);
+            } finally {
+                Conexion.close(conn);
+            }
 	}
 
-	public void getFolio() {
-		Connection conn = null;
-		Planta planta = null;
-		String codigo = null;
-		try {
-			conn = Conexion.getConnection();
-			planta = PlantaDAO.getPlanta(conn, this.idPlanta);
-			this.serie = serieDAO.get(conn, cliente.getIdCliente(), this.idPlanta, "O");
-			if(this.serie == null) {
-				this.serie = new SerieOrden();
-				this.serie.setIdCliente(this.cliente.getIdCliente());
-				this.serie.setTipoSerie("O");
-				this.serie.setIdPlanta(this.idPlanta);
-				this.serie.setNumero(1);
-				this.serieDAO.insert(conn, this.serie);
-			}
-			
-			codigo = String.format("%s%s%s%d", "RO", planta.getSufijo(), this.cliente.getCodigoUnico(), this.serie.getNumero());
-			conn.commit();
-			this.folioSalida = codigo;
-			log.info("Folio solicitud de salida: {}", this.folioSalida);
-		} catch(Exception ex) {
-			log.error("Problema para generar el folio...", ex);
-			Conexion.rollback(conn);
-		} finally {
-			Conexion.close(conn);
-		}
+	public void getFolio(Connection conn) throws ClientesException, SQLException {
+            FacesUtils.requireNonNull(plantaSelected, "Favor de seleccionar una planta");
+            this.serie = SerieOrdenBL.obtenerSerie(conn, this.plantaSelected, this.cliente);
+            this.folioSalida = SerieOrdenBL.craerFolio(conn, this.plantaSelected, this.cliente, this.serie);
+            log.info("Folio solicitud de salida: {}", this.folioSalida);
 	}
 	
 	public void resultadoPeso(Inventario inventario) {
-		log.debug("metodo resultadoPeso");
-		FacesMessage message = null;
-		Severity severity = null;
-		
-		BigDecimal tmp = null;
-		BigDecimal peso = null;
-		BigDecimal existencia = null;
-		BigDecimal cantidad = null;
-		existencia = new BigDecimal(inventario.getExistencia());
-		peso = inventario.getPeso();
-		if(existencia.compareTo(BigDecimal.ZERO) == 0) {
-			severity = FacesMessage.SEVERITY_ERROR;
-			message = new FacesMessage(severity, "Cantidad incorrecta", "Cantidad incorrecta.");
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	        PrimeFaces.current().ajax().update("form:messages");
-	        inventario.setCantidad(null);
-	        return;
-		}
-		
-		if(inventario.getCantidad() == null) {
-			return;
-		}
-			
-		cantidad = new BigDecimal(inventario.getCantidad());
-		
-		tmp = peso.divide(existencia, 3, RoundingMode.HALF_UP);
-		tmp = tmp.multiply(cantidad);
-		
-		if(cantidad.compareTo(existencia) > 0) {
-			severity = FacesMessage.SEVERITY_ERROR;
-			message = new FacesMessage(severity, "Cantidad incorrecta", "Ha indicado una cantidad mayor a la que tiene actualmente para su producto.");
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	        PrimeFaces.current().ajax().update("form:messages");
-	        inventario.setCantidad(null);
-	        return;
-		}
-		
-		if(cantidad.compareTo(BigDecimal.ZERO) < 0) {
-			severity = FacesMessage.SEVERITY_ERROR;
-			message = new FacesMessage(severity, "Cantidad incorrecta", "Ha indicado una cantidad no valida.");
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	        PrimeFaces.current().ajax().update("form:messages");
-	        inventario.setCantidad(null);
-	        return;
-		}
-		inventario.setPesoAprox(tmp);
+            log.debug("metodo resultadoPeso");
+            BigDecimal tmp = null;
+            BigDecimal cantidad = null;
+            BigDecimal existencia = new BigDecimal(inventario.getExistencia());
+            BigDecimal peso = inventario.getPeso();
+
+            if(existencia.compareTo(BigDecimal.ZERO) == 0) {
+                FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Cantidad incorrecta");
+                PrimeFaces.current().ajax().update("form:messages");
+                inventario.setCantidad(null);
+                return;
+            }
+
+            if(inventario.getCantidad() == null) {
+                return;
+            }
+
+            cantidad = new BigDecimal(inventario.getCantidad());
+
+            tmp = peso.divide(existencia, 3, RoundingMode.HALF_UP);
+            tmp = tmp.multiply(cantidad);
+
+            if(cantidad.compareTo(existencia) > 0) {
+                FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad mayor a la que tiene actualmente para su producto.");
+                PrimeFaces.current().ajax().update("form:messages");
+                inventario.setCantidad(null);
+                return;
+            }
+
+            if(cantidad.compareTo(BigDecimal.ZERO) < 0) {
+                FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad no valida.");
+                PrimeFaces.current().ajax().update("form:messages");
+                inventario.setCantidad(null);
+                return;
+            }
+            inventario.setPesoAprox(tmp);
 	}
 	
 	public void onRowSelect(SelectEvent<Inventario> event) {
@@ -241,13 +219,13 @@ public class MbEmisionSalidas implements Serializable {
 	
 	public void toggleSelect() {
 		log.debug("metodo toogleSelect");
-		if (listaInventario.stream().filter(inv -> inv.isHabilitado()).count() > 0
-				&& listaInventario.size() == listaInventarioSelect.size()) {
-			listaInventario.stream().forEach(inv -> {
+		if (this.listaInventario.stream().filter(inv -> inv.isHabilitado()).count() > 0
+				&& this.listaInventario.size() == this.listaInventarioSelect.size()) {
+			this.listaInventario.stream().forEach(inv -> {
 				inv.setHabilitado(true);
 			});
 		} else {
-			listaInventario.stream().forEach(inv -> {
+			this.listaInventario.stream().forEach(inv -> {
 				inv.setHabilitado(false);
 				inv.setCantidad(new Integer(0));
 				inv.setPesoAprox(BigDecimal.ZERO);
@@ -274,13 +252,13 @@ public class MbEmisionSalidas implements Serializable {
 	
 	public void toggleSelectServicios() {
 		log.debug("metodo toogleSelectServicios");
-		if (listaServicios.stream().filter(servicio -> servicio.isHabilitado()).count() > 0
-				&& listaServicios.size() == listaServiciosSelect.size()) {
-			listaServicios.stream().forEach(servicio -> {
+		if (this.listaServicios.stream().filter(servicio -> servicio.isHabilitado()).count() > 0
+				&& this.listaServicios.size() == this.listaServiciosSelect.size()) {
+			this.listaServicios.stream().forEach(servicio -> {
 				servicio.setHabilitado(true);
 			});
 		} else {
-			listaServicios.stream().forEach(servicio -> {
+			this.listaServicios.stream().forEach(servicio -> {
 				servicio.setHabilitado(false);
 				servicio.setCantidad(0);
 			});
@@ -288,151 +266,94 @@ public class MbEmisionSalidas implements Serializable {
 	}
 	
 	public void onChangeFecha() {
-		FacesMessage message = null;
-		Severity severity = null;
-		
-		log.info("Fecha / hora solicitado: {}", this.fecha);
-		
-		Date fechaMin = new Date(this.fecha.getTime());
-		DateUtils.setTime(fechaMin, 7, 0, 0, 0);
-		
-		Date fechaMax = new Date(this.fecha.getTime());
-		DateUtils.setTime(fechaMax, 17, 0, 0, 0);
-		
-		if(this.fecha.getTime() < fechaMin.getTime() || this.fecha.getTime() > fechaMax.getTime()) {
-			severity = FacesMessage.SEVERITY_WARN;
-			message = new FacesMessage(severity, "Horario no laboral", "Ha seleccionado un horario no laboral, por lo que se realizará el cargo de servicios extras. El horario laboral es de 7:00am a 5:00pm.");
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	        PrimeFaces.current().ajax().update("form:messages");
-		}
-	}
-	
-	public void showSaving() {
-		FacesMessage message = null;
-		Severity severity = null;
-		String mensaje = null;
-		
-		mensaje = String.format("Procesando su orden de salida, por favor espere...", this.folioSalida);
-		severity = FacesMessage.SEVERITY_WARN;
-		message = new FacesMessage(severity, "Emisión de salida", mensaje);
-        FacesContext.getCurrentInstance().addMessage(null, message);
-        PrimeFaces.current().ajax().update(":form:messages");
+            log.info("Fecha / hora solicitado: {}", this.fecha);
+
+            Date fechaMin = new Date(this.fecha.getTime());
+            DateUtils.setTime(fechaMin, 7, 0, 0, 0);
+
+            Date fechaMax = new Date(this.fecha.getTime());
+            DateUtils.setTime(fechaMax, 17, 0, 0, 0);
+
+            if(this.fecha.getTime() < fechaMin.getTime() || this.fecha.getTime() > fechaMax.getTime()) {
+                FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Horario no laboral", "Ha seleccionado un horario no laboral, por lo que se realizará el cargo de servicios extras. El horario laboral es de 7:00am a 5:00pm.");
+                PrimeFaces.current().ajax().update("form:messages");
+            }
 	}
 
 	public void guardarPresalida() {
 		Connection conn = null;
-		FacesMessage message = null;
-		Severity severity = null;
 		String mensaje = null;
 		
-		Map<String, Object> options = new HashMap<String, Object>();
-		options.put("modal", true);
-		listaPresalida = new ArrayList<PreSalida>();
-		listaServicios = new ArrayList<ServiciosExtras>();
+		this.listaSalidaDetalle = new ArrayList<SalidaDetalle>();
+                this.listaServicioSalida = new ArrayList();
+		List<ServiciosExtras> listaServiciosMod = new ArrayList<ServiciosExtras>();
 		String tmpFolio = null;
-		for (Inventario inventarioSelect : listaInventarioSelect) {
-			
-			Date horaSalida = DateUtils.getDate("00/00/0001", DateUtils.FORMATO_DD_MM_YYYY);
-			int hora = DateUtils.getHora(this.fecha);
-			int minuto = DateUtils.getMinuto(this.fecha);
-			DateUtils.setTime(horaSalida, hora, minuto, 0, 0);
-			
-			preSalida = new PreSalida();
-			preSalida.setCd_folio_salida(this.folioSalida);
-			preSalida.setSt_estado("A");
-			preSalida.setFh_salida(fecha);
-			preSalida.setTm_salida(horaSalida);
-			preSalida.setNb_placa_tte(placas);
-			preSalida.setNb_operador_tte(nombreOperador);
-			preSalida.setPartida_cve(inventarioSelect.getPartidaClave());
-			preSalida.setFolio(inventarioSelect.getFolio());
-			preSalida.setNu_cantidad(inventarioSelect.getCantidad());
-			preSalida.setIdContacto(cteContacto.getIdContacto());
-			listaPresalida.add(preSalida);
-			if (tmpFolio == null) {
-				tmpFolio = preSalida.getCd_folio_salida();
-			}
-		}
-		
-		for (ServiciosExtras serviciosSelect : listaServiciosSelect) {
-			serviciosExtras = new ServiciosExtras();
-			serviciosExtras.setIdServicioExtra(serviciosSelect.getIdServicioExtra());
-			serviciosExtras.setServicioExtra(serviciosSelect.getServicioExtra());
-			serviciosExtras.setCantidad(serviciosSelect.getCantidad());
-			serviciosExtras.setObservacion(serviciosSelect.getObservacion());
-			serviciosExtras.setIdUnidadManejo(serviciosSelect.getIdUnidadManejo());
-			listaServicios.add(serviciosExtras);
-		}
-		
-		boolean empty = listaPresalida.stream().filter(preSalida -> preSalida.getFh_salida().equals(null) || 
-				                                                    preSalida.getTm_salida().equals(null) || 
-				                                                    preSalida.getNb_operador_tte().equals(null) || 
-				                                                    preSalida.getNb_placa_tte().equals(null)).count() > 0;
-	    boolean empty2 = listaInventarioSelect.stream().filter(inventario -> inventario.getCantidad() == 0).count() > 0;		                                                    
-		PreSalidaDAO preSalidaManager = new PreSalidaDAO();
-		ServiciosExtrasDAO serviciosManager = new ServiciosExtrasDAO();
-		
-		try {
-			if(isOrdenRegistrada) {
-				throw new ClientesException("La constancia ya se encuentra registrada.");
-			}
-			
-			conn = Conexion.getConnection();
-			if (preSalida == null) {
-				throw new ClientesException("Favor de llenar todos los campos:\n\n\t * Horas\n\n\t * Minutos\n\n\t * Placas de Unidad\n\n\t * Nombre del Operador\n\n\t * Productos del Inventario");
-			}
-			
-			if(empty) {
-				throw new ClientesException("Favor de llenar todos los campos:\n\n\t * Horas\n\n\t * Minutos\n\n\t * Placas de Unidad\n\n\t * Nombre del Operador\n\n\t * Productos del Inventario");
-			}
-			
-			if(empty2) {
-				throw new ClientesException("El número de unidades de su producto es incorrecto.");
-			}
-			
-			if (listaPresalida.isEmpty()) {
-				throw new ClientesException("Favor de colocar productos del inventario.");
-			}
-			
-			preSalidaManager.guardar(conn, listaPresalida);
-			
-			PreSalidaObservaciones observaciones = new PreSalidaObservaciones(this.folioSalida, this.observaciones);
-			serviciosManager.insert(conn, observaciones);
-			
-			for(ServiciosExtras servicio : listaServicios) {
-				servicio.setFolioSalida(this.folioSalida);
-				serviciosManager.insert(conn, servicio);
-			}
-			
-			serie.setNumero(serie.getNumero() + 1);
-			serieDAO.update(conn, this.serie);
-			
-			conn.commit();
-			
-			isOrdenRegistrada = true;
-			
-			SendMailOrdenSalida sendMail = new SendMailOrdenSalida();
-			sendMail.setFolio(tmpFolio);
-			sendMail.add(this.archivosList);
-			sendMail.start();
-			
-			mensaje = String.format("Su orden de salida %s se generó correctamente. Recibirá copia de su orden vía correo electrónico.", this.folioSalida);
-			severity = FacesMessage.SEVERITY_INFO;
-			
+                try {
+                    conn = Conexion.getConnection();
+                            
+                    boolean empty = this.listaInventarioSelect.stream().filter(inventario -> inventario.getCantidad() == 0).count() > 0;
+                    
+                    if(empty) {
+                        throw new ClientesException("El número de unidades de su producto es incorrecto.");
+                    }
+                    
+                    FacesUtils.requireNonNull(this.fecha, "Favor de llenar el campo de la fecha");
+                    FacesUtils.requireNonNull(this.salida.getNombreTransportista(), "Favor de llenar el campo del operador");
+                    FacesUtils.requireNonNull(this.salida.getPlacasTransporte(), "Favor de llenar el campo de las placas");
+                    FacesUtils.requireNonNull(this.salida.getObservaciones(), "Favor de llenar el campo de las obervaciones");
+                    FacesUtils.requireNonNull(this.cliente, "Favor de seleccionar al cliente");
+
+                    this.salida = SalidasBL.guardarSalida(conn, this.folioSalida, this.cliente, this.cteContacto, this.salida, this.fecha);
+
+                    if (tmpFolio == null) {
+                        tmpFolio = salida.getFolioSalida();
+                    }
+                    
+                    Salida auxSalida = SalidasBL.consultarSalida(conn, tmpFolio);
+                    
+                    this.listaSalidaDetalle = SalidasBL.agregarSalDet(conn, this.listaInventarioSelect, auxSalida);
+                    
+                    SalidasBL.guardarSalDet(conn, this.listaSalidaDetalle);
+                    
+                    if(this.isOrdenRegistrada) {
+                        throw new ClientesException("La constancia ya se encuentra registrada.");
+                    }
+                    
+                    if(!this.listaServiciosSelect.isEmpty())
+                    {
+                        listaServiciosMod = SalidasBL.agregarServicios(this.listaServiciosSelect);
+
+                        this.listaServicioSalida = SalidasBL.agregarSrvSalida(listaServiciosMod, auxSalida, this.folioSalida);
+
+                        SalidasBL.guardarSrvSalida(conn, this.listaServicioSalida);
+                    }
+                    
+                    SerieOrdenBL.guardarSerieOrden(conn, this.serie);
+
+                    conn.commit();
+
+                    this.isOrdenRegistrada = true;
+
+                    SendMailOrdenSalida sendMail = new SendMailOrdenSalida();
+                    sendMail.setFolio(tmpFolio);
+                    sendMail.add(this.archivosList);
+                    sendMail.start();
+
+                    mensaje = String.format("Su orden de salida %s se generó correctamente. Recibirá copia de su orden vía correo electrónico.", this.folioSalida);
+                    FacesUtils.addMessage(FacesMessage.SEVERITY_INFO, "Emisión de salida", mensaje);
 		} catch(ClientesException ex) {
-			Conexion.rollback(conn);
-			mensaje = ex.getMessage();
-			severity = FacesMessage.SEVERITY_WARN;
+                    log.error("Problema con la emisión de salidas...", ex);
+                    Conexion.rollback(conn);
+                    mensaje = ex.getMessage();
+                    FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Emisión de salida", mensaje);
 		} catch (Exception ex) {
-			log.error("Problema con la emisión de salidas...", ex);
-			Conexion.rollback(conn);
-			mensaje = "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.";
-			severity = FacesMessage.SEVERITY_ERROR;
+                    log.error("Problema con la emisión de salidas...", ex);
+                    Conexion.rollback(conn);
+                    mensaje = "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.";
+                    FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Emisión de salida", mensaje);
 		} finally {
-			Conexion.close(conn);
-			message = new FacesMessage(severity, "Emisión de salida", mensaje);
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	        PrimeFaces.current().ajax().update(":form:messages");
+                    Conexion.close(conn);
+                    PrimeFaces.current().ajax().update(":form:messages");
 		}
 	}
 
@@ -449,36 +370,11 @@ public class MbEmisionSalidas implements Serializable {
 		}
 	}
 	
-	public void validador(PreSalida preSalida) {
-		FacesMessage message = null;
-		if (preSalida.getTm_salida() == null || 
-				preSalida.getFh_salida() == null || 
-				(preSalida.getNb_placa_tte() == null || preSalida.getNb_placa_tte() == "") || 
-				(preSalida.getNb_operador_tte() == null || preSalida.getNb_operador_tte() == "") || listaInventario.size() == 0) {
-			message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Emision de Salida",
-					"Favor de llenar todos los campos:\n\n\t * Horas\n\n\t * Minutos\n\n\t * Placas de Unidad\n\n\t * Nombre del Operador\n\n\t * Productos del Inventario");
-			PrimeFaces.current().dialog().showMessageDynamic(message);
-		}
-	}
-	
 	public void dialogoHorarioExtra(ActionEvent event) {
-		FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Horario Extra", "Este horario generará un costo extra.");
-		PrimeFaces.current().dialog().showMessageDynamic(message);
-	}
-	
-	public void muestraInventario() {
-		this.getFolio();
-		if(this.idPlanta != null)
-			listaInventario = emisionSalidasDAO.getInventario(this.cliente, this.idPlanta);
-		else
-			listaInventario = new ArrayList<Inventario>();
+		FacesUtils.addDynamicDialogMessage(FacesMessage.SEVERITY_INFO, "Horario Extra", "Este horario generará un costo extra.");
 	}
 	
 	public void cargarArchivo() {
-		FacesMessage message = null;
-		Severity severity = null;
-		String mensaje = null;
-		
 		Adjunto archivo = null;
 		BigDecimal tamanio = null;
 		
@@ -508,21 +404,17 @@ public class MbEmisionSalidas implements Serializable {
 			this.archivosList.add(archivo);
 			this.attachmentFile = null;
 			
-			mensaje = "El archivo se cargó correctamente.";
-			severity = FacesMessage.SEVERITY_INFO;
+			FacesUtils.addMessage(FacesMessage.SEVERITY_INFO, "Emisión de salida", "El archivo se cargó correctamente.");
 		} catch(ClientesException ex) {
-			mensaje = ex.getMessage();
-			severity = FacesMessage.SEVERITY_WARN;
+			log.error("Problema con la emisión de salidas...", ex);
+                        FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Emisión de salida", ex.getMessage());
 		} catch (Exception ex) {
 			log.error("Problema con la emisión de salidas...", ex);
-			mensaje = "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.";
-			severity = FacesMessage.SEVERITY_ERROR;
+			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Emisión de salida", "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.");
 		} finally {
 			tamanioTotal = tamanioTotal.divide(megabyte, BigDecimal.ROUND_HALF_UP);
 			
-			message = new FacesMessage(severity, "Emisión de salida", mensaje);
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	        PrimeFaces.current().ajax().update(":form:messages");
+			PrimeFaces.current().ajax().update(":form:messages");
 		}
 	}
 	
@@ -532,9 +424,8 @@ public class MbEmisionSalidas implements Serializable {
 		for(Adjunto a : archivosList) {
 			tamanio = tamanio.add(new BigDecimal(a.getTamanio()));
 		}
-		this.tamanioTotal = tamanio.divide(megabyte, BigDecimal.ROUND_HALF_UP);;
+		this.tamanioTotal = tamanio.divide(megabyte, BigDecimal.ROUND_HALF_UP);
 	}
-	
 
 	public void reload() throws IOException {
 	    ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
@@ -581,37 +472,13 @@ public class MbEmisionSalidas implements Serializable {
 		this.serieConstancia = serieConstancia;
 	}
 
-	public List<PreSalida> getListaPresalida() {
-		return listaPresalida;
-	}
+        public Salida getSalida() {
+            return salida;
+        }
 
-	public void setListaPresalida(List<PreSalida> listaPresalida) {
-		this.listaPresalida = listaPresalida;
-	}
-
-	public PreSalida getPreSalida() {
-		return preSalida;
-	}
-
-	public void setPreSalida(PreSalida preSalida) {
-		this.preSalida = preSalida;
-	}
-
-	public String getPlacas() {
-		return placas;
-	}
-
-	public void setPlacas(String placas) {
-		this.placas = placas;
-	}
-
-	public String getNombreOperador() {
-		return nombreOperador;
-	}
-
-	public void setNombreOperador(String nombreOperador) {
-		this.nombreOperador = nombreOperador;
-	}
+        public void setSalida(Salida salida) {
+            this.salida = salida;
+        }
 
 	public Date getFecha() {
 		return fecha;
@@ -629,28 +496,20 @@ public class MbEmisionSalidas implements Serializable {
 		this.fechaMin = fechaMin;
 	}
 
+        public Planta getPlantaSelected() {
+            return plantaSelected;
+        }
+
+        public void setPlantaSelected(Planta plantaSelected) {
+            this.plantaSelected = plantaSelected;
+        }
+
 	public List<Planta> getListaPlantas() {
 		return listaPlantas;
 	}
 
 	public void setListaPlantas(List<Planta> listaPlantas) {
 		this.listaPlantas = listaPlantas;
-	}
-
-	public Integer getIdPlanta() {
-		return idPlanta;
-	}
-
-	public void setIdPlanta(Integer idPlanta) {
-		this.idPlanta = idPlanta;
-	}
-
-	public String getObservaciones() {
-		return observaciones;
-	}
-
-	public void setObservaciones(String observaciones) {
-		this.observaciones = observaciones;
 	}
 	
 	public UploadedFile getAttachmentFile() {

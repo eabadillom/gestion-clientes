@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -61,13 +62,22 @@ public class MbLogin implements Serializable {
     	Connection conn = null;
     	
     	
+    	String context = null;
+		ExternalContext externalContext = null;
+		String destino = null;
+    	
     	try {
+    		faceContext = FacesContext.getCurrentInstance();
+    		externalContext = faceContext.getExternalContext();
+    		context = externalContext.getRequestContextPath();
+    		destino = context + "/bienvenido.xhtml";
+    		
     		log.info("Autenticando al usuario {}", this.clienteContacto.getUsuario());
-    		conn = Conexion.dsConexion();
+    		conn = Conexion.getConnection();
     		clienteContactoManager = new ClienteContactoDAO();
     		clienteManager = new ClienteDAO();
         	
-        	usuario = clienteContactoManager.get(clienteContacto.getUsuario());
+        	usuario = clienteContactoManager.get(conn, clienteContacto.getUsuario());
         	
         	if(usuario == null) {
         		this.espera();
@@ -114,7 +124,7 @@ public class MbLogin implements Serializable {
             log.info("Usuario autenticado correctamente: {}", usuario.getUsuario());
             message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Acceso correcto", null);
             FacesContext.getCurrentInstance().addMessage(null, message);
-            faceContext.getExternalContext().redirect("inventario.xhtml");
+            faceContext.getExternalContext().redirect(destino);
     	} catch(ClientesException ex) {
     		log.error("Problema con la validación del usuario: " + this.getClienteContacto().getUsuario(), ex);
     		clienteContacto = new ClienteContacto();
@@ -140,8 +150,6 @@ public class MbLogin implements Serializable {
     	ClienteContacto clienteContacto = null;
     	
     	try {
-//    		clienteContacto = (ClienteContacto)session.getAttribute("usuario");
-//    		log.info("El usuario intenta finalizar su sesión: " + clienteContacto.getUsuario());
     		session = request.getSession(false);
     		session.setAttribute("usuario", null);
     		session.setAttribute("idCliente", null);

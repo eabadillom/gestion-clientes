@@ -1,14 +1,14 @@
 package com.ferbo.clientes.beans;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -19,10 +19,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.util.Conexion;
-import com.ferbo.clientes.util.JasperReportUtil;
+import com.ferbo.gestion.reports.jasper.ReporteInventarioJR;
 
 @Named(value = "mbInventario")
 @ViewScoped
@@ -33,20 +35,24 @@ public class MbInventario implements Serializable {
 	private static Logger log = LogManager.getLogger(MbInventario.class);
 
 	private Date fechaCorte;
-	
+	private Date hoy;
+
 	private FacesContext faceContext;
 	private HttpServletRequest request;
 	private HttpSession session;
 	private Cliente cliente;
+	private ReporteInventarioJR reporteInventarioJR;
+	private StreamedContent file;
 	
 	@PostConstruct
 	public void init() {
 		this.fechaCorte = new Date();
-		
-		faceContext = FacesContext.getCurrentInstance();
-        request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
-        session = request.getSession(false);
+		this.hoy = new Date();
+		this.faceContext = FacesContext.getCurrentInstance();
+		this.request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
+		this.session = request.getSession(false);
 		this.cliente = (Cliente) session.getAttribute("cliente");
+		log.info("El cliente {} ha ingresado a reportes de inventario.", this.cliente.getNombre());
 	}
 	
 	public void generateReport() {
@@ -58,18 +64,14 @@ public class MbInventario implements Serializable {
 		File logoFile = new File(getClass().getResource(sLogoPath).getFile());
 		log.info("Imagen: " + logoFile.getPath());
 		
-		JasperReportUtil jasperReportUtil = new JasperReportUtil();
-		Map<String, Object> parameters = new HashMap<String, Object>();
 		Connection connection = null;
-		parameters = new HashMap<String, Object>();
 		try {
 			connection = Conexion.getConnection();
-			parameters.put("REPORT_CONNECTION", connection);
-			parameters.put("idCliente", this.cliente.getIdCliente());
-			parameters.put("fecha", getFechaCorte());
-			parameters.put("imagen", logoFile.getPath());
-			log.info("Parametros: " + parameters.toString());
-			jasperReportUtil.createPdf(getNameFilePdf(), parameters, reportFile.getPath());
+			this.reporteInventarioJR = new ReporteInventarioJR(connection, sLogoPath);
+			byte[] bytes = this.reporteInventarioJR.getPDFReporteInventario(this.cliente.getIdCliente(), null);
+			InputStream input = new ByteArrayInputStream(bytes);
+			this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
+			log.info("Terminando generacion de reporte de inventarios...");
 		} catch (SQLException ex) {
 			log.error("Problema en base de datos...", ex);
 		} catch(Exception ex) {
@@ -81,8 +83,9 @@ public class MbInventario implements Serializable {
 	
 	public String getNameFilePdf() {
 		DateFormat dateFormatPeriodo = new SimpleDateFormat("yyyy-mm-dd"); 
-		String strDatePeriodo = dateFormatPeriodo.format(getFechaCorte());  
-		return "inventario"+"_"+strDatePeriodo+".pdf";
+		String strDatePeriodo = dateFormatPeriodo.format(getFechaCorte());
+		String nombreArchivo = String.format("Inventario_%s.pdf", strDatePeriodo);
+		return nombreArchivo;
 	}
 	
 	public Date getFechaCorte() {
@@ -93,4 +96,19 @@ public class MbInventario implements Serializable {
 		this.fechaCorte = periodo;
 	}
 
+	public StreamedContent getFile() {
+		return file;
+	}
+
+	public void setFile(StreamedContent file) {
+		this.file = file;
+	}
+	
+	public Date getHoy() {
+		return hoy;
+	}
+
+	public void setHoy(Date hoy) {
+		this.hoy = hoy;
+	}
 }

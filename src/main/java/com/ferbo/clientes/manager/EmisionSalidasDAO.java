@@ -1,7 +1,5 @@
 package com.ferbo.clientes.manager;
 
-import static com.ferbo.clientes.util.Conexion.getConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -109,15 +107,13 @@ public class EmisionSalidasDAO {
 		return bean;
 	}
 	
-	public List<Inventario> getInventario(Cliente cliente, Integer idPlanta) {
+	public List<Inventario> getInventario(Connection conn, Cliente cliente, Integer idPlanta) {
 		List<Inventario> beans = null;
 		Inventario bean = null;
-		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int idx = 1;
 		try {
-			conn = getConnection();
 			ps = conn.prepareStatement(SELECT_INVENTARIO);
 			log.debug(SELECT_INVENTARIO);
 			ps.setInt(idx++, cliente.getIdCliente());
@@ -134,7 +130,6 @@ public class EmisionSalidasDAO {
 		} finally {
 			Conexion.close(rs);
 			Conexion.close(ps);
-			Conexion.close(conn);
 		}
 		return beans;
 	}	

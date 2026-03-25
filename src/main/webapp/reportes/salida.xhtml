@@ -1,0 +1,33 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Salidas</ui:define>
+
+	<ui:define name="head">
+		<h:outputScript library="js" name="calendar_es.js" />
+	</ui:define>
+
+	<ui:define name="content">
+		<h:form id="form" target="_blank">
+			<div class="p-grid ui-fluid">
+				<div class="p-field p-col-6 p-md-2">
+					<p:outputLabel for="fechaInicio" value="Del" />
+					<p:datePicker id="fechaInicio" showIcon="true" styleClass="p-mr-4 p-mb-2" placeholder="Inicio periodo" value="#{mbSalidas.fechaInicio}"/>
+				</div>
+				<div class="p-field p-col-6 p-md-2">
+					<p:outputLabel for="fechaFin" value="al" />
+					<p:datePicker id="fechaFin" showIcon="true" styleClass="p-mr-4 p-mb-2" placeholder="Fin del periodo" value="#{mbSalidas.fechaFin}"/>
+				</div>
+				<div class="p-field p-col-6 p-md-2">
+					<p:outputLabel value="." style="color: rgba(255, 255, 255, 0);" />
+					<p:commandButton value="Consultar" process="@this fechaInicio fechaFin" rendered="true" ajax="false" actionListener="#{mbSalidas.generateReport}" styleClass="p-mr-2 p-mb-2" icon="pi pi-check" iconPos="right" >
+						<p:fileDownload value="#{mbSalidas.file}" />
+					</p:commandButton>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

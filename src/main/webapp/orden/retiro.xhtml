@@ -1,0 +1,234 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Orden de retiro</ui:define>
+	<ui:define name="head">
+		<h:outputScript library="js" name="calendar_es.js" />
+		<h:outputScript library="js" name="funciones.js" />
+		<h:outputScript library="js" name="primefaces_locale.js" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form">
+			<p:growl id="messages" showDetail="true" />
+			<p:panel header="Datos generales">
+				<div class="p-grid ui-fluid">
+					<div class="p-col-12 p-md-6">
+						<p:outputLabel for="nombreCliente" value="Cliente" />
+						<p:inputText id="nombreCliente" placeholder="#{mbEmisionSalidas.cliente.nombre}" readonly="true" />
+					</div>
+					<div class="p-col-6 p-md-3">
+						<p:outputLabel for="plantas" value="Planta" />
+						<p:selectOneMenu id="plantas" autoWidth="false" value="#{mbEmisionSalidas.plantaSelected}" converter="entityConverter" filter="true" filterMatchMode="startsWith">
+							<f:selectItem itemLabel="--Selecione la planta--" noSelectionOption="true" />
+							<f:selectItems var="planta" value="#{mbEmisionSalidas.listaPlantas}" itemLabel="#{planta.descripcion}" itemValue="#{planta}" />
+							<p:ajax listener="#{mbEmisionSalidas.muestraInventario}" update="dt-products folioSalida" />
+						</p:selectOneMenu>
+					</div>
+					<div class="p-col-6 p-md-3">
+						<p:outputLabel for="fechaSalida" value="Fecha - Hora de Salida" />
+						<p:datePicker id="fechaSalida" showIcon="true"  mindate="#{mbEmisionSalidas.fechaMin}" required="true" requiredMessage="Indique la fecha y hora de salida de la mercancía" showTime="true" value="#{mbEmisionSalidas.fecha}" pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6">
+							<p:ajax event="dateSelect" listener="#{mbEmisionSalidas.onChangeFecha}"/>
+						</p:datePicker>
+					</div>
+					<div class="p-col-12 p-md-6">
+						<p:outputLabel for="nombreOperador" value="Nombre del Operador" />
+							<p:inputText id="nombreOperador" value="#{mbEmisionSalidas.salida.nombreTransportista}" required="true" requiredMessage="Nombre del Operador requerido" oninput="this.value = this.value.toUpperCase()" />
+							<p:message for="nombreOperador" />
+					</div>
+					<div class="p-col-6 p-md-3">
+						<p:outputLabel for="placasUnidad" value="Placas Unidad" />
+						<p:inputText id="placasUnidad" value="#{mbEmisionSalidas.salida.placasTransporte}" required="true" requiredMessage="Placas de Unidad requerida" oninput="this.value = this.value.toUpperCase()"/>
+						<p:message for="placasUnidad" />
+					</div>
+					<div class="p-col-6 p-md-3">
+						<p:outputLabel for="folioSalida" value="Folio de solicitud" />
+						<p:inputText id="folioSalida" placeholder="FOLIO" value="#{mbEmisionSalidas.folioSalida}" readonly="true" />
+					</div>
+				</div>
+			</p:panel>
+			<div style="padding-top: 1rem;">
+				<p:panel header="Su inventario">
+					<p:dataTable id="dt-products" widgetVar="dtProducts" var="inventario" value="#{mbEmisionSalidas.listaInventario}" reflow="true"
+						selection="#{mbEmisionSalidas.listaInventarioSelect}" rowKey="#{inventario.partidaClave}" paginator="true" rows="10"
+						rowSelectMode="add" paginatorPosition="bottom" tableStyle="width:auto">
+						<f:facet name="header">
+							<div class="products-table-header">
+								<span class="filter-container ui-input-icon-left">
+									<i class="pi pi-search"></i>
+									<p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar por producto, entrada, caducidad, lote, etc." />
+								</span>
+							</div>
+						</f:facet>
+						<p:ajax event="toggleSelect"
+							listener="#{mbEmisionSalidas.toggleSelect()}" process="@this"
+							update="dt-products" />
+						<p:ajax event="rowSelectCheckbox"
+							listener="#{mbEmisionSalidas.onRowSelect}" process="@this"
+							update="dt-products" />
+						<p:ajax event="rowSelect"
+							listener="#{mbEmisionSalidas.onRowSelect}" process="@this"
+							update="dt-products" />
+						<p:ajax event="rowUnselect"
+							listener="#{mbEmisionSalidas.onRowUnselect}"
+							update="dt-products" />
+						<p:ajax event="rowUnselectCheckbox"
+							listener="#{mbEmisionSalidas.onRowUnselect}"
+							update="dt-products" />
+						<p:column selectionMode="multiple" exportable="false" width="1rem"></p:column>
+						<p:column width="1rem">
+			                <p:rowToggler/>
+			            </p:column>
+						<!-- <p:column headerText="Planta" sortBy="#{inventario.plantaAbrev}" filterBy="#{inventario.plantaAbrev}" width="3rem">
+							<h:outputText value="#{inventario.plantaAbrev}"/>
+						</p:column> -->
+						<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" filterBy="#{inventario.folioCliente}">
+							<h:outputText value="#{inventario.folioCliente}" />
+						</p:column>
+						<p:column headerText="Producto" sortBy="#{inventario.producto}" filterBy="#{inventario.producto}">
+							<h:outputText value="#{inventario.producto}" />
+						</p:column>
+						<p:column headerText="Existencia" sortBy="#{inventario.existencia}" filterBy="#{inventario.existencia}">
+							<h:outputText value="#{inventario.existencia}" />
+						</p:column>
+						<p:column headerText="Unidad" sortBy="#{inventario.unidad}" filterBy="#{inventario.unidad}">
+							<h:outputText value="#{inventario.unidad}" />
+						</p:column>
+						<p:column headerText="Peso (Kg)" sortBy="#{inventario.peso}"
+							filterBy="#{inventario.peso}">
+							<h:outputText value="#{inventario.peso}"/>
+						</p:column>
+						<p:column headerText="Cantidad" width="4rem">
+							<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" style="width: auto;"
+								minValue="0"
+								maxValue="#{inventario.existencia}"
+								disabled="#{!inventario.habilitado}">
+								<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
+							</p:inputNumber>
+						</p:column>
+						<p:column headerText="Peso Aprox.(Kg)">
+							<h:outputText value="#{inventario.pesoAprox}"/>
+						</p:column>
+						<p:rowExpansion>
+							<div class="p-grid ui-fluid">
+								<div class="p-field p-col-2 p-md-2">
+									<p:outputLabel for="@next" value="Código" />
+									<p:inputText value="#{inventario.codigo}" readonly="true" />
+								</div>
+								<div class="p-field p-col-2 p-md-2">
+									<p:outputLabel for="@next" value="Caducidad"/>
+									<p:datePicker value="#{inventario.caducidad}" readonly="true"/>
+								</div>
+								<div class="p-field p-col-2 p-md-2">
+									<p:outputLabel for="@next" value="Lote"/>
+									<p:inputText value="#{inventario.lote}" readonly="true" />
+								</div>
+								<div class="p-field p-col-2 p-md-2">
+									<p:outputLabel for="@next" value="Contenedor"/>
+									<p:inputText value="#{inventario.sap}" readonly="true" />
+								</div>
+							</div>
+						</p:rowExpansion>
+					</p:dataTable>
+				</p:panel>
+			</div>
+			<div style="padding-top: 1rem;">
+				<p:panel header="Servicios extras" widgetVar="testPanel">
+					<p:dataTable id="dt-servicio" widgetVar="dtServicio"
+						var="serviciosExtras" value="#{mbEmisionSalidas.listaServicios}"
+						reflow="true" styleClass="servicio-table"
+						selection="#{mbEmisionSalidas.listaServiciosSelect}"
+						rowKey="#{serviciosExtras.idServicioExtra}" 
+						rowSelectMode="add">
+						<f:facet name="header">
+							<div class="products-table-header">
+								<span class="filter-container ui-input-icon-left">
+									<i class="pi pi-search"></i>
+									<p:inputText id="globalFilterTwo" onkeyup="PF('dtServicio').filter()" placeholder="Buscar" />
+								</span>
+							</div>
+						</f:facet>
+						<p:ajax event="toggleSelect"
+												listener="#{mbEmisionSalidas.toggleSelectServicios()}" process="@this"
+												update="dt-servicio" />
+											<p:ajax event="rowSelectCheckbox"
+												listener="#{mbEmisionSalidas.onRowSelectServicios}" process="@this"
+												update="dt-servicio" />
+											<p:ajax event="rowSelect"
+												listener="#{mbEmisionSalidas.onRowSelectServicios}" process="@this"
+												update="dt-servicio" />
+											<p:ajax event="rowUnselect"
+												listener="#{mbEmisionSalidas.onRowUnselectServicios}"
+												update="dt-servicio" />
+											<p:ajax event="rowUnselectCheckbox"
+												listener="#{mbEmisionSalidas.onRowUnselectServicios}"
+												update="dt-servicio" />
+						<p:column selectionMode="multiple" exportable="false"></p:column>
+						<p:column headerText="Servicio" sortBy="#{serviciosExtras.servicioExtra}">
+							<h:outputText value="#{serviciosExtras.servicioExtra}" />
+						</p:column>
+						<p:column headerText="Cantidad" sortBy="#{serviciosExtras.cantidad}">
+							<p:inputNumber value="#{serviciosExtras.cantidad}" minValue="0" decimalPlaces="0" disabled="#{!serviciosExtras.habilitado}" />
+						</p:column>
+						<p:column headerText="Unidad">
+							<h:outputText value="#{serviciosExtras.unidadManejo}"/>
+						</p:column>
+					</p:dataTable>
+				</p:panel>
+			</div>
+			<div style="padding-top: 1rem;">
+				<p:panel header="Observaciones generales">
+					<div class="p-grid ui-fluid p-col-12">
+						<div class="p-col-10 p-md-10">
+							<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()"/>
+						</div>
+						<div class="p-col-2 p-md-2">
+							<p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" onclick="PF('dialogCarga').show()" process="@this"/>
+						</div>
+					</div>
+				</p:panel>
+			</div>
+			<div style="padding-top: 1rem;" align="center">
+				<p:commandButton value="Registrar mi orden de salida" action="#{mbEmisionSalidas.guardarPresalida}" update=":form" styleClass="p-mr-2 p-mb-2"/>
+				<p:commandButton value="Nueva orden de salida" action="#{mbEmisionSalidas.reload}" update=":form" styleClass="p-mr-2 p-mb-2"/>
+			</div>
+			
+		</h:form>
+		<p:dialog header="Adjuntar archivos" showEffect="fade" modal="true" widgetVar="dialogCarga" responsive="true" width="600">
+			<h:form id="frmArchivos" enctype="multipart/form-data">
+				<p:panel id="pnlCarga" class="ui-fluid">
+					<div class="p-grid ui-fluid p-col-12">
+						<div class="p-col-12 p-md-12">
+							<p:fileUpload value="#{mbEmisionSalidas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" uploadIcon="pi pi-upload"/>
+						</div>
+						<div class="p-col-6 p-md-6">
+							<p:commandButton value="Agregar" icon="pi pi-check" actionListener="#{mbEmisionSalidas.cargarArchivo}"  process="@this pnlCarga" update="pnlCarga" styleClass="mt-3 ui-button-outlined block"/>
+						</div>
+						<div class="p-col-6 p-md-6">
+							<p:commandButton value="Cerrar" icon="pi pi-times" class="ui-button-secondary" onclick="PF('dialogCarga').hide()" />
+						</div>
+					</div>
+					<div class="p-grid">
+						<p:dataTable id="dt-adjuntos" value="#{mbEmisionSalidas.archivosList}" var="archivo">
+							<p:column headerText="Nombre" >
+								<p:outputLabel value="#{archivo.nombreArchivo}" />
+							</p:column>
+							<p:column headerText="Tamaño (MB):">
+								<p:outputLabel value="#{archivo.tamanio / 1048576}">
+									<f:convertNumber pattern="#0.00" />
+								</p:outputLabel>
+							</p:column>
+							<p:column headerText="#{mbEmisionSalidas.tamanioTotal}">
+							    <p:commandButton class="ui-button-danger" icon="pi pi-times" action="#{mbEmisionSalidas.eliminarAdjunto}" update="dt-adjuntos">
+							        <f:setPropertyActionListener value="#{archivo}" target="#{mbEmisionSalidas.selectedAttachment}"/>
+							    </p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</p:panel>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>

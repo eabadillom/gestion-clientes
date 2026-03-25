@@ -1,12 +1,14 @@
 package com.ferbo.clientes.beans;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -17,11 +19,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.util.Conexion;
-import com.ferbo.clientes.util.DateUtils;
-import com.ferbo.clientes.util.JasperReportUtil;
+import com.ferbo.gestion.reports.jasper.ReporteEntradasJR;
 
 @Named(value = "mbEntrada")
 @ViewScoped
@@ -39,6 +42,8 @@ public class MbEntrada implements Serializable {
 	private HttpServletRequest request;
 	private HttpSession session;
 	private Cliente cliente;
+        private ReporteEntradasJR reporteEntradasJR;
+        private StreamedContent file;
 	
 	public MbEntrada() {
 		this.fechaInicio = new Date();
@@ -53,6 +58,7 @@ public class MbEntrada implements Serializable {
         request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
         session = request.getSession(false);
 		this.cliente = (Cliente) session.getAttribute("cliente");
+                log.info("El cliente {} ha ingresado a reportes de entradas.", this.cliente.getNombre());
 	}
 	
 	public void makeReport() {
@@ -65,27 +71,14 @@ public class MbEntrada implements Serializable {
 		File logoFile = new File(getClass().getResource(sLogoPath).getFile());
 		log.info("Imagen: " + logoFile.getPath());
 		
-		String fileName = null;
-		
-		JasperReportUtil jasperReportUtil = new JasperReportUtil();
-		Map<String, Object> parameters = new HashMap<String, Object>();
 		Connection connection = null;
 		
 		try {
-			parameters = new HashMap<String, Object>();
-			fileName = "entradas_"
-					+ DateUtils.getString(this.fechaInicio, DateUtils.FORMATO_YYYY_MM_DD)
-					+ "-"
-					+ DateUtils.getString(this.fechaFin, DateUtils.FORMATO_YYYY_MM_DD)
-					+ ".pdf"
-					;
 			connection = Conexion.getConnection();
-			parameters.put("REPORT_CONNECTION", connection);
-			parameters.put("idCliente", this.cliente.getIdCliente());
-			parameters.put("fechaInicio", this.fechaInicio);
-			parameters.put("fechaFin", this.fechaFin);
-			parameters.put("imagen", logoFile.getPath());
-			jasperReportUtil.createPdf(fileName, parameters, reportFile.getPath());
+                        reporteEntradasJR = new ReporteEntradasJR(connection, sLogoPath);
+                        byte[] bytes = reporteEntradasJR.getPDF(fechaInicio, fechaFin, cliente.getIdCliente(), null, null);
+                        InputStream input = new ByteArrayInputStream(bytes);
+                        this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
 			log.info("Terminando generacion de reporte de entradas...");
 		} catch (SQLException ex) {
 			log.error("Problema en base de datos...", ex);
@@ -95,6 +88,14 @@ public class MbEntrada implements Serializable {
 			Conexion.close(connection);
 		}
 			
+	}
+        
+        public String getNameFilePdf() {
+		DateFormat dateFormatPeriodo = new SimpleDateFormat("yyyy-mm-dd"); 
+		String strFechaInicio = dateFormatPeriodo.format(getFechaInicio());
+                String strFechaFin = dateFormatPeriodo.format(getFechaFin());
+                String nombreArchivo = String.format("Entradas_%s-%s.pdf", strFechaInicio, strFechaFin);
+		return nombreArchivo;
 	}
 	
 	public Date getFechaInicio() {
@@ -112,4 +113,13 @@ public class MbEntrada implements Serializable {
 	public void setFechaFin(Date fechaFin) {
 		this.fechaFin = fechaFin;
 	}
+
+        public StreamedContent getFile() {
+            return file;
+        }
+
+        public void setFile(StreamedContent file) {
+            this.file = file;
+        }
+        
 }
