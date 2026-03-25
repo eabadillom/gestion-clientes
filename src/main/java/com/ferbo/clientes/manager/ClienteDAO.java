@@ -5,8 +5,6 @@
  */
 package com.ferbo.clientes.manager;
 
-import static com.ferbo.clientes.util.Conexion.getConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -295,12 +293,10 @@ public class ClienteDAO extends DAO {
         return clientes;
     }
 
-    public Cliente login(Cliente cliente) throws SQLException {
-    	Connection connection = null;
-        PreparedStatement preparedStatement = null;
+    public Cliente login(Cliente cliente, Connection connection) throws SQLException {
+    	PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            connection = getConnection();
             preparedStatement = connection.prepareStatement(SELECT_LOGIN);
             preparedStatement.setString(1, cliente.getNombre());
             preparedStatement.setString(2, cliente.getRFC());
@@ -319,7 +315,6 @@ public class ClienteDAO extends DAO {
         } finally {
             close(resultSet);
 			close(preparedStatement);
-			close(connection);
         }
 		return cliente;
     }

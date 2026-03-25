@@ -6,7 +6,6 @@ public class ServiciosExtras {
 	private int idServicioExtra;
 	private String servicioExtra;
 	private int cantidad;
-	private String observacion;
 	private boolean habilitado;
 	private Integer idUnidadManejo;
 	private String unidadManejo;
@@ -34,14 +33,6 @@ public class ServiciosExtras {
 	
 	public void setCantidad(int cantidad) {
 		this.cantidad = cantidad;
-	}
-	
-	public String getObservacion() {
-		return observacion;
-	}
-	
-	public void setObservacion(String observacion) {
-		this.observacion = observacion;
 	}
 	
 	public boolean isHabilitado() {
@@ -88,9 +79,8 @@ public class ServiciosExtras {
 	public String toString() {
 		return "{\"folioSalida\":\"" + folioSalida + "\", \"idServicioExtra\":\"" + idServicioExtra
 				+ "\", \"servicioExtra\":\"" + servicioExtra + "\", \"cantidad\":\"" + cantidad
-				+ "\", \"observacion\":\"" + observacion + "\", \"habilitado\":\"" + habilitado
-				+ "\", \"idUnidadManejo\":\"" + idUnidadManejo + "\", \"unidadManejo\":\"" + unidadManejo
-				+ "\", \"tipoCobro\":\"" + tipoCobro + "\"}";
+				+ "\", \"habilitado\":\"" + habilitado + "\", \"idUnidadManejo\":\"" + idUnidadManejo 
+                                + "\", \"unidadManejo\":\"" + unidadManejo + "\", \"tipoCobro\":\"" + tipoCobro + "\"}";
 	}
 	
 	

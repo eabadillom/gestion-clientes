@@ -70,6 +70,7 @@ public class ContactoDAO extends DAO {
 			}
 			
 		} finally {
+                        close(rs);
 			close(ps);
 		}
 		

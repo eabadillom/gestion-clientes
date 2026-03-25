@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
@@ -47,14 +48,24 @@ public class SideBarBean implements Serializable {
     }
     
 	public void logout() {
+		String context = null;
+		FacesContext facesContext = null;
+		ExternalContext externalContext = null;
+		String destino = null;
+		
     	try {
+    		facesContext = FacesContext.getCurrentInstance();
+    		externalContext = facesContext.getExternalContext();
+    		context = externalContext.getRequestContextPath();
+    		destino = context + "/login.xhtml";
+    		
     		clienteContacto = (ClienteContacto)session.getAttribute("usuario");
     		log.info("El usuario intenta finalizar su sesión: " + clienteContacto.getUsuario());
-    		
     		session.setAttribute("usuario", null);
     		session.setAttribute("idCliente", null);
     		session.invalidate();
-    		faceContext.getExternalContext().redirect("login.xhtml");
+    		log.info("Redirigiendo a {}", destino);
+    		faceContext.getExternalContext().redirect(destino);
     	} catch(Exception ex) {
     		log.error("Problema en el cierre de sesión del usuario...", ex);
     	} finally {

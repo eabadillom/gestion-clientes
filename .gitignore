@@ -33,3 +33,16 @@ target/
 /target/
 .settings/
 .vscode/
+
+.classpath
+.project
+
+.tern-project
+
+.settings/
+
+.idea/
+nb-configuration.xml
+/src/main/resources/META-INF/persistence.xml
+
+

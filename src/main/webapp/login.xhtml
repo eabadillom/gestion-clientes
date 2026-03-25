@@ -4,7 +4,6 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
-
 <h:head>
 	<f:facet name="first">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -15,7 +14,6 @@
 	</f:facet>
 	<title>Clientes</title>
 </h:head>
-
 <h:body styleClass="login-body">
 	<h:form id="login_form">
 		<p:growl id="growl" life="5000" />
@@ -33,15 +31,16 @@
 					<p:graphicImage name="images/logo.png" library="layouts" width="100%" height="auto"/>
 				</div>
 				<div style="padding: 1rem;">
-					<p:inputText id="usuario" placeholder="Usuario" required="true" value="#{mbLogin.clienteContacto.usuario}" requiredMessage="Usuario requerido" style="width: 100%;"/>
+					<p:inputText id="usuario" style="width: 18rem; text-align: center;" placeholder="Usuario" required="true" value="#{mbLogin.clienteContacto.usuario}" requiredMessage="Debe proporcionar su usuario"/>
 					<p:message for="usuario" />
 				</div>
 				<div style="padding: 1rem;">
-					<p:password id="contraseña" placeholder="Contraseña" required="true" feedback="false" redisplay="true" value="#{mbLogin.clienteContacto.password}" requiredMessage="Contraseña requerida" style="width: 100%;"/>
+					<p:password id="contraseña" style="width: 18rem; text-align: center;" placeholder="Contraseña" required="true" feedback="false" redisplay="true" value="#{mbLogin.clienteContacto.password}" requiredMessage="Debe proporcionar su contraseña"/>
 					<p:message for="contraseña" />
 				</div>
-				<div style="padding-top: 2rem; padding-bottom: 1rem; padding-left: 1rem; padding-right: 1rem;">
-					<p:commandButton value="Entrar" icon="pi pi-sign-in" actionListener="#{mbLogin.login}" process="@this login_form" update="login_form" style="width: 100%;" onclick="PF('statusDialog').show();" oncomplete="PF('statusDialog').hide();"/>
+				<p:spacer style="height: 1rem;"/>
+				<div style="padding: 1rem;">
+					<p:commandButton value="Entrar" icon="pi pi-sign-in" actionListener="#{mbLogin.login}" process="@this login_form" update="login_form" style="width: 15rem;" onclick="PF('statusDialog').show();" oncomplete="PF('statusDialog').hide();"/>
 				</div>
 			</p:panel>
 		</div>

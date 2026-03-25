@@ -1,0 +1,356 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Emisión de Entradas</ui:define>
+	<ui:define name="head">
+		<h:outputScript src="https://code.jquery.com/jquery-3.4.1.min.js"
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			crossorigin="anonymous"></h:outputScript>
+		<h:outputScript library="js" name="calendar_es.js" />
+		<h:outputScript library="js" name="funciones.js" />
+		<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form">
+			<p:growl id="messages" showDetail="true" />
+			<div class="p-grid">
+				<div class="p-col-12">
+					<div class="card">
+						<p:panel id="general" header="Control de Entradas">
+							<div class="p-grid ui-fluid">						
+								<div class="p-field p-col-2 p-md-6">
+									<p:outputLabel for="cliente" value="Cliente" />
+									<p:inputText id="cliente" placeholder="#{mbLogin.cliente.nombre}" readonly="true" />
+								</div>		
+								
+								<div class="p-field p-col-10 p-md-2">						
+									<p:outputLabel for="fechaEntrada" value="Fecha - Hora de Entrada" />
+									<p:datePicker id="fechaEntrada" locale="es" showIcon="true" showTime="true" 
+									mindate="#{mbEmisionEntradas.fechaMin}" required="true"
+									value="#{mbEmisionEntradas.ingreso.fechaHora}">
+										<p:ajax event="dateSelect" listener="#{mbEmisionEntradas.onChangeFecha}" process="@this"/>									
+									</p:datePicker>								
+								</div>				
+								
+								<div class="p-field p-col-2 p-md-2">
+									<p:outputLabel for="planta" value="Planta"/>
+									<p:selectOneMenu id="planta" value="#{mbEmisionEntradas.idPlanta}" filter="true" filterMatchMode="startsWith" >
+										<f:selectItem itemLabel="Seleccione la Planta" noSelectionOption="true" />
+										<f:selectItems value="#{mbEmisionEntradas.listaPlantas}" var="planta" itemLabel="#{planta.descripcion}" itemValue="#{planta.id}"/>
+										<p:ajax process="@this"></p:ajax>									
+									</p:selectOneMenu>
+								</div>
+								
+								<div class="p-col-4">
+									<p:outputLabel for="transportista" value="Nombre del Operador"/>
+									<p:inputText id="transportista" value="#{mbEmisionEntradas.ingreso.transportista}" required="true" requiredMessage="Nombre del Operador Requerido">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+									<p:message for="transportista" />
+								</div>
+							
+								<div class="p-col-2">
+									<p:outputLabel for="placas" value="Placas Unidad"/>
+									<p:inputText id="placas" value="#{mbEmisionEntradas.ingreso.placas}" required="true" requiredMessage="Placas de Unidad Requerida">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+									<p:message for="placas" />
+								</div>
+								
+								<div class="p-col-2">
+									<p:outputLabel for="folio" value="Folio"/>
+									<p:inputText id="folio" 
+									placeholder="#{mbEmisionEntradas.getFolio()}" readonly="true"/>
+								</div>						
+							</div>
+						</p:panel>
+						
+						<p:panel id="pnlProducto" header="Configure sus tarimas" style="margin-top: 30px" >			
+							<div class="p-grid ui-fluid" >
+								<div class="p-field p-col-2 p-md-6">
+									<p:outputLabel for="productoCte" value="Producto por Cliente" />
+									<p:selectOneMenu id="productoCte" value="#{mbEmisionEntradas.ingresoProducto.idProducto}">
+										<f:selectItem itemLabel="Selecciona un producto" noSelectionOption="true"></f:selectItem>
+										<f:selectItems value="#{mbEmisionEntradas.listaProducto}" var="producto" itemLabel="#{producto.producto_ds}" itemValue="#{producto.id}">
+										</f:selectItems>
+										<p:ajax process="@this"></p:ajax>
+									</p:selectOneMenu>
+								</div>
+								
+								<div class="p-field p-col-6 p-md-2">
+									<p:outputLabel for="cantidad" value="Cantidad"/>
+									<p:inputText id="cantidad" value="#{mbEmisionEntradas.ingresoProducto.cantidad}">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+								</div>
+								
+								<div class="p-field p-col-4 p-md-2">
+									<p:outputLabel for="unidad" value="Unidad" />
+									<p:selectOneMenu id="unidad" value="#{mbEmisionEntradas.ingresoProducto.idUnidadMedida}" >
+										<f:selectItem itemLabel="Seleccione unidad" />
+										<f:selectItems value="#{mbEmisionEntradas.listaUnidadDeManejo}" var="unidadM" itemLabel="#{unidadM.unidad_de_manejo_ds}" itemValue="#{unidadM.unidad_de_manejo_cve}" />
+										<p:ajax process="@this"></p:ajax>
+									</p:selectOneMenu>
+								</div>
+								
+								<div class="p-field p-col-2 p-md-2">								
+									<p:outputLabel for="peso" value="Peso" />
+									<p:inputText id="peso" value="#{mbEmisionEntradas.ingresoProducto.peso}">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+								</div>
+								
+								<div class="p-col-2 p-md-2">
+									<p:outputLabel for="lote" value="Lote" />
+									<p:inputText id="lote" value="#{mbEmisionEntradas.ingresoProducto.lote}">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+								</div>
+								
+								<div class="p-col-2 p-md-2">
+									<p:outputLabel for="pedimento" value="Pedimento" />
+									<p:inputText id="pedimento" value="#{mbEmisionEntradas.ingresoProducto.pedimento}">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+								</div>
+								
+								<div class="p-col-2 p-md-2">
+									<p:outputLabel for="contenedor" value="Contenedor" />
+									<p:inputText id="contenedor" value="#{mbEmisionEntradas.ingresoProducto.contenedor}">
+										<p:ajax process="@this"></p:ajax>
+									</p:inputText>
+								</div>
+								
+								<div class="p-col-2 p-md-2" >
+									<p:outputLabel for="fechaCaducidad" value="fecha caducidad"/>
+									<p:datePicker id="fechaCaducidad" showIcon="true" locale="es" value="#{mbEmisionEntradas.ingresoProducto.fechaCaducidad}">
+										<p:ajax process="@this"></p:ajax>
+									</p:datePicker>
+								</div>
+								
+								<div class="p-col-2 p-md-2">
+									<p:outputLabel for="otro" value="Otro" />
+									<p:inputText id="otro" value="#{mbEmisionEntradas.ingresoProducto.otro}" />
+								</div>
+								
+								<div class="p-col-2 p-md-2" style="margin-top: 17px">
+									<p:commandButton value="Agregar" oncomplete="PF('dlg-tarimas').show()" process="@this form:general form:pnlProducto" update="form:general form:pnlProducto"/>
+								</div>
+							</div>
+						</p:panel>
+						
+						<p:dataTable id="dt-ingresoProducto" var="ingresoProducto" value="#{mbEmisionEntradas.listaIngresoProducto}" paginator="true"
+									 paginatorPosition="bottom" rows="5" style="margin-top: 20px" rowKey="#{ingresoProducto.peso}">
+							
+							<f:facet name="header">
+								<div>Sus productos</div>
+							</f:facet>
+							
+							<p:column exportable="false" width="3%">
+								<p:rowToggler />
+							</p:column>					
+							
+							<p:column headerText="Tarimas">
+								<h:outputText value="#{ingresoProducto.noTarimas}"/>
+							</p:column>
+							
+							<p:column headerText="Producto">
+								<h:outputText value="#{ingresoProducto.producto.producto_ds}"/>
+							</p:column>
+							
+							<p:column headerText="Cantidad x Tarima">
+								<h:outputText value="#{ingresoProducto.cantidad}" />
+							</p:column>
+							
+							<p:column headerText="Unidad">
+								<h:outputText value="#{ingresoProducto.unidadDeManejo.unidad_de_manejo_ds}" />
+							</p:column>
+							
+							<p:column headerText="Peso Total x tarima">
+								<h:outputText value="#{ingresoProducto.peso}" />
+							</p:column>
+							
+							<p:column>
+								<p:commandButton class="ui-button-danger" icon="pi pi-times" action="#{mbEmisionEntradas.deleteProducto}">
+									<f:setPropertyActionListener value="#{ingresoProducto}" target="#{mbEmisionEntradas.ingresoProductoSelect}"></f:setPropertyActionListener>
+								</p:commandButton>
+							</p:column>
+							
+							<p:rowExpansion >
+								
+								<div class="p-grid ui-fluid">
+									<div class="p-field p-col-2 p-md-2">
+										<p:outputLabel for="@next" value="Lote" />
+										<p:inputText value="#{ingresoProducto.lote}" readonly="true" />
+									</div>									
+									<div class="p-field p-col-2 p-md-2">
+										<p:outputLabel for="@next" value="Pedimento"/>
+										<p:inputText value="#{ingresoProducto.pedimento}" readonly="true" />
+									</div>
+									<div class="p-field p-col-2 p-md-2">
+										<p:outputLabel for="@next" value="Contenedor"/>
+										<p:inputText value="#{ingresoProducto.contenedor}" readonly="true" />
+									</div>
+									<div class="p-field p-col-2 p-md-2">
+										<p:outputLabel for="@next" value="Fecha Caducidad"/>
+										<p:datePicker value="#{ingresoProducto.fechaCaducidad}" readonly="true"/>
+									</div>
+									<div class="p-field p-col-2 p-md-2">
+										<p:outputLabel for="@next" value="Otro"/>
+										<p:inputText value="#{ingresoProducto.otro}" readonly="true" />
+									</div>
+									
+								</div>						
+								
+							</p:rowExpansion>
+							
+							<f:facet name="footer">
+								
+								<span style="margin-left: 75px" >Tarimas: <h:outputText value="#{mbEmisionEntradas.sumaTarimas}" /></span>
+								
+								<span style="margin-left: 440px"><h:outputText value="#{mbEmisionEntradas.sumaCantidad}"/> unidades</span>
+								
+								<span style="margin-left: 440px"><h:outputText value="#{mbEmisionEntradas.sumaPeso}"/> Kg.</span>
+								
+							</f:facet>
+						
+						</p:dataTable>
+						
+						<p:panel id="pnl-servicio" header="Para los servicios de:" class="ui-fluid" style="margin-top: 28px;margin-bottom:28px">
+							<div class="p-grid ui-fluid p-col-12">
+							
+								<div class="p-col-2 p-md-4">
+								<p:selectOneMenu id="servicio" value="#{mbEmisionEntradas.ingresoServicio.idServicio}">
+									<f:selectItem itemLabel="Seleccione un servicio" noSelectionOption="true" />
+									<f:selectItems var="servicio" value="#{mbEmisionEntradas.listaServicios}" itemLabel="#{servicio.servicioDs}" itemValue="#{servicio.servicioCve}"/>
+										<p:ajax process="@this" update="form:unidadM" listener="#{mbEmisionEntradas.unidadServicio}" />															
+								</p:selectOneMenu>						
+								</div>
+								
+								<div class="p-col-2 p-md-2" >													
+								<p:inputText id="unidadM" value="#{mbEmisionEntradas.ingresoServicio.unidadDeManejo.unidad_de_manejo_ds}" placeholder="Unidad" readonly="true" />
+								</div>
+								
+								<div class="p-col-2 pmd-2">
+								<p:spinner placeholder="Cantidad" value="#{mbEmisionEntradas.ingresoServicio.cantidad}" min="1" max="999999" ></p:spinner>																													
+								</div>
+							
+								<div class="p-col-2 p-md-2">
+								<p:commandButton value="Agregar">
+									<p:ajax event="click" listener="#{mbEmisionEntradas.agregarServicio}" process="@this form:pnl-servicio" update="form:pnl-servicio" />
+								</p:commandButton>
+								</div>
+								
+							</div>
+						</p:panel>
+						
+						<p:dataTable id="dt-Servicios" var="ingresoServicio" value="#{mbEmisionEntradas.listaIngresoServicio}" rowKey="#{ingresoServicio.cantidad}"
+									 rows="5" paginator="true" paginatorPosition="bottom">
+						
+							<f:facet name="header">
+								
+									<div>Sus Servicios</div>
+								
+							</f:facet>
+						
+							<p:column headerText="Servicio">
+								<h:outputText value="#{ingresoServicio.servicio.servicioDs}" />						
+							</p:column>
+								
+							<p:column headerText="Cantidad">
+								<h:outputText value="#{ingresoServicio.cantidad}" />							
+							</p:column>
+							
+							<p:column headerText="Unidad">
+								<h:outputText value="#{ingresoServicio.unidadDeManejo.unidad_de_manejo_ds}" />							
+							</p:column>
+							
+							<p:column>
+								<p:commandButton class="ui-button-danger" icon="pi pi-times" action="#{mbEmisionEntradas.deleteServicio()}">
+									<f:setPropertyActionListener value="#{ingresoServicio}" target="#{mbEmisionEntradas.ingresoServicioSelect}"></f:setPropertyActionListener>
+								</p:commandButton>
+							</p:column>
+						
+						</p:dataTable>				
+						
+						<p:panel style="margin-top: 25px">
+							<div class="p-grid ui-fluid p-col-12">
+								<div class="p-col-10 p-md-10">
+									<p:inputText value="#{mbEmisionEntradas.ingreso.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES"/>
+								</div>
+								<div class="p-col-2 p-md-2">
+									<p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" onclick="PF('dialogCarga').show()" process="@this"/>
+								</div>
+							</div>
+						</p:panel>
+						
+						<div class="p-grid" align="center">
+						
+							<div class="p-col-12" >
+								<p:commandButton value="Guardar" styleClass="p-mr-4 p-mt-2" actionListener="#{mbEmisionEntradas.save()}" process="@this"/>							
+								<p:commandButton value="Nueva Orden Entrada" action="#{mbEmisionEntradas.reload()}"/>
+							</div>
+											
+						</div>
+						
+					</div>
+				</div>
+			</div>
+			
+			<p:dialog id="dlg-tarima" widgetVar="dlg-tarimas" showEffect="hide" resizable="true" responsive="true" 
+				header="¿Cuantas tarimas deseas ingresar?" modal="true" style="text-align:center">
+				
+				<p:outputPanel id="noTarima">
+					<p:spinner id="tarimas" value="#{mbEmisionEntradas.numTarimas}" min="1" max="999999" ></p:spinner>
+				</p:outputPanel>
+				
+				<f:facet name="footer">
+					<p:commandButton value="Validar" process="@this form:noTarima" update="form:noTarima form:dt-ingresoProducto" action="#{mbEmisionEntradas.addPartida()}" onclick="PF('dlg-tarimas').hide()"/>
+					<p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary" onclick="PF('dlg-tarimas').hide()"/>
+				</f:facet>			
+			</p:dialog>
+			
+			
+		</h:form>
+		
+		<p:dialog header="Adjuntar archivos" showEffect="fade" modal="true" widgetVar="dialogCarga" responsive="true" width="600">
+			<h:form id="frmArchivos" enctype="multipart/form-data">
+				<p:panel id="pnlCarga" class="ui-fluid">
+					<div class="p-grid ui-fluid p-col-12">
+						<div class="p-col-12 p-md-12">
+							<p:fileUpload value="#{mbEmisionEntradas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" uploadIcon="pi pi-upload"/>
+						</div>
+						<div class="p-col-6 p-md-6">
+							<p:commandButton value="Agregar" icon="pi pi-check" actionListener="#{mbEmisionEntradas.cargarArchivo}"  process="@this pnlCarga" update="pnlCarga" styleClass="mt-3 ui-button-outlined block"/>
+						</div>
+						<div class="p-col-6 p-md-6">
+							<p:commandButton value="Cerrar" icon="pi pi-times" class="ui-button-secondary" onclick="PF('dialogCarga').hide()" />
+						</div>
+					</div>
+					<div class="p-grid">
+						<p:dataTable id="dt-adjuntos" value="#{mbEmisionEntradas.archivosList}" var="archivo">
+							<p:column headerText="Nombre" >
+								<p:outputLabel value="#{archivo.nombreArchivo}" />
+							</p:column>
+							<p:column headerText="Tamaño (MB):">
+								<p:outputLabel value="#{archivo.tamanio / 1048576}">
+									<f:convertNumber pattern="#0.00" />
+								</p:outputLabel>
+							</p:column>
+							<p:column headerText="#{mbEmisionEntradas.tamanioTotal}">
+							    <p:commandButton class="ui-button-danger" icon="pi pi-times" action="#{mbEmisionEntradas.eliminarAdjunto}" update="dt-adjuntos">
+							        <f:setPropertyActionListener value="#{archivo}" target="#{mbEmisionEntradas.selectedAttachment}"/>
+							    </p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</p:panel>
+				
+			</h:form>
+		</p:dialog>
+		
+	</ui:define>
+</ui:composition>

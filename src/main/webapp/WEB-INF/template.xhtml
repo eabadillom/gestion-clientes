@@ -13,14 +13,15 @@
         <meta name="apple-mobile-web-app-capable" content="yes"/>
     </f:facet>
     <title>Clientes</title>
-
+	<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
     <h:outputScript name="js/layout.js" library="omega-layout"/>
     <h:outputScript name="js/prism.js" library="omega-layout"/>
+    <h:outputStylesheet library="webjars" name="font-awesome/5.15.4/css/all.min-jsf.css" />
+	<h:outputStylesheet library="webjars" name="font-awesome/5.15.4/css/v4-shims.min-jsf.css" />
     <ui:insert name="head"/>
 </h:head>
 
 <h:body styleClass="#{guestPreferences.menuMode} #{guestPreferences.inputStyleClass}">
-
     <div class="wrapper #{guestPreferences.menuColor eq 'light' ? 'layout-light' : ''}">
         <ui:include src="topbar.xhtml"/>
 
