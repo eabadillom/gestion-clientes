@@ -69,6 +69,10 @@
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
     </servlet>
+    <servlet>
+		<servlet-name>Logout Servlet</servlet-name>
+		<servlet-class>com.ferbo.servlet.LogOutServlet</servlet-class>
+	</servlet>
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.jsf</url-pattern>
@@ -77,6 +81,10 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+		<servlet-name>Logout Servlet</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
     <mime-mapping>
         <extension>ttf</extension>
         <mime-type>application/font-sfnt</mime-type>

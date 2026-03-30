@@ -112,10 +112,12 @@ public class RepFacturacion implements Serializable {
 					.name("factura.pdf")
 					.stream(() -> new ByteArrayInputStream(bytes) )
 					.build();
-		
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
+			
+		} catch (SQLException ex) {
+			log.error("Problema para obtener la información de la facturación...", ex);
+		} catch (Exception ex) {
+			log.error("Problema general para obtener la información de la facturacíon...", ex);
+		} finally {
 			Conexion.close(conn);
 		}
 		Date today = new Date();
