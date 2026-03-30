@@ -16,7 +16,8 @@
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel for="fechaCorte" value="Al día" />
 					<p:datePicker id="fechaCorte" showIcon="true"
-						styleClass="p-mr-4 p-mb-2" placeholder="Fecha de corte"
+						timeZone="GMT-6" pattern="dd/MM/yyyy" locale="es_MX"
+						placeholder="Fecha de corte"
 						value="#{mbInventario.fechaCorte}" maxdate="#{mbInventario.hoy}" />
 				</div>
 				<div class="p-field p-col-6 p-md-2">
