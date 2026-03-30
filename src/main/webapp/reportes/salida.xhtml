@@ -15,15 +15,15 @@
 			<div class="p-grid ui-fluid">
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel for="fechaInicio" value="Del" />
-					<p:datePicker id="fechaInicio" showIcon="true" styleClass="p-mr-4 p-mb-2" placeholder="Inicio periodo" value="#{mbSalidas.fechaInicio}"/>
+					<p:datePicker id="fechaInicio" showIcon="true" timeZone="GMT-6" pattern="dd/MM/yyyy" locale="es_MX" placeholder="Inicio periodo" value="#{mbSalidas.fechaInicio}"/>
 				</div>
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel for="fechaFin" value="al" />
-					<p:datePicker id="fechaFin" showIcon="true" styleClass="p-mr-4 p-mb-2" placeholder="Fin del periodo" value="#{mbSalidas.fechaFin}"/>
+					<p:datePicker id="fechaFin" showIcon="true" timeZone="GMT-6" pattern="dd/MM/yyyy" locale="es_MX" placeholder="Fin del periodo" value="#{mbSalidas.fechaFin}"/>
 				</div>
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel value="." style="color: rgba(255, 255, 255, 0);" />
-					<p:commandButton value="Consultar" process="@this fechaInicio fechaFin" rendered="true" ajax="false" actionListener="#{mbSalidas.generateReport}" styleClass="p-mr-2 p-mb-2" icon="pi pi-check" iconPos="right" >
+					<p:commandButton value="Consultar" process="@this fechaInicio fechaFin" rendered="true" ajax="false" actionListener="#{mbSalidas.generateReport}" timeZone="GMT-6" pattern="dd/MM/yyyy" locale="es_MX" icon="pi pi-check" iconPos="right" >
 						<p:fileDownload value="#{mbSalidas.file}" />
 					</p:commandButton>
 				</div>
