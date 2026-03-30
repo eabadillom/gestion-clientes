@@ -147,14 +147,16 @@ public class MbLogin implements Serializable {
 	}
     
     public void logout() {
-    	ClienteContacto clienteContacto = null;
+    	ExternalContext ec = null;
     	
     	try {
     		session = request.getSession(false);
     		session.setAttribute("usuario", null);
     		session.setAttribute("idCliente", null);
     		session.invalidate();
-    		faceContext.getExternalContext().redirect("login.xhtml");
+    		
+    		ec = FacesContext.getCurrentInstance().getExternalContext();
+    		ec.redirect(ec.getRequestContextPath() + "/logout");
     	} catch(Exception ex) {
     		log.error("Problema en el cierre de sesión del usuario...", ex);
     	} finally {

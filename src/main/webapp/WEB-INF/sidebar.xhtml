@@ -31,7 +31,7 @@
                         <p:submenu id="usuario" label="Usuario" icon="pi pi-user">
                         	<p:menuitem id="usr_pwd" value="Cambiar contraseña" icon="pi pi-key" outcome="/password" />
                         </p:submenu>
-                        <p:menuitem value="Salir" icon="fa fa-solid fa-power-off" actionListener="#{sidebarBean.logout}"/>
+                        <p:menuitem value="Salir" icon="fa fa-solid fa-power-off" url="#{request.contextPath}/logout" ajax="false" />
                     </po:menu>
                 </div>
             </div>

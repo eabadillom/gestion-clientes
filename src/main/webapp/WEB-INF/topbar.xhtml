@@ -4,26 +4,29 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:p="http://primefaces.org/ui">
-    <div class="topbar">
-        <div id="topbar-left">
-            <a id="omega-menu-button" href="#">
-                <span class="pi pi-bars"/>
-            </a>
-
-            <span class="topbar-title">
-            	<ui:insert name="title"/>
-           	</span>
-        </div>
-        <div style="align-content: right;">
-	        
-        </div>
-        <div id="topbar-icons">
-        	<span class="topbar-item-text">
-	        	<p:outputLabel value="#{sidebarBean.cliente.nombre}" />
-	        </span>
-	        <p:spacer style="width: 1rem;"/>
-			<p:commandButton icon="fa fa-solid fa-power-off" action="#{mbLogin.logout}" process="@this"/>
-        </div>
-    </div>
+    <h:form id="topbar-form">
+	    <div class="topbar">
+	        <div id="topbar-left">
+	            <a id="omega-menu-button" href="#">
+	                <span class="pi pi-bars"/>
+	            </a>
+	
+	            <span class="topbar-title">
+	            	<ui:insert name="title"/>
+	           	</span>
+	        </div>
+	        <div style="align-content: right;">
+		        
+	        </div>
+	        <div id="topbar-icons">
+	        	<span class="topbar-item-text">
+		        	<p:outputLabel value="#{sidebarBean.cliente.nombre}" />
+		        </span>
+		        <p:spacer style="width: 1rem;"/>
+				<p:commandButton icon="fa fa-solid fa-power-off" onclick="window.location.href='#{request.contextPath}/logout'; return false;">
+				</p:commandButton>
+	        </div>
+	    </div>
+    </h:form>
     
 </ui:composition>
