@@ -28,40 +28,65 @@
 					<p:commandButton value="Consultar" actionListener="#{mbEstadoCuenta.Consultar}" process="@this" styleClass="ui-button-raised ui-button-secondary" update="form:dt-estadoResultado" onclick="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();"/>
 				</div>
 			</div>
-			<p:dataTable id="dt-estadoResultado" widgetVar="dtestadoResultado" var="resultadoDT" value="#{mbEstadoCuenta.listaestadoCuenta}" reflow="true" size="small">
-				<f:facet name="header" >
-					<div style="text-align: right;">Saldo inicial: 
-						<h:outputText value="#{mbEstadoCuenta.saldoInicial}">
-							<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
-						</h:outputText>
-					</div>
-				</f:facet>
-				<p:column headerText="Fecha" style="text-align:center">
-					<h:outputText value="#{resultadoDT.fecha}" >
+			<p:dataTable id="dt-estadoResultado" widgetVar="dtestadoResultado" var="movimiento" value="#{mbEstadoCuenta.listaestadoCuenta}" reflow="true" size="small">
+				<p:columnGroup type="header">
+					<p:row>
+						<p:column colspan="5" style="text-align:right;" headerText="Saldo inicial:"/>
+						<p:column style="text-align:right;">
+							<f:facet name="header">
+								<p:outputLabel value="#{mbEstadoCuenta.saldoInicial}">
+									<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
+								</p:outputLabel>
+							</f:facet>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column colspan="1" style="text-align:center;" headerText="Fecha"/>
+						<p:column colspan="1" style="text-align:center;" headerText="Movimiento"/>
+						<p:column colspan="1" style="text-align:center;" headerText="Folio"/>
+						<p:column colspan="1" style="text-align:right;" headerText="Cargos"/>
+						<p:column colspan="1" style="text-align:right;" headerText="Abonos"/>
+						<p:column colspan="1" style="text-align:right;" headerText="Saldo"/>
+					</p:row>
+				</p:columnGroup>
+				<p:column style="text-align:center">
+					<h:outputText value="#{movimiento.fecha}" >
 					<f:convertDateTime pattern="dd/MM/yyyy"/>
 					</h:outputText>
 				</p:column>
-				<p:column headerText="Movimiento" style="text-align:center">
-					<h:outputText value="#{resultadoDT.movimiento}" />
+				<p:column style="text-align:center">
+					<h:outputText value="#{movimiento.movimiento}" />
 				</p:column>
-				<p:column headerText="Folio" style="text-align:center">
-					<h:outputText value="#{resultadoDT.nomSerie}-#{resultadoDT.folio}" />
+				<p:column style="text-align:center">
+					<h:outputText value="#{movimiento.nomSerie}-#{movimiento.folio}" />
 				</p:column>
-				<p:column headerText="Cargos" style="text-align: right;">
-					<h:outputText value="#{resultadoDT.debe}" >
+				<p:column style="text-align: right;">
+					<h:outputText value="#{movimiento.debe}" >
 						<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
 					</h:outputText>
 				</p:column>
-				<p:column headerText="Abonos" style="text-align: right;">
-					<h:outputText value="#{resultadoDT.haber}" >
+				<p:column style="text-align: right;">
+					<h:outputText value="#{movimiento.haber}" >
 						<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
 					</h:outputText>
 				</p:column>
-				<p:column headerText="Saldo" style="text-align: right;">
-					<h:outputText value="#{resultadoDT.parcial}" >
+				<p:column style="text-align: right;">
+					<h:outputText value="#{movimiento.parcial}" >
 						<f:convertNumber currencyCode="MXN" currencySymbol="$" locale="es_MX" type="currency" />
 					</h:outputText>
 				</p:column>
+				<p:columnGroup type="footer">
+					<p:row>
+						<p:column colspan="5" style="text-align:right;" footerText="Saldo final:"/>
+						<p:column style="text-align:right;">
+							<f:facet name="footer">
+								<p:outputLabel value="#{mbEstadoCuenta.saldoFinal}">
+									<f:convertNumber pattern="$ #,##0.00" />
+								</p:outputLabel>
+							</f:facet>
+						</p:column>
+					</p:row>
+				</p:columnGroup>			
 			</p:dataTable>
 			<div align="center">
 				<p:commandButton value="Descargar" process="@this" actionListener="#{mbEstadoCuenta.exportarPDF}" styleClass="ui-button-secondary"  icon="pi pi-file-pdf" iconPos="left" ajax="false">
