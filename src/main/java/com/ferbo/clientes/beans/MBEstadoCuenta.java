@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -64,13 +65,14 @@ public class MBEstadoCuenta implements Serializable {
 	private List<EstadoCuenta> listaestadoCuenta;
 	private StreamedContent file;
 	private BigDecimal saldoInicial;
+	private BigDecimal saldoFinal;
 	private Cliente cliente;
-
 
 	public MBEstadoCuenta() {
 		estadoCuentaManager= new EstadoCuentaDAO();
 		setListaestadoCuenta(new ArrayList<EstadoCuenta>());
-		saldoInicial = new BigDecimal(0);
+		saldoInicial = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		saldoFinal   = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 	}
 	
 	@PostConstruct
@@ -136,6 +138,19 @@ public class MBEstadoCuenta implements Serializable {
 			log.info("Fin mes: {}", finMes);
 			
 			listaestadoCuenta = estadoCuentaManager.listaEstadoCuenta(conn,mesActual, clienteSelect.getIdCliente(), finMes);
+			
+			saldoFinal = listaestadoCuenta.isEmpty() ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP) : listaestadoCuenta.get(0).getSaldoInicial();
+			
+			for(EstadoCuenta movimiento : listaestadoCuenta) {
+				if(movimiento.getDebe() != null)
+					saldoFinal = saldoFinal.add(movimiento.getDebe());
+				
+				if(movimiento.getHaber() != null)
+					saldoFinal = saldoFinal.subtract(movimiento.getHaber());
+				
+				movimiento.setParcial(saldoFinal.setScale(2, RoundingMode.HALF_UP));
+				log.info("Saldo: {}", saldoFinal);
+			}
 			
 			if(listaestadoCuenta == null)
 				throw new ClientesException("No es posible recuperar el saldo inicial.");
@@ -287,5 +302,13 @@ public class MBEstadoCuenta implements Serializable {
 
 	public void setFile(StreamedContent file) {
 		this.file = file;
+	}
+	
+	public BigDecimal getSaldoFinal() {
+		return saldoFinal;
+	}
+
+	public void setSaldoFinal(BigDecimal saldoFinal) {
+		this.saldoFinal = saldoFinal;
 	}
 }
