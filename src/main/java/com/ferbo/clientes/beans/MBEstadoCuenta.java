@@ -149,7 +149,7 @@ public class MBEstadoCuenta implements Serializable {
 					saldoFinal = saldoFinal.subtract(movimiento.getHaber());
 				
 				movimiento.setParcial(saldoFinal.setScale(2, RoundingMode.HALF_UP));
-				log.info("Saldo: {}", saldoFinal);
+				log.debug("Saldo: {}", saldoFinal);
 			}
 			
 			if(listaestadoCuenta == null)
