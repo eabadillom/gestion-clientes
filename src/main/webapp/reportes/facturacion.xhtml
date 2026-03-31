@@ -61,13 +61,13 @@
 			<div class="p-grid ui-fluid">
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel for="fechaI" value="Del" />
-					<p:datePicker id="fechaI" value="#{repfacturacion.fecha_ini}" maxdate="#{repfacturacion.maxDate}" showIcon="true">
+					<p:datePicker id="fechaI" value="#{repfacturacion.fecha_ini}" maxdate="#{repfacturacion.maxDate}" showIcon="true" timeZone="GMT-6" pattern="dd/MM/yyyy" locale="es_MX">
 						<p:ajax process="@this"></p:ajax>
 					</p:datePicker>
 				</div>
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel for="fechaF" value="al" />
-					<p:datePicker id="fechaF" value="#{repfacturacion.fecha_fin}" maxdate="#{repfacturacion.maxDate}" showIcon="true">
+					<p:datePicker id="fechaF" value="#{repfacturacion.fecha_fin}" maxdate="#{repfacturacion.maxDate}" showIcon="true" timeZone="GMT-6" pattern="dd/MM/yyyy" locale="es_MX">
 						<p:ajax process="@this"></p:ajax>
 					</p:datePicker>
 				</div>
