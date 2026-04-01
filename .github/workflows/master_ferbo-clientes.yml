@@ -24,6 +24,12 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
+      - name: maven-settings
+        uses: s4u/maven-settings-action@v2
+        with:
+          servers: '[{"id": "github", "username": "eabadillom", "password": "${GITHUB_TOKEN_REF}"}]'
+          githubServer: false
+
       - name: Build with Maven
         run: mvn clean install
         env:
