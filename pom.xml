@@ -189,6 +189,11 @@
 			<name>PrimeFaces Maven Repository</name>
 			<url>http://repository.primefaces.org</url>
 		</repository>
+		<repository>
+			<id>github</id>
+			<name>github</name>
+			<url>https://maven.pkg.github.com/eabadillom/*</url>
+		</repository>
 	</repositories>
 
 	<build>
