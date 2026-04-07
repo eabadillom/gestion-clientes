@@ -57,16 +57,16 @@ public class MbEmisionSalidas implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static Logger log = LogManager.getLogger(MbEmisionSalidas.class);
 	
-        private List<Inventario> listaInventario;
+	private List<Inventario> listaInventario;
 	private List<Inventario> listaInventarioSelect;
 	private SerieConstancia serieConstancia;
-        private Salida salida;
-        private List<SalidaDetalle> listaSalidaDetalle;
-        private List<ServicioSalida> listaServicioSalida;
+	private Salida salida;
+	private List<SalidaDetalle> listaSalidaDetalle;
+	private List<ServicioSalida> listaServicioSalida;
 	private List<ServiciosExtras> listaServicios;
 	private List<ServiciosExtras> listaServiciosSelect;
 	private Planta plantaSelected;
-        private List<Planta> listaPlantas;
+	private List<Planta> listaPlantas;
 	private Date fecha;
 	private Date fechaMin;
 	private UploadedFile attachmentFile;
@@ -95,7 +95,7 @@ public class MbEmisionSalidas implements Serializable {
             DateUtils.setMinuto(this.fecha, 0);
             DateUtils.setSegundo(this.fecha, 0);
             DateUtils.setMilisegundo(this.fecha, 0);
-            this.log.info("Fecha / Hora por defecto: {}", this.fecha);
+            log.info("Fecha / Hora por defecto: {}", this.fecha);
             this.fechaMin = new Date();
             
             this.archivosList = new ArrayList<Adjunto>();
@@ -156,7 +156,7 @@ public class MbEmisionSalidas implements Serializable {
 	public void getFolio(Connection conn) throws ClientesException, SQLException {
             FacesUtils.requireNonNull(plantaSelected, "Favor de seleccionar una planta");
             this.serie = SerieOrdenBL.obtenerSerie(conn, this.plantaSelected, this.cliente);
-            this.folioSalida = SerieOrdenBL.craerFolio(conn, this.plantaSelected, this.cliente, this.serie);
+            this.folioSalida = SerieOrdenBL.crearFolioSalida(conn, this.plantaSelected, this.cliente, this.serie);
             log.info("Folio solicitud de salida: {}", this.folioSalida);
 	}
 	
@@ -266,18 +266,18 @@ public class MbEmisionSalidas implements Serializable {
 	}
 	
 	public void onChangeFecha() {
-            log.info("Fecha / hora solicitado: {}", this.fecha);
-
-            Date fechaMin = new Date(this.fecha.getTime());
-            DateUtils.setTime(fechaMin, 7, 0, 0, 0);
-
-            Date fechaMax = new Date(this.fecha.getTime());
-            DateUtils.setTime(fechaMax, 17, 0, 0, 0);
-
-            if(this.fecha.getTime() < fechaMin.getTime() || this.fecha.getTime() > fechaMax.getTime()) {
-                FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Horario no laboral", "Ha seleccionado un horario no laboral, por lo que se realizará el cargo de servicios extras. El horario laboral es de 7:00am a 5:00pm.");
-                PrimeFaces.current().ajax().update("form:messages");
-            }
+		log.info("Fecha / hora solicitado: {}", this.fecha);
+		
+		Date fechaMin = new Date(this.fecha.getTime());
+		DateUtils.setTime(fechaMin, 7, 0, 0, 0);
+		
+		Date fechaMax = new Date(this.fecha.getTime());
+		DateUtils.setTime(fechaMax, 17, 0, 0, 0);
+		
+		if(this.fecha.getTime() < fechaMin.getTime() || this.fecha.getTime() > fechaMax.getTime()) {
+			FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Horario no laboral", "Ha seleccionado un horario no laboral, por lo que se realizará el cargo de servicios extras. El horario laboral es de 7:00am a 5:00pm.");
+			PrimeFaces.current().ajax().update("form:messages");
+		}
 	}
 
 	public void guardarPresalida() {
@@ -285,75 +285,71 @@ public class MbEmisionSalidas implements Serializable {
 		String mensaje = null;
 		
 		this.listaSalidaDetalle = new ArrayList<SalidaDetalle>();
-                this.listaServicioSalida = new ArrayList();
+		this.listaServicioSalida = new ArrayList<ServicioSalida>();
 		List<ServiciosExtras> listaServiciosMod = new ArrayList<ServiciosExtras>();
 		String tmpFolio = null;
-                try {
-                    conn = Conexion.getConnection();
-                            
-                    boolean empty = this.listaInventarioSelect.stream().filter(inventario -> inventario.getCantidad() == 0).count() > 0;
-                    
-                    if(empty) {
-                        throw new ClientesException("El número de unidades de su producto es incorrecto.");
-                    }
-                    
-                    FacesUtils.requireNonNull(this.fecha, "Favor de llenar el campo de la fecha");
-                    FacesUtils.requireNonNull(this.salida.getNombreTransportista(), "Favor de llenar el campo del operador");
-                    FacesUtils.requireNonNull(this.salida.getPlacasTransporte(), "Favor de llenar el campo de las placas");
-                    FacesUtils.requireNonNull(this.salida.getObservaciones(), "Favor de llenar el campo de las obervaciones");
-                    FacesUtils.requireNonNull(this.cliente, "Favor de seleccionar al cliente");
+		
+		try {
+			conn = Conexion.getConnection();
+			
+			boolean empty = this.listaInventarioSelect.stream().filter(inventario -> inventario.getCantidad() == 0).count() > 0;
+			
+			if(empty) {
+				throw new ClientesException("El número de unidades de su producto es incorrecto.");
+			}
+			
+			FacesUtils.requireNonNull(this.fecha, "Favor de llenar el campo de la fecha");
+			FacesUtils.requireNonNull(this.salida.getNombreTransportista(), "Favor de llenar el campo del operador");
+			FacesUtils.requireNonNull(this.salida.getPlacasTransporte(), "Favor de llenar el campo de las placas");
+			FacesUtils.requireNonNull(this.salida.getObservaciones(), "Favor de llenar el campo de las obervaciones");
+			FacesUtils.requireNonNull(this.cliente, "Favor de seleccionar al cliente");
 
-                    this.salida = SalidasBL.guardarSalida(conn, this.folioSalida, this.cliente, this.cteContacto, this.salida, this.fecha);
-
-                    if (tmpFolio == null) {
-                        tmpFolio = salida.getFolioSalida();
-                    }
-                    
-                    Salida auxSalida = SalidasBL.consultarSalida(conn, tmpFolio);
-                    
-                    this.listaSalidaDetalle = SalidasBL.agregarSalDet(conn, this.listaInventarioSelect, auxSalida);
-                    
-                    SalidasBL.guardarSalDet(conn, this.listaSalidaDetalle);
-                    
-                    if(this.isOrdenRegistrada) {
-                        throw new ClientesException("La constancia ya se encuentra registrada.");
-                    }
-                    
-                    if(!this.listaServiciosSelect.isEmpty())
-                    {
-                        listaServiciosMod = SalidasBL.agregarServicios(this.listaServiciosSelect);
-
-                        this.listaServicioSalida = SalidasBL.agregarSrvSalida(listaServiciosMod, auxSalida, this.folioSalida);
-
-                        SalidasBL.guardarSrvSalida(conn, this.listaServicioSalida);
-                    }
-                    
-                    SerieOrdenBL.guardarSerieOrden(conn, this.serie);
-
-                    conn.commit();
-
-                    this.isOrdenRegistrada = true;
-
-                    SendMailOrdenSalida sendMail = new SendMailOrdenSalida();
-                    sendMail.setFolio(tmpFolio);
-                    sendMail.add(this.archivosList);
-                    sendMail.start();
-
-                    mensaje = String.format("Su orden de salida %s se generó correctamente. Recibirá copia de su orden vía correo electrónico.", this.folioSalida);
-                    FacesUtils.addMessage(FacesMessage.SEVERITY_INFO, "Emisión de salida", mensaje);
+			this.salida = SalidasBL.guardarSalida(conn, this.folioSalida, this.cliente, this.cteContacto, this.salida, this.fecha);
+			
+			if (tmpFolio == null) {
+				tmpFolio = salida.getFolioSalida();
+			}
+			
+			Salida auxSalida = SalidasBL.consultarSalida(conn, tmpFolio);
+			
+			this.listaSalidaDetalle = SalidasBL.agregarSalDet(conn, this.listaInventarioSelect, auxSalida);
+			
+			SalidasBL.guardarSalDet(conn, this.listaSalidaDetalle);
+			
+			if(this.isOrdenRegistrada) {
+				throw new ClientesException("La constancia ya se encuentra registrada.");
+			}
+			
+			if(!this.listaServiciosSelect.isEmpty()){
+				listaServiciosMod = SalidasBL.agregarServicios(this.listaServiciosSelect);
+				this.listaServicioSalida = SalidasBL.agregarSrvSalida(listaServiciosMod, auxSalida, this.folioSalida);
+				SalidasBL.guardarSrvSalida(conn, this.listaServicioSalida);
+			}
+			
+			SerieOrdenBL.guardarSerieOrden(conn, this.serie);
+			conn.commit();
+            this.isOrdenRegistrada = true;
+            
+            SendMailOrdenSalida sendMail = new SendMailOrdenSalida();
+            sendMail.setFolio(tmpFolio);
+            sendMail.add(this.archivosList);
+            sendMail.start();
+            
+            mensaje = String.format("Su orden de salida %s se generó correctamente. Recibirá copia de su orden vía correo electrónico.", this.folioSalida);
+            FacesUtils.addMessage(FacesMessage.SEVERITY_INFO, "Emisión de salida", mensaje);
 		} catch(ClientesException ex) {
-                    log.error("Problema con la emisión de salidas...", ex);
-                    Conexion.rollback(conn);
-                    mensaje = ex.getMessage();
-                    FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Emisión de salida", mensaje);
+			log.error("Problema con la emisión de salidas...", ex);
+			Conexion.rollback(conn);
+			mensaje = ex.getMessage();
+			FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Emisión de salida", mensaje);
 		} catch (Exception ex) {
-                    log.error("Problema con la emisión de salidas...", ex);
-                    Conexion.rollback(conn);
-                    mensaje = "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.";
-                    FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Emisión de salida", mensaje);
+			log.error("Problema con la emisión de salidas...", ex);
+			Conexion.rollback(conn);
+			mensaje = "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.";
+			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Emisión de salida", mensaje);
 		} finally {
-                    Conexion.close(conn);
-                    PrimeFaces.current().ajax().update(":form:messages");
+			Conexion.close(conn);
+			PrimeFaces.current().ajax().update(":form:messages");
 		}
 	}
 
