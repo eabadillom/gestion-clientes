@@ -62,53 +62,38 @@
 								</span>
 							</div>
 						</f:facet>
-						<p:ajax event="toggleSelect"
-							listener="#{mbEmisionSalidas.toggleSelect()}" process="@this"
-							update="dt-products" />
-						<p:ajax event="rowSelectCheckbox"
-							listener="#{mbEmisionSalidas.onRowSelect}" process="@this"
-							update="dt-products" />
-						<p:ajax event="rowSelect"
-							listener="#{mbEmisionSalidas.onRowSelect}" process="@this"
-							update="dt-products" />
-						<p:ajax event="rowUnselect"
-							listener="#{mbEmisionSalidas.onRowUnselect}"
-							update="dt-products" />
-						<p:ajax event="rowUnselectCheckbox"
-							listener="#{mbEmisionSalidas.onRowUnselect}"
-							update="dt-products" />
-						<p:column selectionMode="multiple" exportable="false" width="1rem"></p:column>
-						<p:column width="1rem">
+						<p:ajax event="toggleSelect" listener="#{mbEmisionSalidas.toggleSelect()}" process="@this" update="dt-products" />
+						<p:ajax event="rowSelectCheckbox" listener="#{mbEmisionSalidas.onRowSelect}" process="@this" update="dt-products" />
+						<p:ajax event="rowSelect" listener="#{mbEmisionSalidas.onRowSelect}" process="@this" update="dt-products" />
+						<p:ajax event="rowUnselect" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
+						<p:ajax event="rowUnselectCheckbox" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
+						<p:column selectionMode="multiple" exportable="false" width="2rem">
+						</p:column>
+						<p:column width="2rem">
 			                <p:rowToggler/>
 			            </p:column>
-						<!-- <p:column headerText="Planta" sortBy="#{inventario.plantaAbrev}" filterBy="#{inventario.plantaAbrev}" width="3rem">
-							<h:outputText value="#{inventario.plantaAbrev}"/>
-						</p:column> -->
-						<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" filterBy="#{inventario.folioCliente}">
+						<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" filterBy="#{inventario.folioCliente}" width="8rem">
 							<h:outputText value="#{inventario.folioCliente}" />
 						</p:column>
 						<p:column headerText="Producto" sortBy="#{inventario.producto}" filterBy="#{inventario.producto}">
 							<h:outputText value="#{inventario.producto}" />
 						</p:column>
-						<p:column headerText="Existencia" sortBy="#{inventario.existencia}" filterBy="#{inventario.existencia}">
+						<p:column headerText="Existencia" sortBy="#{inventario.existencia}" width="6rem">
 							<h:outputText value="#{inventario.existencia}" />
 						</p:column>
-						<p:column headerText="Unidad" sortBy="#{inventario.unidad}" filterBy="#{inventario.unidad}">
+						<p:column headerText="Unidad" sortBy="#{inventario.unidad}" width="6rem">
 							<h:outputText value="#{inventario.unidad}" />
 						</p:column>
-						<p:column headerText="Peso (Kg)" sortBy="#{inventario.peso}"
-							filterBy="#{inventario.peso}">
+						<p:column headerText="Peso (Kg)" sortBy="#{inventario.peso}" width="6rem">
 							<h:outputText value="#{inventario.peso}"/>
 						</p:column>
 						<p:column headerText="Cantidad" width="4rem">
-							<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" style="width: auto;"
-								minValue="0"
-								maxValue="#{inventario.existencia}"
-								disabled="#{!inventario.habilitado}">
+							<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" style="width: auto;" minValue="0" maxValue="#{inventario.existencia}"
+								disabled="#{!inventario.habilitado}" symbol=" #{inventario.unidad}" symbolPosition="s" inputStyle="text-align: right;">
 								<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
 							</p:inputNumber>
 						</p:column>
-						<p:column headerText="Peso Aprox.(Kg)">
+						<p:column headerText="Peso Aprox.(Kg)" width="6rem">
 							<h:outputText value="#{inventario.pesoAprox}"/>
 						</p:column>
 						<p:rowExpansion>

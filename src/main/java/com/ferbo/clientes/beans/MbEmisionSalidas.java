@@ -113,90 +113,90 @@ public class MbEmisionSalidas implements Serializable {
 	
 	@PostConstruct
 	public void init() {
-            Connection conn = null;
-            this.crearSalida();
-            
-            try {
-                conn = Conexion.dsConexion();
-
-                this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, cliente);
-                this.listaPlantas = Arrays.asList(PlantaBL.obtenerPlantas(conn));
-            } catch(Exception ex) {
-                log.error("Problema para obtener información de la base de datos...", ex);
-            } finally {
-                Conexion.close(conn);
-            }
+		Connection conn = null;
+		this.crearSalida();
+		
+		try {
+			conn = Conexion.dsConexion();
+			
+			this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, cliente);
+			this.listaPlantas = Arrays.asList(PlantaBL.obtenerPlantas(conn));
+		} catch(Exception ex) {
+			log.error("Problema para obtener información de la base de datos...", ex);
+		} finally {
+			Conexion.close(conn);
+		}
 	}
         
-        public void crearSalida(){
-            salida = new Salida();
-        }
+	public void crearSalida(){
+		salida = new Salida();
+	}
         
-        public void muestraInventario() {
-            Connection conn = null;
-            try {
-                conn = Conexion.dsConexion();
-                
-                this.getFolio(conn);
-                conn.commit();
-                
-                if(this.plantaSelected != null) {
-                    listaInventario = InventarioBL.obtenerInventario(conn, this.cliente, this.plantaSelected);
-                } else {
-                    listaInventario = new ArrayList<Inventario>();
-                }
-            } catch(ClientesException | SQLException ex) {
-                log.error("Problema para obtener información de la base de datos...", ex);
-                Conexion.rollback(conn);
-            } finally {
-                Conexion.close(conn);
-            }
+	public void muestraInventario() {
+		Connection conn = null;
+		try {
+			conn = Conexion.dsConexion();
+			
+			this.getFolio(conn);
+			conn.commit();
+			
+			if(this.plantaSelected != null) {
+				listaInventario = InventarioBL.obtenerInventario(conn, this.cliente, this.plantaSelected);
+			} else {
+				listaInventario = new ArrayList<Inventario>();
+			}
+		} catch(ClientesException | SQLException ex) {
+			log.error("Problema para obtener información de la base de datos...", ex);
+			Conexion.rollback(conn);
+		} finally {
+			Conexion.close(conn);
+		}
 	}
 
 	public void getFolio(Connection conn) throws ClientesException, SQLException {
-            FacesUtils.requireNonNull(plantaSelected, "Favor de seleccionar una planta");
-            this.serie = SerieOrdenBL.obtenerSerie(conn, this.plantaSelected, this.cliente);
-            this.folioSalida = SerieOrdenBL.crearFolioSalida(conn, this.plantaSelected, this.cliente, this.serie);
-            log.info("Folio solicitud de salida: {}", this.folioSalida);
+		FacesUtils.requireNonNull(plantaSelected, "Favor de seleccionar una planta");
+		this.serie = SerieOrdenBL.obtenerSerie(conn, this.plantaSelected, this.cliente);
+		this.folioSalida = SerieOrdenBL.crearFolioSalida(conn, this.plantaSelected, this.cliente, this.serie);
+		log.info("Folio solicitud de salida: {}", this.folioSalida);
 	}
 	
 	public void resultadoPeso(Inventario inventario) {
-            log.debug("metodo resultadoPeso");
-            BigDecimal tmp = null;
-            BigDecimal cantidad = null;
-            BigDecimal existencia = new BigDecimal(inventario.getExistencia());
-            BigDecimal peso = inventario.getPeso();
-
-            if(existencia.compareTo(BigDecimal.ZERO) == 0) {
-                FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Cantidad incorrecta");
-                PrimeFaces.current().ajax().update("form:messages");
-                inventario.setCantidad(null);
-                return;
-            }
-
-            if(inventario.getCantidad() == null) {
-                return;
-            }
-
-            cantidad = new BigDecimal(inventario.getCantidad());
-
-            tmp = peso.divide(existencia, 3, RoundingMode.HALF_UP);
-            tmp = tmp.multiply(cantidad);
-
-            if(cantidad.compareTo(existencia) > 0) {
-                FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad mayor a la que tiene actualmente para su producto.");
-                PrimeFaces.current().ajax().update("form:messages");
-                inventario.setCantidad(null);
-                return;
-            }
-
-            if(cantidad.compareTo(BigDecimal.ZERO) < 0) {
-                FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad no valida.");
-                PrimeFaces.current().ajax().update("form:messages");
-                inventario.setCantidad(null);
-                return;
-            }
-            inventario.setPesoAprox(tmp);
+		log.debug("metodo resultadoPeso");
+		BigDecimal tmp = null;
+		BigDecimal cantidad = null;
+		BigDecimal existencia = new BigDecimal(inventario.getExistencia());
+		BigDecimal peso = inventario.getPeso();
+		
+		if(existencia.compareTo(BigDecimal.ZERO) == 0) {
+			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Cantidad incorrecta");
+			PrimeFaces.current().ajax().update("form:messages");
+			inventario.setCantidad(null);
+			return;
+		}
+		
+		if(inventario.getCantidad() == null) {
+			return;
+		}
+		
+		cantidad = new BigDecimal(inventario.getCantidad());
+		
+		tmp = peso.divide(existencia, 3, RoundingMode.HALF_UP);
+		tmp = tmp.multiply(cantidad);
+		
+		if(cantidad.compareTo(existencia) > 0) {
+			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad mayor a la que tiene actualmente para su producto.");
+			PrimeFaces.current().ajax().update("form:messages");
+			inventario.setCantidad(null);
+			return;
+		}
+		
+		if(cantidad.compareTo(BigDecimal.ZERO) < 0) {
+			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad no valida.");
+			PrimeFaces.current().ajax().update("form:messages");
+			inventario.setCantidad(null);
+			return;
+		}
+		inventario.setPesoAprox(tmp);
 	}
 	
 	public void onRowSelect(SelectEvent<Inventario> event) {
