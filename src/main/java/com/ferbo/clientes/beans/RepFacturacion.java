@@ -218,16 +218,15 @@ public class RepFacturacion implements Serializable {
 		
 		sumaSubtotal = subTotalFacturas(listaFactura);
 		subtotal = subtotal.add(sumaSubtotal);
-		log.info(subtotal);
+		log.debug(subtotal);
 		
 		sumaIva = ivalFacturas(listaFactura);
 		iva = iva.add(sumaIva);
-		log.info(iva);
+		log.debug(iva);
 		
 		sumaTotal = TotalFacturas(listaFactura);
 		Total = Total.add(sumaTotal);
-		log.info(Total);
-
+		log.debug(Total);
 	}
 
 	public BigDecimal subTotalFacturas(List<Factura> lista) {
