@@ -18,7 +18,7 @@
 			<div class="p-grid ui-fluid">
 				<div class="p-field p-col-6 p-md-2">
 					<p:outputLabel value="Periodo" />
-					<p:datePicker id="yearMonth" view="month" value="#{mbEstadoCuenta.mesActual}" pattern="MM/yyyy" yearNavigator="true" maxdate="#{mbEstadoCuenta.maxDate}" locale="es_MX" timeZone="GMT-6">
+					<p:datePicker id="yearMonth" view="month" value="#{mbEstadoCuenta.mesActual}" pattern="MMMM yyyy" yearNavigator="true" maxdate="#{mbEstadoCuenta.maxDate}" locale="es_MX" timeZone="GMT-6">
 						<p:ajax process="@this" />
 						<p:ajax event="change" listener="#{mbEstadoCuenta.establecerPeriodo()}" />
 					</p:datePicker>

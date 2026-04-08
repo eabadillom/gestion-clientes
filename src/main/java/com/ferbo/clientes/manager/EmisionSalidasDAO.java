@@ -80,7 +80,7 @@ public class EmisionSalidasDAO {
 			+ "	) T "
 			+ "WHERE cantidad > 0 "
 			+ "ORDER BY "
-			+ "T.producto ";	
+			+ "T.folio, T.producto ";	
 
 	public synchronized Inventario getBean(ResultSet rs)
 	throws SQLException {

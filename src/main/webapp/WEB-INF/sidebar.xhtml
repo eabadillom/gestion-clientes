@@ -10,7 +10,7 @@
             <div class="sidebar-scroll-content">
                 <div class="logo">
                     <p:link outcome="/bienvenido">
-                        <p:graphicImage name="images/logo.png" library="layouts" width="113"/>
+                        <p:graphicImage name="images/logo.png" library="layouts" width="113" style="border-radius: 6px;"/>
                     </p:link>
                 </div>
                 <div class="profile">
@@ -23,8 +23,8 @@
                         <p:menuitem id="salidas" value="Orden de retiro" icon="pi pi-sign-out" outcome="/orden/retiro"/>
                         <p:submenu id="reportes" label="Reportes" icon="pi pi-book">
                             <p:menuitem id="om_chart" value="Inventario" icon="fa fa-solid fa-warehouse" outcome="/reportes/inventario"/>
-                            <p:menuitem id="om_media" value="Entradas" icon="pi pi-directions" outcome="/reportes/entrada"/>
-                            <p:menuitem id="om_misc" value="Salidas" icon="pi pi-directions-alt" outcome="/reportes/salida"/>
+                            <p:menuitem id="om_media" value="Entradas" icon="pi pi-sign-in" outcome="/reportes/entrada"/>
+                            <p:menuitem id="om_misc" value="Salidas" icon="pi pi-sign-out" outcome="/reportes/salida"/>
                             <p:menuitem id="om_rFact" value="Facturación" icon="fa fa-solid fa-file-invoice-dollar" outcome="/reportes/facturacion"/>
                         </p:submenu>
                          <p:menuitem id="estadocuenta" value="Estado de Cuenta" icon="pi pi-wallet" outcome="/estado-de-cuenta"/>
