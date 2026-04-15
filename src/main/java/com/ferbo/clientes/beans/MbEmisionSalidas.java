@@ -5,10 +5,12 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -48,7 +50,6 @@ import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.FacesUtils;
-import java.sql.SQLException;
 
 @Named(value = "mbEmisionSalidas")
 @ViewScoped
@@ -278,6 +279,26 @@ public class MbEmisionSalidas implements Serializable {
 			FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Horario no laboral", "Ha seleccionado un horario no laboral, por lo que se realizará el cargo de servicios extras. El horario laboral es de 7:00am a 5:00pm.");
 			PrimeFaces.current().ajax().update("form:messages");
 		}
+	}
+	
+	public Integer cantidadTotal() {
+		if(this.listaInventarioSelect == null)
+			return 0;
+		
+		return this.listaInventarioSelect.stream().map(Inventario::getCantidad)
+	    .filter(Objects::nonNull)
+	    .reduce(0, Integer::sum);
+	}
+	
+	public BigDecimal pesoTotal() {
+		if(this.listaInventarioSelect == null)
+			return BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP);
+		
+		return this.listaInventarioSelect.stream()
+				.map(Inventario::getPeso)
+				.filter(Objects::nonNull)
+				.reduce(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), BigDecimal::add)
+				;
 	}
 
 	public void guardarPresalida() {
