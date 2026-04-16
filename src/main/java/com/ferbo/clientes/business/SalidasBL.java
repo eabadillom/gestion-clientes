@@ -1,7 +1,14 @@
 package com.ferbo.clientes.business;
 
-import com.ferbo.clientes.dao.SerieOrdenDAO;
-import com.ferbo.clientes.mail.beans.Planta;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.ferbo.clientes.manager.SalidaDAO;
 import com.ferbo.clientes.manager.SalidaDetalleDAO;
 import com.ferbo.clientes.manager.ServicioSalidaDAO;
@@ -16,24 +23,18 @@ import com.ferbo.clientes.model.ServiciosExtras;
 import com.ferbo.clientes.model.StatusSalida;
 import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.DateUtils;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author alberto
  */
-public class SalidasBL 
+public class SalidasBL
 {
     private final static Logger log = LogManager.getLogger(SalidasBL.class);
     
-    private final static String ENVIADO = "E";
-    private final static String CANCELADO = "C";
+    public static final String ENVIADA   = "E";
+    public static final String CANCELADA = "C";
+    public static final String ACEPTADA  = "A";
     
     private final static SalidaDAO salidaDAO = new SalidaDAO();
     private final static SalidaDetalleDAO salidaDetalleDAO = new SalidaDetalleDAO();
@@ -41,11 +42,11 @@ public class SalidasBL
     private final static StatusSalidaDAO statusSalidaDAO = new StatusSalidaDAO();
     
     public static StatusSalida obtenerStatusEnviado(Connection conn){
-        return statusSalidaDAO.findStatusByClave(conn, ENVIADO);
+        return statusSalidaDAO.findStatusByClave(conn, ENVIADA);
     }
     
     public static StatusSalida obtenerStatusCancelado(Connection conn){
-        return statusSalidaDAO.findStatusByClave(conn, CANCELADO);
+        return statusSalidaDAO.findStatusByClave(conn, CANCELADA);
     }
     
     public static Salida consultarSalida(Connection conn, String folioSalida) throws SQLException{
@@ -77,7 +78,7 @@ public class SalidasBL
     }
     
     public static List<SalidaDetalle> agregarSalDet(Connection conn, List<Inventario> listInventario, Salida salida){
-        List<SalidaDetalle> auxSalidaDetalle = new ArrayList();
+        List<SalidaDetalle> auxSalidaDetalle = new ArrayList<SalidaDetalle>();
         
         for (Inventario inventarioSelect : listInventario) {
             SalidaDetalle salidaDetalle = new SalidaDetalle();
@@ -101,7 +102,7 @@ public class SalidasBL
     
     public static List<ServiciosExtras> agregarServicios(List<ServiciosExtras> listServicios) throws ClientesException
     {
-        List<ServiciosExtras> servicios = new ArrayList();
+        List<ServiciosExtras> servicios = new ArrayList<ServiciosExtras>();
         
         for (ServiciosExtras serviciosSelect : listServicios) {
             ServiciosExtras serviciosExtras = new ServiciosExtras();
@@ -117,7 +118,7 @@ public class SalidasBL
     
     public static List<ServicioSalida> agregarSrvSalida(List<ServiciosExtras> listServicios, Salida salida, String folioSalida)
     {
-        List<ServicioSalida> listServicioSalida = new ArrayList();
+        List<ServicioSalida> listServicioSalida = new ArrayList<ServicioSalida>();
         
         for(ServiciosExtras servicio : listServicios) {
             servicio.setFolioSalida(folioSalida);
