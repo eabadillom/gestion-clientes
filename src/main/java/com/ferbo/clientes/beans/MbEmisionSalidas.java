@@ -281,6 +281,12 @@ public class MbEmisionSalidas implements Serializable {
 		}
 	}
 	
+	public Integer numeroProductos() {
+		if(this.listaInventarioSelect == null)
+			return 0;
+		return this.listaInventarioSelect.size();
+	}
+	
 	public Integer cantidadTotal() {
 		if(this.listaInventarioSelect == null)
 			return 0;
@@ -313,6 +319,15 @@ public class MbEmisionSalidas implements Serializable {
 		try {
 			conn = Conexion.getConnection();
 			
+			if(this.listaInventarioSelect == null)
+				throw new ClientesException("No se detectaron productos seleccionados.");
+			
+			if(this.listaInventarioSelect.size() <= 0)
+				throw new ClientesException("No hay productos seleccionados.");
+			
+			if(this.listaInventarioSelect.stream().filter(inventario -> inventario.getCantidad() == null).count() > 0)
+				throw new ClientesException("Hay productos que no tienen indicada la cantidad.");
+			
 			boolean empty = this.listaInventarioSelect.stream().filter(inventario -> inventario.getCantidad() == 0).count() > 0;
 			
 			if(empty) {
@@ -338,7 +353,7 @@ public class MbEmisionSalidas implements Serializable {
 			SalidasBL.guardarSalDet(conn, this.listaSalidaDetalle);
 			
 			if(this.isOrdenRegistrada) {
-				throw new ClientesException("La constancia ya se encuentra registrada.");
+				throw new ClientesException("La orden de retiro ya se encuentra registrada.");
 			}
 			
 			if(!this.listaServiciosSelect.isEmpty()){
