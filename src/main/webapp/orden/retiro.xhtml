@@ -98,7 +98,7 @@
 						<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
 					</p:inputNumber>
 				</p:column>
-				<p:column headerText="Peso Aprox." width="6rem" style="text-align: right;">
+				<p:column headerText="Peso Aprox." width="8rem" style="text-align: right;">
 					<h:outputText value="#{inventario.pesoAprox} kg"/>
 				</p:column>
 				<p:rowExpansion>
@@ -124,7 +124,10 @@
 				<p:columnGroup type="footer">
                           <p:row>
                               <p:column style="text-align: left;"/>
-                              <p:column colspan="5" footerText="Total" style="text-align: right;"/>
+                              <p:column style="text-align: left;"/>
+                              <p:column style="text-align: left;"/>
+                              <p:column footerText="#{mbEmisionSalidas.numeroProductos()} seleccionado#{mbEmisionSalidas.numeroProductos() ne 1 ? 's' : ''}" colspan="2" style="text-align: left;"/>
+                              <p:column footerText="Total" style="text-align: right;"/>
                               <p:column footerText="#{mbEmisionSalidas.cantidadTotal()} unidades" style="text-align: right;"/>
                               <p:column footerText="#{mbEmisionSalidas.pesoTotal()} kg" style="text-align: right;">
                               </p:column>
@@ -182,7 +185,7 @@
 			<p:panel id="observaciones" header="Observaciones generales">
 				<div class="p-grid ui-fluid p-col-12">
 					<div class="p-col-12 p-md-9">
-						<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()" required="true" requiredMessage="Debe capturar las observaciones"/>
+						<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()"/>
 					</div>
 					<div class="p-col-12 p-md-3">
 						<p:badge severity="danger" value="#{mbEmisionSalidas.archivosList.size()}" visible="#{mbEmisionSalidas.archivosList.size() > 0}">
@@ -193,13 +196,15 @@
 				</div>
 			</p:panel>
 			<p:spacer height="1rem"></p:spacer>
-			<div align="center">
-				<p:commandButton id="registrar" value="Registrar mi orden de salida" action="#{mbEmisionSalidas.guardarPresalida}" update="form">
-					<p:confirm header="Registrar orden" message="¿Está seguro que desea GUARDAR la orden de retiro?" icon="pi pi-exclamation-triangle" />
-				</p:commandButton>
-				<p:spacer width="1rem" height="1rem"></p:spacer>
-				<p:commandButton value="Nueva orden de salida" action="#{mbEmisionSalidas.reload}" update="form" />
-			</div>
+			<p:outputPanel id="pnl-acciones">
+				<div align="center">
+					<p:commandButton id="registrar" value="Registrar mi orden de salida" action="#{mbEmisionSalidas.guardarPresalida}" update="form">
+						<p:confirm header="Registrar orden" message="¿Está seguro que desea GUARDAR la orden de retiro?" icon="pi pi-exclamation-triangle" />
+					</p:commandButton>
+					<p:spacer width="1rem" height="1rem"></p:spacer>
+					<p:commandButton value="Nueva orden de salida" action="#{mbEmisionSalidas.reload}" update="form" />
+				</div>
+			</p:outputPanel>
 			<p:defaultCommand target="registrar"></p:defaultCommand>
 		</h:form>
 		<p:dialog header="Adjuntar archivos" showEffect="fade" modal="true" widgetVar="dialogCarga" responsive="true" width="600">
