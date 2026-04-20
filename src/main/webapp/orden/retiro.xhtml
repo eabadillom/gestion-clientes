@@ -21,225 +21,34 @@
 				}
 			</style>
 			
-			<p:panel header="Datos generales">
-				<div class="p-grid ui-fluid">
-					<div class="p-col-12 p-md-6">
-						<p:outputLabel for="nombreCliente" value="Cliente" />
-						<p:inputText id="nombreCliente" placeholder="#{mbEmisionSalidas.cliente.nombre}" readonly="true" />
-					</div>
-					<div class="p-col-6 p-md-3">
-						<p:outputLabel for="plantas" value="Planta" />
-						<p:selectOneMenu id="plantas" autoWidth="false" value="#{mbEmisionSalidas.plantaSelected}" converter="entityConverter" filter="true" filterMatchMode="startsWith" required="true" requiredMessage="Debe indicar la planta">
-							<f:selectItem itemLabel="--Selecione la planta--" noSelectionOption="true" />
-							<f:selectItems var="planta" value="#{mbEmisionSalidas.listaPlantas}" itemLabel="#{planta.descripcion}" itemValue="#{planta}" />
-							<p:ajax listener="#{mbEmisionSalidas.muestraInventario}" update="dt-products folioSalida" />
-						</p:selectOneMenu>
-					</div>
-					<div class="p-col-6 p-md-3">
-						<p:outputLabel for="fechaSalida" value="Fecha - Hora de Salida" />
-						<p:datePicker id="fechaSalida" showIcon="true"  mindate="#{mbEmisionSalidas.fechaMin}" required="true" requiredMessage="Indique la fecha y hora de salida de la mercancía" showTime="true" value="#{mbEmisionSalidas.fecha}" pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6">
-							<p:ajax event="dateSelect" listener="#{mbEmisionSalidas.onChangeFecha}"/>
-						</p:datePicker>
-					</div>
-					<div class="p-col-12 p-md-6">
-						<p:outputLabel for="nombreOperador" value="Nombre del Operador" />
-							<p:inputText id="nombreOperador" value="#{mbEmisionSalidas.salida.nombreTransportista}" required="true" requiredMessage="Nombre del Operador requerido" oninput="this.value = this.value.toUpperCase()" />
-							<p:message for="nombreOperador" />
-					</div>
-					<div class="p-col-6 p-md-3">
-						<p:outputLabel for="placasUnidad" value="Placas Unidad" />
-						<p:inputText id="placasUnidad" value="#{mbEmisionSalidas.salida.placasTransporte}" required="true" requiredMessage="Placas de Unidad requerida" oninput="this.value = this.value.toUpperCase()"/>
-						<p:message for="placasUnidad" />
-					</div>
-					<div class="p-col-6 p-md-3">
-						<p:outputLabel for="folioSalida" value="Folio de solicitud" />
-						<p:inputText id="folioSalida" placeholder="FOLIO" value="#{mbEmisionSalidas.folioSalida}" readonly="true" />
-					</div>
-				</div>
-			</p:panel>
-			<p:spacer style="height: 1rem;"/>
-			<p:dataTable id="dt-products" widgetVar="dtProducts" var="inventario" value="#{mbEmisionSalidas.listaInventario}" size="small"
-				selection="#{mbEmisionSalidas.listaInventarioSelect}" rowKey="#{inventario.partidaClave}" paginator="true" rows="10"
-				rowSelectMode="add" paginatorPosition="bottom">
-				<f:facet name="header">
-					<div class="products-table-header">
-						<span class="filter-container ui-input-icon-left">
-							<i class="pi pi-search"></i>
-							<p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar por folio de entrada o producto" />
-						</span>
-					</div>
-				</f:facet>
-				<p:ajax event="toggleSelect" listener="#{mbEmisionSalidas.toggleSelect}" process="@this" update="dt-products" />
-				<p:ajax event="rowSelectCheckbox" listener="#{mbEmisionSalidas.onRowSelect}" process="@this" update="dt-products" />
-				<p:ajax event="rowSelect" listener="#{mbEmisionSalidas.onRowSelect}" process="@this" update="dt-products" />
-				<p:ajax event="rowUnselect" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
-				<p:ajax event="rowUnselectCheckbox" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
-				
-				<p:column selectionMode="multiple" width="1rem">
-				</p:column>
-				<p:column width="1rem">
-	                <p:rowToggler/>
-	            </p:column>
-				<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" width="6rem" filterable="true" filterBy="#{inventario.folioCliente}">
-					<h:outputText value="#{inventario.folioCliente}" />
-				</p:column>
-				<p:column headerText="Producto" sortBy="#{inventario.producto}" width="auto" filterBy="#{inventario.producto}">
-					<h:outputText value="#{inventario.producto}" />
-				</p:column>
-				<p:column headerText="Existencia" width="6rem" style="text-align: right;">
-					<h:outputText value="#{inventario.existencia} #{inventario.unidad}" />
-				</p:column>
-				<p:column headerText="Peso (Kg)" width="6rem" style="text-align: right;">
-					<h:outputText value="#{inventario.peso}"/>
-				</p:column>
-				<p:column headerText="Cantidad" width="8rem" style="text-align: right;">
-					<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" minValue="0" maxValue="#{inventario.existencia}" inputStyleClass="input-number-width"
-						disabled="#{not inventario.habilitado}" symbol=" #{inventario.unidad}" symbolPosition="s" inputStyle="text-align: right;">
-						<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
-					</p:inputNumber>
-				</p:column>
-				<p:column headerText="Peso Aprox." width="8rem" style="text-align: right;">
-					<h:outputText value="#{inventario.pesoAprox} kg"/>
-				</p:column>
-				<p:rowExpansion>
-					<div class="p-grid ui-fluid">
-						<div class="p-col-2 p-md-2">
-							<p:outputLabel for="@next" value="Código" />
-							<p:inputText value="#{inventario.codigo}" readonly="true" />
-						</div>
-						<div class="p-col-2 p-md-2">
-							<p:outputLabel for="@next" value="Caducidad"/>
-							<p:datePicker value="#{inventario.caducidad}" readonly="true"/>
-						</div>
-						<div class="p-col-2 p-md-2">
-							<p:outputLabel for="@next" value="Lote"/>
-							<p:inputText value="#{inventario.lote}" readonly="true" />
-						</div>
-						<div class="p-col-2 p-md-2">
-							<p:outputLabel for="@next" value="Contenedor"/>
-							<p:inputText value="#{inventario.sap}" readonly="true" />
-						</div>
-					</div>
-				</p:rowExpansion>
-				<p:columnGroup type="footer">
-                          <p:row>
-                              <p:column style="text-align: left;"/>
-                              <p:column style="text-align: left;"/>
-                              <p:column style="text-align: left;"/>
-                              <p:column footerText="#{mbEmisionSalidas.numeroProductos()} seleccionado#{mbEmisionSalidas.numeroProductos() ne 1 ? 's' : ''}" colspan="2" style="text-align: left;"/>
-                              <p:column footerText="Total" style="text-align: right;"/>
-                              <p:column footerText="#{mbEmisionSalidas.cantidadTotal()} unidades" style="text-align: right;"/>
-                              <p:column footerText="#{mbEmisionSalidas.pesoTotal()} kg" style="text-align: right;">
-                              </p:column>
-                          </p:row>
-                      </p:columnGroup>
-			</p:dataTable>
+			<ui:include src="/orden/retiro_files/retiro-datos-generales.xhtml" />
 			
-			<ui:remove>
-				<div style="padding-top: 1rem;">
-					<p:panel header="Servicios extras" widgetVar="testPanel">
-						<p:dataTable id="dt-servicio" widgetVar="dtServicio"
-							var="serviciosExtras" value="#{mbEmisionSalidas.listaServicios}"
-							reflow="true" styleClass="servicio-table"
-							selection="#{mbEmisionSalidas.listaServiciosSelect}"
-							rowKey="#{serviciosExtras.idServicioExtra}" 
-							rowSelectMode="add">
-							<f:facet name="header">
-								<div class="products-table-header">
-									<span class="filter-container ui-input-icon-left">
-										<i class="pi pi-search"></i>
-										<p:inputText id="globalFilterTwo" onkeyup="PF('dtServicio').filter()" placeholder="Buscar" />
-									</span>
-								</div>
-							</f:facet>
-							<p:ajax event="toggleSelect"
-													listener="#{mbEmisionSalidas.toggleSelectServicios()}" process="@this"
-													update="dt-servicio" />
-												<p:ajax event="rowSelectCheckbox"
-													listener="#{mbEmisionSalidas.onRowSelectServicios}" process="@this"
-													update="dt-servicio" />
-												<p:ajax event="rowSelect"
-													listener="#{mbEmisionSalidas.onRowSelectServicios}" process="@this"
-													update="dt-servicio" />
-												<p:ajax event="rowUnselect"
-													listener="#{mbEmisionSalidas.onRowUnselectServicios}"
-													update="dt-servicio" />
-												<p:ajax event="rowUnselectCheckbox"
-													listener="#{mbEmisionSalidas.onRowUnselectServicios}"
-													update="dt-servicio" />
-							<p:column selectionMode="multiple" exportable="false"></p:column>
-							<p:column headerText="Servicio" sortBy="#{serviciosExtras.servicioExtra}">
-								<h:outputText value="#{serviciosExtras.servicioExtra}" />
-							</p:column>
-							<p:column headerText="Cantidad" sortBy="#{serviciosExtras.cantidad}">
-								<p:inputNumber value="#{serviciosExtras.cantidad}" minValue="0" decimalPlaces="0" disabled="#{!serviciosExtras.habilitado}" />
-							</p:column>
-							<p:column headerText="Unidad">
-								<h:outputText value="#{serviciosExtras.unidadManejo}"/>
-							</p:column>
-						</p:dataTable>
-					</p:panel>
-				</div>
-			</ui:remove>
+			<p:spacer style="height: 1rem;"/>
+			
+			<ui:include src="/orden/retiro_files/retiro-inventario.xhtml" />
+			
+			<p:spacer style="height: 1rem;"/>
+			
+			<div style="align: center;">
+				<p:commandButton value="Vista previa" icon="pi pi-search" onclick="PF('dlgSusProductos').show();" update="form:dl-sus-productos"></p:commandButton>
+			</div>
+			
+			<p:spacer style="height: 1rem;"/>
+			
+			<ui:include src="/orden/retiro_files/retiro-servicios.xhtml" />
+			
 			<p:spacer height="1rem" />
-			<p:panel id="observaciones" header="Observaciones generales">
-				<div class="p-grid ui-fluid p-col-12">
-					<div class="p-col-12 p-md-9">
-						<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()"/>
-					</div>
-					<div class="p-col-12 p-md-3">
-						<p:badge severity="danger" value="#{mbEmisionSalidas.archivosList.size()}" visible="#{mbEmisionSalidas.archivosList.size() > 0}">
-							<p:commandButton value="Cargar archivos" icon="pi pi-cloud-upload" type="button" onclick="PF('dialogCarga').show()" process="@this">
-							</p:commandButton>
-						</p:badge>
-					</div>
-				</div>
-			</p:panel>
+			
+			<ui:include src="/orden/retiro_files/retiro-observaciones.xhtml" />
+			
 			<p:spacer height="1rem"></p:spacer>
-			<p:outputPanel id="pnl-acciones">
-				<div align="center">
-					<p:commandButton id="registrar" value="Registrar mi orden de salida" action="#{mbEmisionSalidas.guardarPresalida}" update="form">
-						<p:confirm header="Registrar orden" message="¿Está seguro que desea GUARDAR la orden de retiro?" icon="pi pi-exclamation-triangle" />
-					</p:commandButton>
-					<p:spacer width="1rem" height="1rem"></p:spacer>
-					<p:commandButton value="Nueva orden de salida" action="#{mbEmisionSalidas.reload}" update="form" />
-				</div>
-			</p:outputPanel>
-			<p:defaultCommand target="registrar"></p:defaultCommand>
+			
+			<ui:include src="/orden/retiro_files/retiro-acciones.xhtml" />
+			
+			<ui:include src="/orden/retiro_files/retiro-dlg-vista-previa.xhtml" />
+			
 		</h:form>
-		<p:dialog header="Adjuntar archivos" showEffect="fade" modal="true" widgetVar="dialogCarga" responsive="true" width="600">
-			<h:form id="frmArchivos" enctype="multipart/form-data">
-				<p:panel id="pnlCarga" class="ui-fluid">
-					<div class="p-grid ui-fluid p-col-12">
-						<div class="p-col-12 p-md-12">
-							<p:fileUpload value="#{mbEmisionSalidas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" uploadIcon="pi pi-upload"/>
-						</div>
-						<div class="p-col-6 p-md-6">
-							<p:commandButton value="Agregar" icon="pi pi-check" actionListener="#{mbEmisionSalidas.cargarArchivo}"  process="@this pnlCarga" update="pnlCarga form:observaciones" styleClass="mt-3 ui-button-outlined block"/>
-						</div>
-					</div>
-					<div class="p-grid">
-						<p:dataTable id="dt-adjuntos" value="#{mbEmisionSalidas.archivosList}" var="archivo">
-							<p:column headerText="Nombre" >
-								<p:outputLabel value="#{archivo.nombreArchivo}" />
-							</p:column>
-							<p:column headerText="Tamaño (MB)" footerText="#{mbEmisionSalidas.tamanioTotal} MB" width="8rem">
-								<p:outputLabel value="#{archivo.tamanio / 1048576}">
-									<f:convertNumber pattern="#0.00" />
-								</p:outputLabel>
-							</p:column>
-							<p:column width="2rem">
-							    <p:commandButton class="ui-button-danger" icon="pi pi-times" action="#{mbEmisionSalidas.eliminarAdjunto}" update="dt-adjuntos">
-							        <f:setPropertyActionListener value="#{archivo}" target="#{mbEmisionSalidas.selectedAttachment}"/>
-							    </p:commandButton>
-							</p:column>
-						</p:dataTable>
-					</div>
-				</p:panel>
-			</h:form>
-			<f:facet name="footer">
-					<p:commandButton value="Cerrar" icon="pi pi-times" class="ui-button-secondary" onclick="PF('dialogCarga').hide()" />
-				</f:facet>
-		</p:dialog>
+		
+		<ui:include src="/orden/retiro_files/retiro-dlg-adjuntar.xhtml" />
 	</ui:define>
 </ui:composition>

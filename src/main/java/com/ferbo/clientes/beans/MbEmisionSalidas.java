@@ -301,7 +301,7 @@ public class MbEmisionSalidas implements Serializable {
 			return BigDecimal.ZERO.setScale(3, RoundingMode.HALF_UP);
 		
 		return this.listaInventarioSelect.stream()
-				.map(Inventario::getPeso)
+				.map(Inventario::getPesoAprox)
 				.filter(Objects::nonNull)
 				.reduce(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), BigDecimal::add)
 				;

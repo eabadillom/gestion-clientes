@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+		<p:dialog header="Adjuntar archivos" showEffect="fade" modal="true" widgetVar="dialogCarga" responsive="true" width="600">
+			<h:form id="frmArchivos" enctype="multipart/form-data">
+				<p:panel id="pnlCarga" class="ui-fluid">
+					<div class="p-grid ui-fluid p-col-12">
+						<div class="p-col-12 p-md-12">
+							<p:fileUpload value="#{mbEmisionSalidas.attachmentFile}" label="Seleccione un archivo" mode="simple" skinSimple="true" uploadIcon="pi pi-upload"/>
+						</div>
+						<div class="p-col-6 p-md-6">
+							<p:commandButton value="Agregar" icon="pi pi-check" actionListener="#{mbEmisionSalidas.cargarArchivo}"  process="@this pnlCarga" update="pnlCarga form:observaciones" styleClass="mt-3 ui-button-outlined block"/>
+						</div>
+					</div>
+					<div class="p-grid">
+						<p:dataTable id="dt-adjuntos" value="#{mbEmisionSalidas.archivosList}" var="archivo">
+							<p:column headerText="Nombre" >
+								<p:outputLabel value="#{archivo.nombreArchivo}" />
+							</p:column>
+							<p:column headerText="Tamaño (MB)" footerText="#{mbEmisionSalidas.tamanioTotal} MB" width="8rem">
+								<p:outputLabel value="#{archivo.tamanio / 1048576}">
+									<f:convertNumber pattern="#0.00" />
+								</p:outputLabel>
+							</p:column>
+							<p:column width="2rem">
+							    <p:commandButton class="ui-button-danger" icon="pi pi-times" action="#{mbEmisionSalidas.eliminarAdjunto}" update="dt-adjuntos">
+							        <f:setPropertyActionListener value="#{archivo}" target="#{mbEmisionSalidas.selectedAttachment}"/>
+							    </p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</p:panel>
+			</h:form>
+			<f:facet name="footer">
+					<p:commandButton value="Cerrar" icon="pi pi-times" class="ui-button-secondary" onclick="PF('dialogCarga').hide()" />
+				</f:facet>
+		</p:dialog>
+
+
+</ui:composition>
