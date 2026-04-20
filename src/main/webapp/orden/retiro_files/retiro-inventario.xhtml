@@ -1,0 +1,84 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+			<p:dataTable id="dt-products" widgetVar="dtProducts" var="inventario" value="#{mbEmisionSalidas.listaInventario}" size="small"
+				selection="#{mbEmisionSalidas.listaInventarioSelect}" rowKey="#{inventario.partidaClave}" paginator="true" rows="10"
+				rowSelectMode="add" paginatorPosition="bottom">
+				<f:facet name="header">
+					<div class="products-table-header">
+						<span class="filter-container ui-input-icon-left">
+							<i class="pi pi-search"></i>
+							<p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar por folio de entrada o producto" />
+						</span>
+					</div>
+				</f:facet>
+				<p:ajax event="toggleSelect" listener="#{mbEmisionSalidas.toggleSelect}" process="@this" update="dt-products" />
+				<p:ajax event="rowSelectCheckbox" listener="#{mbEmisionSalidas.onRowSelect}" process="@this" update="dt-products" />
+				<p:ajax event="rowSelect" listener="#{mbEmisionSalidas.onRowSelect}" process="@this" update="dt-products" />
+				<p:ajax event="rowUnselect" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
+				<p:ajax event="rowUnselectCheckbox" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
+				
+				<p:column selectionMode="multiple" width="1rem">
+				</p:column>
+				<p:column width="1rem">
+	                <p:rowToggler/>
+	            </p:column>
+				<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" width="6rem" filterable="true" filterBy="#{inventario.folioCliente}">
+					<h:outputText value="#{inventario.folioCliente}" />
+				</p:column>
+				<p:column headerText="Producto" sortBy="#{inventario.producto}" width="auto" filterBy="#{inventario.producto}">
+					<h:outputText value="#{inventario.producto}" />
+				</p:column>
+				<p:column headerText="Existencia" width="6rem" style="text-align: right;">
+					<h:outputText value="#{inventario.existencia} #{inventario.unidad}" />
+				</p:column>
+				<p:column headerText="Peso (Kg)" width="6rem" style="text-align: right;">
+					<h:outputText value="#{inventario.peso}"/>
+				</p:column>
+				<p:column headerText="Cantidad" width="8rem" style="text-align: right;">
+					<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" minValue="0" maxValue="#{inventario.existencia}" inputStyleClass="input-number-width"
+						disabled="#{not inventario.habilitado}" symbol=" #{inventario.unidad}" symbolPosition="s" inputStyle="text-align: right;">
+						<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
+					</p:inputNumber>
+				</p:column>
+				<p:column headerText="Peso Aprox." width="8rem" style="text-align: right;">
+					<h:outputText value="#{inventario.pesoAprox} kg"/>
+				</p:column>
+				<p:rowExpansion>
+					<div class="p-grid ui-fluid">
+						<div class="p-col-2 p-md-2">
+							<p:outputLabel for="@next" value="Código" />
+							<p:inputText value="#{inventario.codigo}" readonly="true" />
+						</div>
+						<div class="p-col-2 p-md-2">
+							<p:outputLabel for="@next" value="Caducidad"/>
+							<p:datePicker value="#{inventario.caducidad}" readonly="true"/>
+						</div>
+						<div class="p-col-2 p-md-2">
+							<p:outputLabel for="@next" value="Lote"/>
+							<p:inputText value="#{inventario.lote}" readonly="true" />
+						</div>
+						<div class="p-col-2 p-md-2">
+							<p:outputLabel for="@next" value="Contenedor"/>
+							<p:inputText value="#{inventario.sap}" readonly="true" />
+						</div>
+					</div>
+				</p:rowExpansion>
+				<p:columnGroup type="footer">
+                          <p:row>
+                              <p:column style="text-align: left;"/>
+                              <p:column style="text-align: left;"/>
+                              <p:column style="text-align: left;"/>
+                              <p:column footerText="#{mbEmisionSalidas.numeroProductos()} seleccionado#{mbEmisionSalidas.numeroProductos() ne 1 ? 's' : ''}" colspan="2" style="text-align: left;"/>
+                              <p:column footerText="Total" style="text-align: right;"/>
+                              <p:column footerText="#{mbEmisionSalidas.cantidadTotal()} unidades" style="text-align: right;"/>
+                              <p:column footerText="#{mbEmisionSalidas.pesoTotal()} kg" style="text-align: right;">
+                              </p:column>
+                          </p:row>
+                      </p:columnGroup>
+			</p:dataTable>
+
+</ui:composition>

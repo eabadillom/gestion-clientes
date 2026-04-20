@@ -1,0 +1,54 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+			<ui:remove>
+				<div style="padding-top: 1rem;">
+					<p:panel header="Servicios extras" widgetVar="testPanel">
+						<p:dataTable id="dt-servicio" widgetVar="dtServicio"
+							var="serviciosExtras" value="#{mbEmisionSalidas.listaServicios}"
+							reflow="true" styleClass="servicio-table"
+							selection="#{mbEmisionSalidas.listaServiciosSelect}"
+							rowKey="#{serviciosExtras.idServicioExtra}" 
+							rowSelectMode="add">
+							<f:facet name="header">
+								<div class="products-table-header">
+									<span class="filter-container ui-input-icon-left">
+										<i class="pi pi-search"></i>
+										<p:inputText id="globalFilterTwo" onkeyup="PF('dtServicio').filter()" placeholder="Buscar" />
+									</span>
+								</div>
+							</f:facet>
+							<p:ajax event="toggleSelect"
+													listener="#{mbEmisionSalidas.toggleSelectServicios()}" process="@this"
+													update="dt-servicio" />
+												<p:ajax event="rowSelectCheckbox"
+													listener="#{mbEmisionSalidas.onRowSelectServicios}" process="@this"
+													update="dt-servicio" />
+												<p:ajax event="rowSelect"
+													listener="#{mbEmisionSalidas.onRowSelectServicios}" process="@this"
+													update="dt-servicio" />
+												<p:ajax event="rowUnselect"
+													listener="#{mbEmisionSalidas.onRowUnselectServicios}"
+													update="dt-servicio" />
+												<p:ajax event="rowUnselectCheckbox"
+													listener="#{mbEmisionSalidas.onRowUnselectServicios}"
+													update="dt-servicio" />
+							<p:column selectionMode="multiple" exportable="false"></p:column>
+							<p:column headerText="Servicio" sortBy="#{serviciosExtras.servicioExtra}">
+								<h:outputText value="#{serviciosExtras.servicioExtra}" />
+							</p:column>
+							<p:column headerText="Cantidad" sortBy="#{serviciosExtras.cantidad}">
+								<p:inputNumber value="#{serviciosExtras.cantidad}" minValue="0" decimalPlaces="0" disabled="#{!serviciosExtras.habilitado}" />
+							</p:column>
+							<p:column headerText="Unidad">
+								<h:outputText value="#{serviciosExtras.unidadManejo}"/>
+							</p:column>
+						</p:dataTable>
+					</p:panel>
+				</div>
+			</ui:remove>
+
+</ui:composition>
