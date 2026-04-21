@@ -75,7 +75,7 @@ public class EmisionSalidasDAO {
 			+ "		GROUP BY folio, partida_cve, cliente "
 			+ "	) sal ON cddEnt.FOLIO = sal.folio AND parEnt.partida_cve = sal.partida_cve "
 			+ "	WHERE "
-			+ "		cddEnt.status <> 4 "
+			+ "		cddEnt.status = 1 "
 			+ "		AND plt.PLANTA_CVE = ? "
 			+ "	) T "
 			+ "WHERE cantidad > 0 "
