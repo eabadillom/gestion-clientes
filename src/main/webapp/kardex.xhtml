@@ -1,0 +1,56 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Kardex</ui:define>
+	<ui:define name="content">
+		<h:form id="form" enctype="multipart/form-data">
+			<ui:include src="/common/status-info.xhtml"></ui:include>
+			<p:panel id="pnl-acciones">
+				<div class="p-grid ui-fluid">
+					<div class="p-col-4 p-md-2">
+						<p:inputText id="folio" value="#{kardexBean.folioCliente}" placeholder="Folio de ingreso" oninput="this.value = this.value.toUpperCase()">
+						</p:inputText>
+					</div>
+					<div class="p-col-4 p-md-2">
+						<p:commandButton value="Buscar" icon="pi pi-search" process="pnl-acciones @this" actionListener="#{kardexBean.buscar()}" update="pnl-datos-ingreso" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();">
+						</p:commandButton>
+					</div>
+				</div>
+			</p:panel>
+			
+			<p:spacer height="1rem">
+			</p:spacer>
+			
+			<p:panel id="pnl-datos-ingreso" header="Información de la entrada">
+				<div class="p-grid ui-fluid">
+					<div class="p-col-4 p-md-2">
+						<p:inputText value="#{kardexBean.constancia.folioCliente}" readonly="true" rendered="#{kardexBean.constancia.fechaIngreso ne null}">
+						</p:inputText>
+					</div>
+					<div class="p-col-4 p-md-4">
+						<p:inputText value="#{kardexBean.constancia.fechaIngreso}" readonly="true" rendered="#{kardexBean.constancia.fechaIngreso ne null}">
+							<f:convertDateTime locale="es_MX" pattern="dd 'de' MMMM 'de' yyyy" timeStyle="GMT-6"></f:convertDateTime>
+						</p:inputText>
+					</div>
+					<div class="p-col-4 p-md-2">
+					</div>
+					<div class="p-col-4 p-md-2">
+						<p:commandButton value="PDF" icon="pi pi-file-pdf" process="pnl-acciones" actionListener="#{kardexBean.buscarPDF()}" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog).hide();" rendered="#{kardexBean.constancia.fechaIngreso ne null}">
+							<p:fileDownload value="#{kardexBean.kardexFile}" ></p:fileDownload>
+						</p:commandButton>
+					</div>
+					<div class="p-col-4 p-md-2">
+						<p:commandButton value="Excel" icon="pi pi-file-excel" process="pnl-acciones" actionListener="#{kardexBean.buscarXLSX()}" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog).hide();" rendered="#{kardexBean.constancia.fechaIngreso ne null}">
+							<p:fileDownload value="#{kardexBean.kardexFile}" ></p:fileDownload>
+						</p:commandButton>
+					</div>
+				</div>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>
