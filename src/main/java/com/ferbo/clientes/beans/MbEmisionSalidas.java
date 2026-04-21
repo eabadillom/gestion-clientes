@@ -89,27 +89,27 @@ public class MbEmisionSalidas implements Serializable {
 	private String folioSalida;
 	
 	public MbEmisionSalidas() {
-            this.listaInventarioSelect = new ArrayList<Inventario>();
-            this.listaServiciosSelect = new ArrayList<ServiciosExtras>();
-            
-            this.fecha = new Date();
-            DateUtils.setMinuto(this.fecha, 0);
-            DateUtils.setSegundo(this.fecha, 0);
-            DateUtils.setMilisegundo(this.fecha, 0);
-            log.info("Fecha / Hora por defecto: {}", this.fecha);
-            this.fechaMin = new Date();
-            
-            this.archivosList = new ArrayList<Adjunto>();
-            this.tamanioTotal = new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP);
-            
-            this.context = FacesContext.getCurrentInstance();
-            this.request = (HttpServletRequest) this.context.getExternalContext().getRequest();
-            this.session = this.request.getSession(false);
-            this.cliente = (Cliente) this.session.getAttribute("cliente");
-            this.cteContacto = (ClienteContacto) this.request.getSession(false).getAttribute("usuario");
-            
-            String mensaje = String.format("Usuario %s ingresa a Registro de orden de salida.", this.cteContacto.getUsuario());
-            log.info(mensaje);
+		this.listaInventarioSelect = new ArrayList<Inventario>();
+		this.listaServiciosSelect = new ArrayList<ServiciosExtras>();
+		
+		this.fecha = new Date();
+		DateUtils.setMinuto(this.fecha, 0);
+		DateUtils.setSegundo(this.fecha, 0);
+		DateUtils.setMilisegundo(this.fecha, 0);
+		log.info("Fecha / Hora por defecto: {}", this.fecha);
+		this.fechaMin = new Date();
+		
+		this.archivosList = new ArrayList<Adjunto>();
+		this.tamanioTotal = new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP);
+		
+		this.context = FacesContext.getCurrentInstance();
+		this.request = (HttpServletRequest) this.context.getExternalContext().getRequest();
+		this.session = this.request.getSession(false);
+		this.cliente = (Cliente) this.session.getAttribute("cliente");
+		this.cteContacto = (ClienteContacto) this.request.getSession(false).getAttribute("usuario");
+		
+		String mensaje = String.format("Usuario %s ingresa a Registro de orden de salida.", this.cteContacto.getUsuario());
+		log.info(mensaje);
 	}
 	
 	@PostConstruct
