@@ -7,7 +7,9 @@
 			<p:panel id="observaciones" header="Observaciones generales">
 				<div class="p-grid ui-fluid p-col-12">
 					<div class="p-col-12 p-md-9">
-						<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()"/>
+						<p:inputText value="#{mbEmisionSalidas.salida.observaciones}" maxlength="1000" placeholder="OBSERVACIONES GENERALES" oninput="this.value = this.value.toUpperCase()" >
+							<p:ajax process="@this"/>
+						</p:inputText>
 					</div>
 					<div class="p-col-12 p-md-3">
 						<p:badge severity="danger" value="#{mbEmisionSalidas.archivosList.size()}" visible="#{mbEmisionSalidas.archivosList.size() > 0}">
