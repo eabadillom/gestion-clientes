@@ -7,14 +7,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -39,7 +35,7 @@ import com.ferbo.clientes.model.EstadoCuenta;
 import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
-import com.ferbo.clientes.util.JasperReportUtil;
+import com.ferbo.gestion.reports.jasper.clientes.EstadoDeCuentaJR;
 
 @Named(value = "mbEstadoCuenta")
 @ViewScoped
@@ -83,7 +79,6 @@ public class MBEstadoCuenta implements Serializable {
 		fechaInicio = new Date(Calendar.MONTH);
 		fechaFin = new Date(Calendar.MONTH);
 		Date today = new Date();
-		long oneDay = 24 * 60 * 60 * 1000;
 		clienteM = new ClienteDAO();
 		clienteSelect = new Cliente();
 		maxDate = new Date(today.getTime());
@@ -102,7 +97,7 @@ public class MBEstadoCuenta implements Serializable {
 			this.file = DefaultStreamedContent.builder()
 					.contentType("application/pdf")
 					.contentLength(bytes.length)
-					.name("estadoCuenta.pdf")
+					.name("Estado_de_cuenta.pdf")
 					.stream(() -> new ByteArrayInputStream(bytes) )
 					.build();
 		
@@ -120,13 +115,13 @@ public class MBEstadoCuenta implements Serializable {
 	}
 	
 	public void Consultar() {
-		FacesMessage message = null;
-		Severity severity = null;
-		String mensaje = null;
+		FacesMessage message  = null;
+		Severity     severity = null;
+		String       mensaje  = null;
 		
 		Date finMes;
 		Connection conn = null;
-                mesActual = DateUtils.getFirstDayOfMonth(mesActual);
+		mesActual = DateUtils.getFirstDayOfMonth(mesActual);
 		finMes = DateUtils.getLastDayOfMonth(mesActual);
 		try {
 			conn = Conexion.getConnection();
@@ -163,44 +158,41 @@ public class MBEstadoCuenta implements Serializable {
 			mensaje = ex.getMessage();
 			severity = FacesMessage.SEVERITY_WARN;
 			
-			message = new FacesMessage(mensaje);
+			message = new FacesMessage(severity, "Problema con la consulta", mensaje);
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		} catch (Exception e) {
 			mensaje = e.getMessage();
 			severity = FacesMessage.SEVERITY_WARN;
 			
-			message = new FacesMessage(mensaje);
+			message = new FacesMessage(severity, "Problema con la consulta", mensaje);
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		} finally {
-                        Conexion.close(conn);
+			Conexion.close(conn);
 			PrimeFaces.current().ajax().update("form:messages");
 		}
 	}
 
 	public void exportarPDF() {
-		String reportNameJASPER = "/jasper/EstadoCuentaCliente.jrxml";
-		File reportFile = new File(getClass().getResource(reportNameJASPER).getFile());
-		Date finMes;
-		log.info(reportFile.getPath());
-
 		String sLogoPath = "/images/logo.png";
 		File logoFile = new File(getClass().getResource(sLogoPath).getFile());
 		log.info("Imagen: " + logoFile.getPath());
-		finMes = DateUtils.getLastDayOfMonth(mesActual);
-		JasperReportUtil jasperReportUtil = new JasperReportUtil();
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Date finMes = DateUtils.getLastDayOfMonth(mesActual);
+		String fileName = null;
 		Connection connection = null;
-		parameters = new HashMap<String, Object>();
-
+		final byte[] buffer;
+		
 		try {
+			fileName = String.format("Estado_de_cuenta.pdf");
 			connection = Conexion.dsConexion();
-			parameters.put("REPORT_CONNECTION", connection);
-			parameters.put("idCliente", clienteSelect.getIdCliente());
-			parameters.put("fechaInicio", mesActual);
-			parameters.put("fechaFin", finMes);
-			parameters.put("imagen", logoFile.getPath());
-			log.info("Parametros: " + parameters.toString());
-			this.file = jasperReportUtil.getPdf(getNameFilePdf(), parameters, reportFile.getAbsolutePath());
+			buffer = new EstadoDeCuentaJR(connection, logoFile.getAbsolutePath())
+					.getPDF(idCliente, mesActual, finMes);
+			
+			this.file = DefaultStreamedContent
+					.builder()
+					.contentType("application/pdf")
+					.name(fileName)
+					.stream(() -> new ByteArrayInputStream(buffer))
+					.build();
 		} catch (SQLException ex) {
 			log.error("Problema en base de datos...", ex);
 		} catch (Exception ex) {
@@ -210,15 +202,7 @@ public class MBEstadoCuenta implements Serializable {
 		}
 	}
 
-	public String getNameFilePdf() {
-		DateFormat dateFormatPeriodo = new SimpleDateFormat("yyyy-MM-dd");
-		String strDatePeriodoI = dateFormatPeriodo.format(getFechaInicio());
-		String strDatePeriodoF = dateFormatPeriodo.format(getFechaFin());
-		return "factura_" + strDatePeriodoI + "_" + strDatePeriodoF + ".pdf";
-	}
-
 	public void exportarExcel() {
-
 		log.debug("...");
 	}
 	

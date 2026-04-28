@@ -41,7 +41,6 @@ public class MbInventario implements Serializable {
 	private HttpServletRequest request;
 	private HttpSession session;
 	private Cliente cliente;
-	private ReporteInventarioJR reporteInventarioJR;
 	private StreamedContent file;
 	
 	@PostConstruct
@@ -67,8 +66,7 @@ public class MbInventario implements Serializable {
 		Connection connection = null;
 		try {
 			connection = Conexion.getConnection();
-			this.reporteInventarioJR = new ReporteInventarioJR(connection, sLogoPath);
-			byte[] bytes = this.reporteInventarioJR.getPDFReporteInventario(this.cliente.getIdCliente(), null);
+			byte[] bytes = new ReporteInventarioJR(connection, sLogoPath).getPDFReporteInventario(this.fechaCorte, this.cliente.getIdCliente(), null);
 			InputStream input = new ByteArrayInputStream(bytes);
 			this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
 			log.info("Terminando generacion de reporte de inventarios...");
