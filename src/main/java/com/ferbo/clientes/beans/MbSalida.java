@@ -61,10 +61,6 @@ public class MbSalida implements Serializable {
 	}
 
 	public void generateReport() {
-		String reportNameJASPER = "/jasper/salidas.jrxml";
-		File reportFile = new File(getClass().getResource(reportNameJASPER).getFile());
-		log.info(reportFile.getPath());
-
 		String sLogoPath = "/images/logo.jpeg";
 		File logoFile = new File(getClass().getResource(sLogoPath).getFile());
 		log.info("Imagen: " + logoFile.getPath());
