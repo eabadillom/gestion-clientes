@@ -37,14 +37,12 @@ public class MbSalida implements Serializable {
 	private Date fechaInicio;
 
 	private Date fechaFin;
-	
+
 	private FacesContext faceContext;
 	private HttpServletRequest request;
 	private HttpSession session;
 	private Cliente cliente;
-        
-        private ReporteSalidasJR reporteSalidasJR;
-        private StreamedContent file;
+	private StreamedContent file;
 
 	public MbSalida() {
 		this.fechaInicio = new Date();
@@ -53,20 +51,16 @@ public class MbSalida implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		fechaInicio = new Date();
-		fechaFin = new Date();
-		faceContext = FacesContext.getCurrentInstance();
-        request = (HttpServletRequest) faceContext.getExternalContext().getRequest();
-        session = request.getSession(false);
-		this.cliente = (Cliente) session.getAttribute("cliente");
-                log.info("El cliente {} ha ingresado a reportes de salidas.", this.cliente.getNombre());
+		this.fechaInicio = new Date();
+		this.fechaFin = new Date();
+		this.faceContext = FacesContext.getCurrentInstance();
+		this.request = (HttpServletRequest) this.faceContext.getExternalContext().getRequest();
+		this.session = this.request.getSession(false);
+		this.cliente = (Cliente) this.session.getAttribute("cliente");
+		log.info("El cliente {} ha ingresado a reportes de salidas.", this.cliente.getNombre());
 	}
 
 	public void generateReport() {
-		String reportNameJASPER = "/jasper/salidas.jrxml";
-		File reportFile = new File(getClass().getResource(reportNameJASPER).getFile());
-		log.info(reportFile.getPath());
-
 		String sLogoPath = "/images/logo.jpeg";
 		File logoFile = new File(getClass().getResource(sLogoPath).getFile());
 		log.info("Imagen: " + logoFile.getPath());
@@ -74,11 +68,14 @@ public class MbSalida implements Serializable {
 		Connection connection = null;
 		try {
 			connection = Conexion.dsConexion();
-                        reporteSalidasJR = new ReporteSalidasJR(connection, sLogoPath);
-                        byte[] bytes = reporteSalidasJR.getPDF(fechaInicio, fechaFin, cliente.getIdCliente(), null, null);
-                        InputStream input = new ByteArrayInputStream(bytes);
-                        this.file = DefaultStreamedContent.builder().contentType("application/pdf").name(getNameFilePdf()).stream(() -> input).build();
-                        log.info("Terminando generacion de reporte de salidas...");
+			byte[] bytes = new ReporteSalidasJR(connection, sLogoPath)
+					.getPDF(this.fechaInicio, this.fechaFin, this.cliente.getIdCliente(), null, null);
+			InputStream input = new ByteArrayInputStream(bytes);
+			this.file = DefaultStreamedContent.builder()
+					.contentType("application/pdf")
+					.name(getNameFilePdf())
+					.stream(() -> input).build();
+			log.info("Terminando generacion de reporte de salidas...");
 		} catch (SQLException ex) {
 			log.error("Problema en base de datos...", ex);
 		} catch (Exception ex) {
@@ -92,7 +89,7 @@ public class MbSalida implements Serializable {
 		DateFormat dateFormatPeriodo = new SimpleDateFormat("yyyy-mm-dd");
 		String strDatePeriodoI = dateFormatPeriodo.format(getFechaInicio());
 		String strDatePeriodoF = dateFormatPeriodo.format(getFechaFin());
-                String nombreArchivo = String.format("Salidas_%s-%s.pdf", strDatePeriodoI, strDatePeriodoF);
+		String nombreArchivo = String.format("Salidas_%s-%s.pdf", strDatePeriodoI, strDatePeriodoF);
 		return nombreArchivo;
 	}
 
@@ -112,12 +109,12 @@ public class MbSalida implements Serializable {
 		this.fechaFin = fechaFin;
 	}
 
-        public StreamedContent getFile() {
-            return file;
-        }
+	public StreamedContent getFile() {
+		return file;
+	}
 
-        public void setFile(StreamedContent file) {
-            this.file = file;
-        }
+	public void setFile(StreamedContent file) {
+		this.file = file;
+	}
 
 }
