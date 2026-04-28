@@ -1,17 +1,12 @@
 package com.ferbo.clientes.mail.report;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,17 +35,7 @@ import com.ferbo.clientes.model.SalidaDetalle;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.MailHelper;
-
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporter;
-import net.sf.jasperreports.engine.JRExporterParameter;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.design.JasperDesign;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import com.ferbo.gestion.reports.jasper.OrdenRetiroJR;
 
 public class SendMailOrdenSalida extends Thread {
 	private static Logger log = LogManager.getLogger(SendMailOrdenSalida.class);
@@ -62,40 +47,6 @@ public class SendMailOrdenSalida extends Thread {
 	public SendMailOrdenSalida(Connection conn) {
 		this.conn = conn;
 		this.alAdjuntos = new ArrayList<Adjunto>();
-	}
-	
-	public SendMailOrdenSalida() {
-		this.alAdjuntos = new ArrayList<Adjunto>();
-	}
-	
-	public String getFolio() {
-		return folio;
-	}
-
-	public void setFolio(String folio) {
-		this.folio = folio;
-	}
-	
-	public List<Adjunto> getAlAdjuntos() {
-		return alAdjuntos;
-	}
-
-	public void setAlAdjuntos(List<Adjunto> alAdjuntos) {
-		this.alAdjuntos = alAdjuntos;
-	}
-	
-	public void add(Adjunto archivo) {
-		if(this.alAdjuntos == null)
-			alAdjuntos = new ArrayList<Adjunto>();
-		
-		this.alAdjuntos.add(archivo);
-	}
-	
-	public void add(List<Adjunto> alAdjuntos) {
-		if(this.alAdjuntos == null)
-			alAdjuntos = new ArrayList<Adjunto>();
-		
-		this.alAdjuntos.addAll(alAdjuntos);
 	}
 	
 	@Override
@@ -122,31 +73,31 @@ public class SendMailOrdenSalida extends Thread {
 		Integer diaSalida = null;
 
 		try {
-                        salida = SalidasBL.consultarSalida(conn, folio);
-                        alPlantas = new ArrayList<Integer>();
-                        
-                        if (horaSalida == null)
-                            horaSalida = new Date(salida.getHoraSalida().getTime());
+			salida = SalidasBL.consultarSalida(conn, folio);
+			alPlantas = new ArrayList<Integer>();
 
-                        if(fechaSalida == null)
-                            fechaSalida = new Date(salida.getFechaSalida().getTime());
-                                
-                        List<SalidaDetalle> listSalidaDetalle = SalidasBL.consultarSalidasDetalles(conn, salida);
-                        
-                        for(SalidaDetalle detSalida : listSalidaDetalle){
-                            Partida partida = PartidaDAO.get(conn, detSalida.getIdPartida());
-                            ConstanciaDeposito deposito = ConstanciaDepositoDAO.getConstanciaDeposito(conn, partida.getFolio());
+			if (horaSalida == null)
+				horaSalida = new Date(salida.getHoraSalida().getTime());
 
-                            if (idCliente == null)
-                                idCliente = new Integer(deposito.getIdCliente());
+			if (fechaSalida == null)
+				fechaSalida = new Date(salida.getFechaSalida().getTime());
 
-                            Camara camara = CamaraDAO.getCamara(conn, partida.getIdCamara());
-                            if (alPlantas.contains(camara.getPlanta())) {
-                                    continue;
-                            }
+			List<SalidaDetalle> listSalidaDetalle = SalidasBL.consultarSalidasDetalles(conn, salida);
 
-                            alPlantas.add(new Integer(camara.getPlanta()));
-                        }
+			for (SalidaDetalle detSalida : listSalidaDetalle) {
+				Partida partida = PartidaDAO.get(conn, detSalida.getIdPartida());
+				ConstanciaDeposito deposito = ConstanciaDepositoDAO.getConstanciaDeposito(conn, partida.getFolio());
+
+				if (idCliente == null)
+					idCliente = new Integer(deposito.getIdCliente());
+
+				Camara camara = CamaraDAO.getCamara(conn, partida.getIdCamara());
+				if (alPlantas.contains(camara.getPlanta())) {
+					continue;
+				}
+
+				alPlantas.add(new Integer(camara.getPlanta()));
+			}
                         
 			diaSalida = DateUtils.getDiaSemana(fechaSalida);
 			horaLimite = new Date(horaSalida.getTime());
@@ -174,71 +125,36 @@ public class SendMailOrdenSalida extends Thread {
 
 	private void process(Connection conn, String folio, List<Integer> alPlantas, Boolean isHorarioEspecial) {
 		for (Integer idPlanta : alPlantas) {
-                    	this.processReport(conn, folio, idPlanta, isHorarioEspecial);
+			this.processReport(conn, folio, idPlanta, isHorarioEspecial);
 		}
 	}
 
 	private void processReport(Connection conn, String folio, Integer idPlanta, Boolean isHorarioEspecial) {
 
-		String reportNameJASPER = null;
 		String logoPath = null;
 		File logoFile = null;
-		File subReportDir = null;
-		File reportFile = null;
 		String mailInventarioHTML = null;
 		File mailInventarioFile = null;
 		FileReader mailInventarioReader = null;
 		BufferedReader reader = null;
-		Map<String, Object> parameters = null;
 		StringBuilder sb = null;
 		String subject = null;
-		JRExporter            exporter         = null;
-		ByteArrayOutputStream output           = null;
 
 		log.info(String.format("Iniciando envío de correo para la orden de salida %s, idPlanta %d", folio, idPlanta));
 
 		try {
-			reportNameJASPER = "/jasper/SolicitudSalidaMercanciaNew.jrxml";
-			reportFile = new File(getClass().getResource(reportNameJASPER).getFile());
-			log.info("Ruta jasper: " + reportFile.getPath());
-			if(reportFile.exists() == false)
-				log.error("El archivo no existe: " + reportFile.getPath());
-
-			logoPath = "/images/logo.jpeg";
+			logoPath = "/images/logo.png";
 			logoFile = new File(getClass().getResource(logoPath).getFile());
 			log.info("Ruta logo: " + logoFile.getPath());
 			if(logoFile.exists() == false)
 				log.error("El archivo no existe: " + logoFile.getPath());
 			
-			subReportDir = new File(getClass().getResource("/jasper/").getFile());
-			
-			parameters = new HashMap<String, Object>();
-			parameters.put("REPORT_CONNECTION", conn);
-			parameters.put("folioSalida", folio);
-			parameters.put("idPlanta", idPlanta);
-			parameters.put("esHorarioEspecial", isHorarioEspecial);
-			parameters.put("logoPath", logoFile.getPath());
-			parameters.put("subreportPath", subReportDir + File.separator);
-			parameters.put("REPORT_LOCALE", new Locale("es", "MX"));
-			parameters.put("REPORT_TIME_ZONE", TimeZone.getTimeZone("GMT-6"));
-
 			subject = String.format("Orden de salida %s", folio);
 			log.info("Preparando para ejecutar el reporte...");
 			
-			JasperDesign      objJasperDesign = JRXmlLoader.load(reportFile);
-			JasperReport      objJasperReport = JasperCompileManager.compileReport(objJasperDesign);
+			byte[] binContenidoOrdenSalida = new OrdenRetiroJR(conn, logoFile.getAbsolutePath())
+					.getPDF(folio, idPlanta, isHorarioEspecial);
 			
-			JasperPrint       objJasperPrint  = JasperFillManager.fillReport(objJasperReport, parameters);
-			output = new ByteArrayOutputStream();
-			
-			exporter = new JRPdfExporter();
-			exporter.setParameter(JRExporterParameter.JASPER_PRINT, objJasperPrint);
-			exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, output);
-			exporter.exportReport();
-			
-			byte[] binContenidoOrdenSalida = output.toByteArray();
-			
-			//byte[] bytes = JasperRunManager.runReportToPdf(reportFile.getPath(), parameters, conn);
 			log.info("Reporte jasper ejecutado, preparando envío de correo...");
 			mailInventarioHTML = "/mail/mailOrdenSalida.html";
 			mailInventarioFile = new File(getClass().getResource(mailInventarioHTML).getFile());
@@ -307,11 +223,43 @@ public class SendMailOrdenSalida extends Thread {
 			
 			mailUtil.sendJndiMailMessage(MailHelper.JNDI_MAIL_INVENTARIO);
 
-		} catch (JRException ex) {
-			log.error("Problema para generar la orden de salida...", ex);
 		} catch (Exception ex) {
 			log.error("Problema para enviar el correo electronico para la orden de salida " + folio, ex);
 		}
 
+	}
+	
+	public SendMailOrdenSalida() {
+		this.alAdjuntos = new ArrayList<Adjunto>();
+	}
+	
+	public String getFolio() {
+		return folio;
+	}
+
+	public void setFolio(String folio) {
+		this.folio = folio;
+	}
+	
+	public List<Adjunto> getAlAdjuntos() {
+		return alAdjuntos;
+	}
+
+	public void setAlAdjuntos(List<Adjunto> alAdjuntos) {
+		this.alAdjuntos = alAdjuntos;
+	}
+	
+	public void add(Adjunto archivo) {
+		if(this.alAdjuntos == null)
+			alAdjuntos = new ArrayList<Adjunto>();
+		
+		this.alAdjuntos.add(archivo);
+	}
+	
+	public void add(List<Adjunto> alAdjuntos) {
+		if(this.alAdjuntos == null)
+			alAdjuntos = new ArrayList<Adjunto>();
+		
+		this.alAdjuntos.addAll(alAdjuntos);
 	}
 }
