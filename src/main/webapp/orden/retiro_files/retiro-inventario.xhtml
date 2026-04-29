@@ -21,7 +21,7 @@
 				<p:ajax event="rowUnselect" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
 				<p:ajax event="rowUnselectCheckbox" listener="#{mbEmisionSalidas.onRowUnselect}" update="dt-products" />
 				
-				<p:column selectionMode="multiple" width="1rem">
+				<p:column selectionMode="multiple" width="1rem" >
 				</p:column>
 				<p:column width="1rem">
 	                <p:rowToggler/>
@@ -30,17 +30,20 @@
 					<h:outputText value="#{inventario.folioCliente}" />
 				</p:column>
 				<p:column headerText="Producto" sortBy="#{inventario.producto}" width="auto" filterBy="#{inventario.producto}">
-					<h:outputText value="#{inventario.producto}" />
+					<p:badge severity="warning" value="Pend. #{inventario.cantidadReservada}" visible="#{inventario.cantidadReservada ne null}" styleClass="mr-2">
+						<h:outputText value="#{inventario.producto}" />
+					</p:badge>
 				</p:column>
 				<p:column headerText="Existencia" width="6rem" style="text-align: right;">
-					<h:outputText value="#{inventario.existencia} #{inventario.unidad}" />
+					<h:outputText value="#{inventario.existencia} #{inventario.unidad}">
+					</h:outputText>
 				</p:column>
 				<p:column headerText="Peso (Kg)" width="6rem" style="text-align: right;">
 					<h:outputText value="#{inventario.peso}"/>
 				</p:column>
 				<p:column headerText="Cantidad" width="8rem" style="text-align: right;">
-					<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" minValue="0" maxValue="#{inventario.existencia}" inputStyleClass="input-number-width"
-						disabled="#{not inventario.habilitado}" symbol=" #{inventario.unidad}" symbolPosition="s" inputStyle="text-align: right;">
+					<p:inputNumber value="#{inventario.cantidad}" decimalPlaces="0" minValue="0" maxValue="#{inventario.existencia - inventario.cantidadReservada}" placeholder="disp. #{inventario.existencia - inventario.cantidadReservada} #{inventario.unidad}"
+						inputStyleClass="input-number-width" disabled="#{not inventario.habilitado or ( (inventario.existencia - inventario.cantidadReservada) le 0 )}" symbol=" #{inventario.unidad}" symbolPosition="s" inputStyle="text-align: right;">
 						<p:ajax event="blur" listener="#{mbEmisionSalidas.resultadoPeso(inventario)}" update="dt-products" />
 					</p:inputNumber>
 				</p:column>
@@ -72,7 +75,8 @@
                               <p:column style="text-align: left;"/>
                               <p:column style="text-align: left;"/>
                               <p:column style="text-align: left;"/>
-                              <p:column footerText="#{mbEmisionSalidas.numeroProductos()} seleccionado#{mbEmisionSalidas.numeroProductos() ne 1 ? 's' : ''}" colspan="2" style="text-align: left;"/>
+                              <p:column footerText="#{mbEmisionSalidas.numeroProductos()} seleccionado#{mbEmisionSalidas.numeroProductos() ne 1 ? 's' : ''}" style="text-align: left;"/>
+                              <p:column footerText="#{mbEmisionSalidas.cantidadPendiente()} pendientes de entrega" style="text-align: right;"/>
                               <p:column footerText="Total" style="text-align: right;"/>
                               <p:column footerText="#{mbEmisionSalidas.cantidadTotal()} unidades" style="text-align: right;"/>
                               <p:column footerText="#{mbEmisionSalidas.pesoTotal()} kg" style="text-align: right;">
