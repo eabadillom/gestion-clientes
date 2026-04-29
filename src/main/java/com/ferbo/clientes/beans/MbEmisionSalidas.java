@@ -8,9 +8,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -287,6 +289,17 @@ public class MbEmisionSalidas implements Serializable {
 		return this.listaInventarioSelect.size();
 	}
 	
+	public Integer cantidadPendiente() {
+		if(this.listaInventario == null)
+			return 0;
+		
+		return this.listaInventario.stream()
+				.map(Inventario::getCantidadReservada)
+				.filter(Objects::nonNull)
+				.reduce(0,  Integer::sum)
+				;
+	}
+	
 	public Integer cantidadTotal() {
 		if(this.listaInventarioSelect == null)
 			return 0;
@@ -305,6 +318,15 @@ public class MbEmisionSalidas implements Serializable {
 				.filter(Objects::nonNull)
 				.reduce(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), BigDecimal::add)
 				;
+	}
+	
+	public List<Inventario> vistaPrevia() {
+		if(this.listaInventarioSelect == null)
+			return new ArrayList<Inventario>();
+		
+		return listaInventarioSelect.stream()
+        .sorted(Comparator.comparing(Inventario::getPartidaClave))
+        .collect(Collectors.toList());
 	}
 
 	public void guardarPresalida() {
