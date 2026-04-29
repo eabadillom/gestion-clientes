@@ -16,6 +16,7 @@ public class Inventario {
 	private Integer existencia;
 	private String unidad;
 	private Integer cantidad;
+	private Integer cantidadReservada;
 	private BigDecimal pesoAprox;
 	private BigDecimal peso;
 	private Integer partidaClave;
@@ -128,6 +129,14 @@ public class Inventario {
 
 	public void setCantidad(Integer cantidad) {
 		this.cantidad = cantidad;
+	}
+	
+	public Integer getCantidadReservada() {
+		return cantidadReservada;
+	}
+
+	public void setCantidadReservada(Integer cantidadReservada) {
+		this.cantidadReservada = cantidadReservada;
 	}
 
 	public BigDecimal getPesoAprox() {
