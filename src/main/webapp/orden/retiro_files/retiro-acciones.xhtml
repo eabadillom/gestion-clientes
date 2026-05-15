@@ -6,7 +6,7 @@
 
 			<p:outputPanel id="pnl-acciones">
 				<div align="center">
-					<p:commandButton id="registrar" value="Registrar mi orden de salida" action="#{mbEmisionSalidas.guardarPresalida}" update="form">
+					<p:commandButton id="registrar" value="Registrar mi orden de salida" action="#{mbEmisionSalidas.guardarPresalida}" update="form" disabled="#{mbEmisionSalidas.salida.idSalida ne null}">
 						<p:confirm header="Registrar orden" message="¿Está seguro que desea GUARDAR la orden de retiro?" icon="pi pi-exclamation-triangle" />
 					</p:commandButton>
 					<p:spacer width="1rem" height="1rem"></p:spacer>

@@ -1,0 +1,72 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+	<style>
+        .dialog-responsive {
+            width: 100% !important;
+            max-width: 60rem !important;
+        }
+    </style>
+	<p:dialog widgetVar="dlgDetalleRetiro" header="A retirar" responsive="true" modal="true" styleClass="dialog-responsive" hideEffect="fade" showEffect="fade">
+		<p:outputPanel id="pnl-detalle-retiro">
+			<div class="p-grid ui-fluid">
+				<div class="p-col-12 p-md-8">
+					<div style="text-align: right;">
+						<p:outputLabel value="Producto" style="font-weight: bold;"/>
+					</div>
+					<div style="text-align: right; margin-top: 0.5rem">
+						<p:outputLabel value="#{mbEmisionSalidas.inventario.producto}"></p:outputLabel>
+					</div>
+				</div>
+				<div class="p-col-6 p-md-2">
+					<div style="text-align: right;">
+						<p:outputLabel value="Peso" style="font-weight: bold;"/>
+					</div>
+					<div style="text-align: right; margin-top: 0.5rem">
+						<p:outputLabel value="#{mbEmisionSalidas.inventario.peso} kg">
+							<f:convertNumber maxFractionDigits="3" type="number"></f:convertNumber>
+						</p:outputLabel>
+					</div>
+				</div>
+				<div class="p-col-6 p-md-2">
+					<div style="text-align: right;">
+						<p:outputLabel value="En inventario" style="font-weight: bold;"/>
+					</div>
+					<div style="text-align: right; margin-top: 0.5rem">
+						<p:outputLabel value="#{mbEmisionSalidas.inventario.existencia} #{mbEmisionSalidas.inventario.unidad}" style="font-weight: bold;">
+							<f:convertNumber maxFractionDigits="3" type="number"></f:convertNumber>
+						</p:outputLabel>
+					</div>
+				</div>
+			</div>
+			<hr/>
+			<div class="p-grid ui-fluid">
+				<div class="p-col-12 p-md-9">
+				</div>
+				<div class="p-col-6 p-md-3">
+					<div style="text-align: right;">
+						<p:outputLabel value="A retirar" style="font-weight: bold;" />
+					</div>
+					<div>
+						<p:inputNumber value="#{mbEmisionSalidas.inventario.cantidad}"
+							decimalPlaces="0" minValue="0"
+							maxValue="#{mbEmisionSalidas.inventario.existencia - mbEmisionSalidas.inventario.cantidadReservada}"
+							placeholder="disp. #{mbEmisionSalidas.inventario.existencia - mbEmisionSalidas.inventario.cantidadReservada} de #{mbEmisionSalidas.inventario.existencia} #{mbEmisionSalidas.inventario.unidad}"
+							disabled="#{(mbEmisionSalidas.inventario.existencia - mbEmisionSalidas.inventario.cantidadReservada) le 0}"
+							symbol=" #{mbEmisionSalidas.inventario.unidad}"
+							symbolPosition="s" inputStyle="text-align: right;">
+						</p:inputNumber>
+					</div>
+				</div>
+			</div>
+		</p:outputPanel>
+		<f:facet name="footer">
+			<p:commandButton icon="pi pi-check" value="Agregar" process="@this form:pnl-detalle-retiro" actionListener="#{mbEmisionSalidas.agregarInventario()}">
+			</p:commandButton>
+			<p:commandButton icon="pi pi-times" value="Cerrar" styleClass="ui-button-secondary" onclick="PF('dlgDetalleRetiro').hide();" />
+		</f:facet>
+	</p:dialog>
+
+</ui:composition>
