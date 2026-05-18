@@ -245,6 +245,9 @@ public class MbEmisionSalidas implements Serializable {
 			String unidad = inventario.getUnidad();
 			Integer cantidad = inventario.getCantidad();
 			
+			inventario.setCantidad(null);
+			inventario.setPesoAprox(null);
+			
 			this.listaInventarioSelect.remove(inventario);
 			
 			PrimeFaces.current().executeScript("PF('dlgDetalleRetiro').hide()");
