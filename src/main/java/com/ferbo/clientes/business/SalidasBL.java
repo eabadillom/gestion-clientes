@@ -24,10 +24,6 @@ import com.ferbo.clientes.model.StatusSalida;
 import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.DateUtils;
 
-/**
- *
- * @author alberto
- */
 public class SalidasBL
 {
     private final static Logger log = LogManager.getLogger(SalidasBL.class);
@@ -49,8 +45,25 @@ public class SalidasBL
         return statusSalidaDAO.findStatusByClave(conn, CANCELADA);
     }
     
-    public static Salida consultarSalida(Connection conn, String folioSalida) throws SQLException{
-        return salidaDAO.findSalidasByFolio(conn, folioSalida);
+    public static Salida buscar(Connection conn, String folioSalida)
+    throws SQLException, ClientesException {
+    	return salidaDAO.findSalidasByFolio(conn, folioSalida)
+    			.orElseThrow(() -> new ClientesException("Orden de salida no encontrada: " + folioSalida));
+    }
+    
+    public static Boolean canBeSaved(Connection conn, String folioSalida)
+    throws SQLException, ClientesException {
+    	Boolean guardar;
+    	
+    	try {
+			Salida ordenSalida = SalidasBL.buscar(conn, folioSalida);
+			log.info("Salida encontrada: {}", ordenSalida.getFolioSalida());
+			guardar = Boolean.FALSE;
+		} catch(ClientesException ex) {
+			guardar = Boolean.TRUE;
+		}
+    	
+    	return guardar;
     }
     
     public static Salida guardarSalida(Connection conn, String folioSalida, Cliente cliente, ClienteContacto cteContacto, Salida salida, Date fecha) throws SQLException
@@ -77,7 +90,7 @@ public class SalidasBL
         return salidaDetalleDAO.findIdSalida(conn, salida.getIdSalida());
     }
     
-    public static List<SalidaDetalle> agregarSalDet(Connection conn, List<Inventario> listInventario, Salida salida){
+    public static List<SalidaDetalle> agregarDetalle(Connection conn, List<Inventario> listInventario, Salida salida){
         List<SalidaDetalle> auxSalidaDetalle = new ArrayList<SalidaDetalle>();
         
         for (Inventario inventarioSelect : listInventario) {
@@ -92,7 +105,7 @@ public class SalidasBL
         return auxSalidaDetalle;
     }
     
-    public static void guardarSalDet(Connection conn, List<SalidaDetalle> listSalidaDetalle) throws SQLException
+    public static void guardarDetalle(Connection conn, List<SalidaDetalle> listSalidaDetalle) throws SQLException
     {
         for(SalidaDetalle aux : listSalidaDetalle){
             salidaDetalleDAO.save(conn, aux);
@@ -116,7 +129,7 @@ public class SalidasBL
         return servicios;
     }
     
-    public static List<ServicioSalida> agregarSrvSalida(List<ServiciosExtras> listServicios, Salida salida, String folioSalida)
+    public static List<ServicioSalida> agregarServicio(List<ServiciosExtras> listServicios, Salida salida, String folioSalida)
     {
         List<ServicioSalida> listServicioSalida = new ArrayList<ServicioSalida>();
         
