@@ -27,11 +27,12 @@
 			
 			<ui:include src="/orden/retiro_files/retiro-inventario.xhtml" />
 			
+			<ui:include src="/orden/retiro_files/retiro-dlg-detalle-retiro.xhtml" />
+			
 			<p:spacer style="height: 1rem;"/>
 			
-			<div style="align: center;">
-				<p:commandButton value="Vista previa" icon="pi pi-search" onclick="PF('dlgSusProductos').show();" update="form:dl-sus-productos"></p:commandButton>
-			</div>
+			
+			<ui:include src="/orden/retiro_files/retiro-resumen.xhtml" />
 			
 			<p:spacer style="height: 1rem;"/>
 			

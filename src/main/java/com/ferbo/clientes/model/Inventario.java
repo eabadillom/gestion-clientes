@@ -2,29 +2,59 @@ package com.ferbo.clientes.model;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Objects;
 
 public class Inventario {
 	
-	private String codigo;
-	private String producto;
-	private Date caducidad;
-	private String sap;
-	private String po;
-	private String pedimento;
-	private String lote;
-	private String tarima;
-	private Integer existencia;
-	private String unidad;
-	private Integer cantidad;
-	private Integer cantidadReservada;
+	private Integer    partidaClave;
+	private String     codigo;
+	private String     producto;
+	private Date       caducidad;
+	private String     sap;
+	private String     po;
+	private String     pedimento;
+	private String     lote;
+	private String     tarima;
+	private Integer    existencia;
+	private String     unidad;
+	private Integer    cantidad;
+	private Integer    cantidadReservada;
 	private BigDecimal pesoAprox;
 	private BigDecimal peso;
-	private Integer partidaClave;
-	private String folioCliente;
-	private Integer folio;
-	private boolean habilitado;
-	private String plantaNombre;
-	private String plantaAbrev;
+	private String     folioCliente;
+	private Integer    folio;
+	private boolean    habilitado;
+	private String     plantaNombre;
+	private String     plantaAbrev;
+	
+	@Override
+	public int hashCode() {
+		if(this.partidaClave == null)
+			return System.identityHashCode(this);
+		return Objects.hashCode(partidaClave);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Inventario other = (Inventario) obj;
+		return Objects.equals(partidaClave, other.partidaClave);
+	}
+	
+	@Override
+	public String toString() {
+		return "Inventario [codigo=" + codigo + ", producto=" + producto + ", caducidad=" + caducidad + ", sap=" + sap
+				+ ", po=" + po + ", pedimento=" + pedimento + ", lote=" + lote + ", tarima=" + tarima + ", existencia="
+				+ existencia + ", unidad=" + unidad + ", cantidad=" + cantidad + ", pesoAprox=" + pesoAprox + ", peso="
+				+ peso + ", partidaClave=" + partidaClave + ", folioCliente=" + folioCliente + ", folio=" + folio
+				+ ", habilitado=" + habilitado + ", plantaNombre=" + plantaNombre + ", plantaAbrev=" + plantaAbrev
+				+ "]";
+	}
 	
 	public Inventario() {
 	}
@@ -209,15 +239,5 @@ public class Inventario {
 
 	public void setPedimento(String pedimento) {
 		this.pedimento = pedimento;
-	}
-
-	@Override
-	public String toString() {
-		return "Inventario [codigo=" + codigo + ", producto=" + producto + ", caducidad=" + caducidad + ", sap=" + sap
-				+ ", po=" + po + ", pedimento=" + pedimento + ", lote=" + lote + ", tarima=" + tarima + ", existencia="
-				+ existencia + ", unidad=" + unidad + ", cantidad=" + cantidad + ", pesoAprox=" + pesoAprox + ", peso="
-				+ peso + ", partidaClave=" + partidaClave + ", folioCliente=" + folioCliente + ", folio=" + folio
-				+ ", habilitado=" + habilitado + ", plantaNombre=" + plantaNombre + ", plantaAbrev=" + plantaAbrev
-				+ "]";
 	}
 }

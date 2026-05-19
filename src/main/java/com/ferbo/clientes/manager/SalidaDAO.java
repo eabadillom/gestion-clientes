@@ -1,7 +1,5 @@
 package com.ferbo.clientes.manager;
 
-import com.ferbo.clientes.commons.dao.BaseDAO;
-import com.ferbo.clientes.model.Salida;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,8 +7,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.ferbo.clientes.commons.dao.BaseDAO;
+import com.ferbo.clientes.model.Salida;
 
 /**
  *
@@ -24,8 +27,6 @@ public class SalidaDAO extends DAO implements BaseDAO<Salida, Integer>
         "sl.nb_observaciones, sl.fh_salida, sl.tm_salida, sl.fh_registro, sl.fh_modificacion from salida sl ";
     private static final String INSERT = "insert into salida (cd_folio_salida, cliente_cve, id_contacto, cd_status, nb_nombre_transportista, nb_placas_transporte, nb_observaciones, fh_salida, tm_salida, fh_registro) \n" +
         "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String INSERT_WITHOUT_COMMENTS = "insert into salida (cd_folio_salida, cliente_cve, id_contacto, cd_status, nb_nombre_transportista, nb_placas_transporte, fh_salida, tm_salida, fh_registro) \n" +
-        "values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE = "update salidas set cd_folio_salida = ?, cliente_cve = ?, id_contacto = ?, cd_status = ?, nb_nombre_transportista = ?, nb_placas_transporte= ?, nb_observaciones = ?, fh_salida = ?, tm_salida = ?, fh_registro = ?, fh_modificacion = ? ";
     
     @Override
@@ -78,8 +79,8 @@ public class SalidaDAO extends DAO implements BaseDAO<Salida, Integer>
         return bean;
     }
     
-    public Salida findSalidasByFolio(Connection conn, String folio) throws SQLException 
-    {
+    public Optional<Salida> findSalidasByFolio(Connection conn, String folio) throws SQLException {
+    	Optional<Salida> optional;
         Salida bean = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -95,16 +96,17 @@ public class SalidaDAO extends DAO implements BaseDAO<Salida, Integer>
             
             if(rs.next()) {
                 bean = toModel(rs);
+                optional = Optional.of(bean);
             } else {
                 log.warn("No se encontró la salida con el folio: {}", folio);
-                throw new SQLException("No se encontró la salida con el folio dado");
+                optional = Optional.empty();
             }
         } finally {
             close(rs);
             close(ps);
         }
         
-        return bean;
+        return optional;
     }
 
     @Override
@@ -168,35 +170,29 @@ public class SalidaDAO extends DAO implements BaseDAO<Salida, Integer>
     public int save(Connection conn, Salida entity) throws SQLException {
         int rows = -1;
         PreparedStatement ps = null;
+        ResultSet rs = null;
         int idx = 1;
         try {
-            if(entity.getObservaciones() == null || entity.getObservaciones().isEmpty()){
-                ps = conn.prepareStatement(INSERT_WITHOUT_COMMENTS);
-
-                ps.setString(idx++, entity.getFolioSalida());
-                ps.setInt(idx++, entity.getIdCliente());
-                ps.setInt(idx++, entity.getIdContacto());
-                ps.setInt(idx++, entity.getIdStatus());
-                ps.setString(idx++, entity.getNombreTransportista());                
-                ps.setString(idx++, entity.getPlacasTransporte());
-                ps.setDate(idx++, getSqlDate(entity.getFechaSalida()));
-                ps.setTimestamp(idx++, new java.sql.Timestamp(entity.getHoraSalida().getTime()));
-                ps.setDate(idx++, getSqlDate(entity.getFechaRegistro()));
-            } else{
-                ps = conn.prepareStatement(INSERT);
-
-                ps.setString(idx++, entity.getFolioSalida());
-                ps.setInt(idx++, entity.getIdCliente());
-                ps.setInt(idx++, entity.getIdContacto());
-                ps.setInt(idx++, entity.getIdStatus());
-                ps.setString(idx++, entity.getNombreTransportista());                
-                ps.setString(idx++, entity.getPlacasTransporte());
-                ps.setString(idx++, entity.getObservaciones());
-                ps.setDate(idx++, getSqlDate(entity.getFechaSalida()));
-                ps.setTimestamp(idx++, new java.sql.Timestamp(entity.getHoraSalida().getTime()));
-                ps.setDate(idx++, getSqlDate(entity.getFechaRegistro()));
-            }
+        	ps = conn.prepareStatement(INSERT, PreparedStatement.RETURN_GENERATED_KEYS);
+        	
+        	ps.setString(idx++, entity.getFolioSalida());
+        	ps.setInt(idx++, entity.getIdCliente());
+        	ps.setInt(idx++, entity.getIdContacto());
+        	ps.setInt(idx++, entity.getIdStatus());
+        	ps.setString(idx++, entity.getNombreTransportista());                
+        	ps.setString(idx++, entity.getPlacasTransporte());
+        	ps.setString(idx++, entity.getObservaciones());
+        	ps.setDate(idx++, getSqlDate(entity.getFechaSalida()));
+        	ps.setTimestamp(idx++, new java.sql.Timestamp(entity.getHoraSalida().getTime()));
+        	ps.setDate(idx++, getSqlDate(entity.getFechaRegistro()));
+            
             rows = ps.executeUpdate();
+            
+			rs = ps.getGeneratedKeys();
+			if (rs.next()) {
+				entity.setIdSalida(rs.getInt(1));
+			}
+            
             log.info("Registro de salida agregado: {}", entity.toString());
         } finally {
             close(ps);
@@ -241,7 +237,7 @@ public class SalidaDAO extends DAO implements BaseDAO<Salida, Integer>
 
     @Override
     public int delete(Connection conn, Salida entity) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }

@@ -73,7 +73,7 @@ public class SendMailOrdenSalida extends Thread {
 		Integer diaSalida = null;
 
 		try {
-			salida = SalidasBL.consultarSalida(conn, folio);
+			salida = SalidasBL.buscar(conn, folio);
 			alPlantas = new ArrayList<Integer>();
 
 			if (horaSalida == null)

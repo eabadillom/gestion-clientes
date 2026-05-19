@@ -1,0 +1,19 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+	<p:toolbar id="resumen">
+		<p:toolbarGroup align="right">
+			<p:commandButton value="Vista previa" icon="pi pi-search" onclick="PF('dlgSusProductos').show();" update="form:dl-sus-productos" styleClass="mr-2"/>
+			<p:divider layout="vertical" />
+			<p:inputText value="#{mbEmisionSalidas.numeroProductos()} productos seleccionados" style="text-align: right; width: 20rem;" readonly="true"/>
+			<p:divider layout="vertical" />
+			<p:inputText value="#{mbEmisionSalidas.cantidadTotal()} unidades" style="text-align: right; width: 10rem;"  readonly="true"/>
+			<p:divider layout="vertical" />
+			<p:inputText value="#{mbEmisionSalidas.pesoTotal()} kg" style="text-align: right; width: 10rem;" readonly="true"/>
+		</p:toolbarGroup>
+	</p:toolbar>
+
+</ui:composition>
