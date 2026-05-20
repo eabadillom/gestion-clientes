@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -62,6 +65,7 @@ public class MbEmisionSalidas implements Serializable {
 	
 	private List<Inventario> listaInventario;
 	private List<Inventario> listaInventarioSelect;
+	private Inventario inventario;
 	private SerieConstancia serieConstancia;
 	private Salida salida;
 	private List<SalidaDetalle> listaSalidaDetalle;
@@ -155,6 +159,27 @@ public class MbEmisionSalidas implements Serializable {
 			Conexion.close(conn);
 		}
 	}
+	
+	public Boolean bloquearRetiro(Inventario inventario) {
+		Boolean respuesta = Boolean.FALSE;
+		Integer cantidadExistencia = null;
+		Integer cantidadReservada = null;
+		Integer cantidadDisponible = null;
+		
+		if(this.salida.getIdSalida() != null)
+			return Boolean.TRUE;
+		
+		cantidadExistencia = inventario.getExistencia() == null ? 0 : inventario.getExistencia();
+		cantidadReservada = inventario.getCantidadReservada() == null ? 0 : inventario.getCantidadReservada();
+		cantidadDisponible = cantidadExistencia - cantidadReservada;
+		
+		log.debug("Dispnible: {}, puede retirar: {}", cantidadDisponible, respuesta);
+		
+		if(cantidadDisponible <= 0)
+			return Boolean.TRUE;
+		
+		return respuesta;
+	}
 
 	public void getFolio(Connection conn) throws ClientesException, SQLException {
 		FacesUtils.requireNonNull(plantaSelected, "Favor de seleccionar una planta");
@@ -163,9 +188,93 @@ public class MbEmisionSalidas implements Serializable {
 		log.info("Folio solicitud de salida: {}", this.folioSalida);
 	}
 	
+	public void agregarInventario() {
+		FacesMessage message = null;
+		String mensaje = null;
+		String detalle = null;
+		Severity severity = null;
+		
+		try {
+			if(this.inventario == null)
+				throw new ClientesException("Debe seleccionar un producto de su inventario.");
+			
+			if(this.inventario.getCantidad() == null)
+				throw new ClientesException("Debe indicar la cantidad a retirar.");
+			
+			if(this.inventario.getCantidad().compareTo(Integer.valueOf(0)) <= 0)
+				throw new ClientesException("La cantidad indicada es incorrecta.");
+			
+			this.resultadoPeso(this.inventario);
+			
+			this.listaInventarioSelect.add(this.inventario);
+			
+			PrimeFaces.current().executeScript("PF('dlgDetalleRetiro').hide()");
+			mensaje = String.format("%s agregado", this.inventario.getProducto());
+			detalle = String.format("%d %s", this.inventario.getCantidad(), this.inventario.getUnidad());
+			severity = FacesMessage.SEVERITY_INFO;
+			
+			this.inventario = new Inventario();
+		} catch(ClientesException ex) {
+			log.warn("Solicitud incorrecta: {}", ex.getMessage());
+			mensaje = "Error con la solicitud";
+			detalle = ex.getMessage();
+			severity = FacesMessage.SEVERITY_WARN;
+		} catch(Exception ex) {
+			log.error("Error con la solicitud...", ex);
+			detalle = "Error interno del sistema. Intente nuevamente.\n"
+					+ "Si el problema persiste, contacte al soporte del sistema.";
+			severity = FacesMessage.SEVERITY_ERROR;
+		} finally {
+			message = new FacesMessage(severity, mensaje, detalle );
+			FacesContext.getCurrentInstance().addMessage(null, message);
+			PrimeFaces.current().ajax().update("form:messages", "form:dt-products", "form:resumen");
+		}
+	}
+	
+	public void eliminarInventario(Inventario inventario) {
+		FacesMessage message = null;
+		String mensaje = null;
+		String detalle = null;
+		Severity severity = null;
+		
+		try {
+			if(inventario == null)
+				throw new ClientesException("Debe seleccionar un producto de su inventario.");
+			
+			String producto = inventario.getProducto();
+			String unidad = inventario.getUnidad();
+			Integer cantidad = inventario.getCantidad();
+			
+			inventario.setCantidad(null);
+			inventario.setPesoAprox(null);
+			
+			this.listaInventarioSelect.remove(inventario);
+			
+			PrimeFaces.current().executeScript("PF('dlgDetalleRetiro').hide()");
+			mensaje = String.format("%s eliminado", producto);
+			detalle = String.format("%d %s", cantidad, unidad);
+			severity = FacesMessage.SEVERITY_INFO;
+			
+			this.inventario = new Inventario();
+		} catch(ClientesException ex) {
+			log.warn("Solicitud incorrecta: {}", ex.getMessage());
+			detalle = ex.getMessage();
+			severity = FacesMessage.SEVERITY_WARN;
+		} catch(Exception ex) {
+			log.error("Error con la solicitud...", ex);
+			detalle = "Error interno del sistema. Intente nuevamente.\n"
+					+ "Si el problema persiste, contacte al soporte del sistema.";
+			severity = FacesMessage.SEVERITY_ERROR;
+		} finally {
+			message = new FacesMessage(severity, mensaje, detalle );
+			FacesContext.getCurrentInstance().addMessage(null, message);
+			PrimeFaces.current().ajax().update("form:messages", "form:dt-products", "form:resumen", "form:dl-sus-productos");
+		}
+	}
+	
 	public void resultadoPeso(Inventario inventario) {
 		log.debug("metodo resultadoPeso");
-		BigDecimal tmp = null;
+		BigDecimal pesoARetirar = null;
 		BigDecimal cantidad = null;
 		BigDecimal existencia = new BigDecimal(inventario.getExistencia());
 		BigDecimal peso = inventario.getPeso();
@@ -183,23 +292,11 @@ public class MbEmisionSalidas implements Serializable {
 		
 		cantidad = new BigDecimal(inventario.getCantidad());
 		
-		tmp = peso.divide(existencia, 3, RoundingMode.HALF_UP);
-		tmp = tmp.multiply(cantidad);
+		pesoARetirar = peso.divide(existencia, 3, RoundingMode.HALF_UP);
+		pesoARetirar = pesoARetirar.multiply(cantidad);
 		
-		if(cantidad.compareTo(existencia) > 0) {
-			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad mayor a la que tiene actualmente para su producto.");
-			PrimeFaces.current().ajax().update("form:messages");
-			inventario.setCantidad(null);
-			return;
-		}
 		
-		if(cantidad.compareTo(BigDecimal.ZERO) < 0) {
-			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Inventario", "Ha indicado una cantidad no valida.");
-			PrimeFaces.current().ajax().update("form:messages");
-			inventario.setCantidad(null);
-			return;
-		}
-		inventario.setPesoAprox(tmp);
+		inventario.setPesoAprox(pesoARetirar);
 	}
 	
 	public void onRowSelect(SelectEvent<Inventario> event) {
@@ -283,6 +380,20 @@ public class MbEmisionSalidas implements Serializable {
 		}
 	}
 	
+	public List<Inventario> mostrarInventario() {
+		List<Inventario> resultado = null;
+		Set<Inventario> setInventarioSelect;
+		try {
+			setInventarioSelect = new HashSet<Inventario>(this.listaInventarioSelect);
+			resultado = this.listaInventario.stream()
+					.filter(item -> setInventarioSelect.contains(item) == false)
+					.collect(Collectors.toList());
+		} catch(Exception ex) {
+			resultado = new ArrayList<Inventario>();
+		}
+		return resultado;
+	}
+	
 	public Integer numeroProductos() {
 		if(this.listaInventarioSelect == null)
 			return 0;
@@ -329,17 +440,19 @@ public class MbEmisionSalidas implements Serializable {
         .collect(Collectors.toList());
 	}
 
-	public void guardarPresalida() {
+	public synchronized void guardarPresalida() {
 		Connection conn = null;
 		String mensaje = null;
 		
 		this.listaSalidaDetalle = new ArrayList<SalidaDetalle>();
 		this.listaServicioSalida = new ArrayList<ServicioSalida>();
 		List<ServiciosExtras> listaServiciosMod = new ArrayList<ServiciosExtras>();
-		String tmpFolio = null;
 		
 		try {
 			conn = Conexion.getConnection();
+			
+			if(SalidasBL.canBeSaved(conn, this.folioSalida) == false)
+				throw new ClientesException("Existe una orden de salida con folio " + this.folioSalida + " previamente registrada.");
 			
 			if(this.listaInventarioSelect == null)
 				throw new ClientesException("No se detectaron productos seleccionados.");
@@ -364,15 +477,14 @@ public class MbEmisionSalidas implements Serializable {
 
 			this.salida = SalidasBL.guardarSalida(conn, this.folioSalida, this.cliente, this.cteContacto, this.salida, this.fecha);
 			
-			if (tmpFolio == null) {
-				tmpFolio = salida.getFolioSalida();
-			}
+			if(salida.getFolioSalida() == null)
+				throw new ClientesException("Ocurrió un problema con el folio de la solicitud.");
 			
-			Salida auxSalida = SalidasBL.consultarSalida(conn, tmpFolio);
 			
-			this.listaSalidaDetalle = SalidasBL.agregarSalDet(conn, this.listaInventarioSelect, auxSalida);
 			
-			SalidasBL.guardarSalDet(conn, this.listaSalidaDetalle);
+			this.listaSalidaDetalle = SalidasBL.agregarDetalle(conn, this.listaInventarioSelect, this.salida);
+			
+			SalidasBL.guardarDetalle(conn, this.listaSalidaDetalle);
 			
 			if(this.isOrdenRegistrada) {
 				throw new ClientesException("La orden de retiro ya se encuentra registrada.");
@@ -380,7 +492,7 @@ public class MbEmisionSalidas implements Serializable {
 			
 			if(!this.listaServiciosSelect.isEmpty()){
 				listaServiciosMod = SalidasBL.agregarServicios(this.listaServiciosSelect);
-				this.listaServicioSalida = SalidasBL.agregarSrvSalida(listaServiciosMod, auxSalida, this.folioSalida);
+				this.listaServicioSalida = SalidasBL.agregarServicio(listaServiciosMod, this.salida, this.folioSalida);
 				SalidasBL.guardarSrvSalida(conn, this.listaServicioSalida);
 			}
 			
@@ -389,7 +501,7 @@ public class MbEmisionSalidas implements Serializable {
             this.isOrdenRegistrada = true;
             
             SendMailOrdenSalida sendMail = new SendMailOrdenSalida();
-            sendMail.setFolio(tmpFolio);
+            sendMail.setFolio(salida.getFolioSalida());
             sendMail.add(this.archivosList);
             sendMail.start();
             
@@ -612,5 +724,13 @@ public class MbEmisionSalidas implements Serializable {
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
+	}
+
+	public Inventario getInventario() {
+		return inventario;
+	}
+
+	public void setInventario(Inventario inventario) {
+		this.inventario = inventario;
 	}
 }

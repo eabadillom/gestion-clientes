@@ -7,10 +7,10 @@
 	<p:dialog widgetVar="dlgSusProductos" header="Sus productos" showEffect="fade" modal="true" responsive="true" position="center top" width="100%">
 		<p:dataList id="dl-sus-productos" widgetVar="dlSusProductos" value="#{mbEmisionSalidas.vistaPrevia()}" var="inventario" type="definition" paginator="true" paginatorPosition="bottom" rows="10">
 			<div class="p-grid ui-fluid">
-				<div class="p-col-6 p-md-2" style="vertical-align: middle !important;">
+				<div class="p-col-12 p-md-2" style="vertical-align: middle !important;">
 					<p:inputText value="#{inventario.folioCliente}" style="text-align: center;"></p:inputText>
 				</div>
-				<div class="p-col-12 p-md-6" style="vertical-align: middle !important;">
+				<div class="p-col-12 p-md-5" style="vertical-align: middle !important;">
 					<p:inputText value="#{inventario.producto}" readonly="true" />
 				</div>
 				<div class="p-col-6 p-md-2" style="vertical-align: middle !important;">
@@ -18,6 +18,10 @@
 				</div>
 				<div class="p-col-6 p-md-2" style="vertical-align: middle !important;">
 					<p:inputNumber value="#{inventario.pesoAprox}" symbol=" kg" symbolPosition="s" readonly="true" inputStyleClass="input-number-width" inputStyle="text-align: right;"/>
+				</div>
+				<div class="p-col-12 p-md-1">
+					<p:commandButton icon="pi pi-times" process="@this" update="dl-sus-productos" actionListener="#{mbEmisionSalidas.eliminarInventario(inventario)}" styleClass="ui-button-outlined ui-button-danger">
+					</p:commandButton>
 				</div>
 			</div>
 			<f:facet name="footer">

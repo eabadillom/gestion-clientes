@@ -15,11 +15,21 @@
  */
 package org.primefaces.omega.view;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
+
 import org.primefaces.event.ItemSelectEvent;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.axes.cartesian.CartesianScales;
 import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
-import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearTicks;
 import org.primefaces.model.charts.axes.radial.RadialScales;
 import org.primefaces.model.charts.axes.radial.linear.RadialLinearAngleLines;
 import org.primefaces.model.charts.axes.radial.linear.RadialLinearPointLabels;
@@ -38,6 +48,7 @@ import org.primefaces.model.charts.hbar.HorizontalBarChartModel;
 import org.primefaces.model.charts.line.LineChartDataSet;
 import org.primefaces.model.charts.line.LineChartModel;
 import org.primefaces.model.charts.line.LineChartOptions;
+import org.primefaces.model.charts.optionconfig.animation.Animation;
 import org.primefaces.model.charts.optionconfig.elements.Elements;
 import org.primefaces.model.charts.optionconfig.elements.ElementsLine;
 import org.primefaces.model.charts.optionconfig.legend.Legend;
@@ -53,22 +64,13 @@ import org.primefaces.model.charts.radar.RadarChartModel;
 import org.primefaces.model.charts.radar.RadarChartOptions;
 import org.primefaces.model.charts.scatter.ScatterChartModel;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.inject.Named;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.primefaces.model.charts.optionconfig.animation.Animation;
-
 @Named
 @RequestScoped
 public class ChartDemoView implements Serializable {
 
-    private PieChartModel pieModel;
+    private static final long serialVersionUID = -8258166984566620782L;
+
+	private PieChartModel pieModel;
 
     private PolarAreaChartModel polarAreaModel;
 
@@ -379,9 +381,7 @@ public class ChartDemoView implements Serializable {
         CartesianScales cScales = new CartesianScales();
         CartesianLinearAxes linearAxes = new CartesianLinearAxes();
         linearAxes.setOffset(true);
-        CartesianLinearTicks ticks = new CartesianLinearTicks();
-        ticks.setBeginAtZero(true);
-        linearAxes.setTicks(ticks);
+        linearAxes.setBeginAtZero(true);
         cScales.addYAxesData(linearAxes);
         options.setScales(cScales);
 
@@ -461,9 +461,7 @@ public class ChartDemoView implements Serializable {
         CartesianScales cScales = new CartesianScales();
         CartesianLinearAxes linearAxes = new CartesianLinearAxes();
         linearAxes.setOffset(true);
-        CartesianLinearTicks ticks = new CartesianLinearTicks();
-        ticks.setBeginAtZero(true);
-        linearAxes.setTicks(ticks);
+        linearAxes.setBeginAtZero(true);
         cScales.addYAxesData(linearAxes);
         options.setScales(cScales);
 
@@ -531,9 +529,7 @@ public class ChartDemoView implements Serializable {
         CartesianScales cScales = new CartesianScales();
         CartesianLinearAxes linearAxes = new CartesianLinearAxes();
         linearAxes.setOffset(true);
-        CartesianLinearTicks ticks = new CartesianLinearTicks();
-        ticks.setBeginAtZero(true);
-        linearAxes.setTicks(ticks);
+        linearAxes.setBeginAtZero(true);
         cScales.addXAxesData(linearAxes);
         options.setScales(cScales);
 
@@ -822,11 +818,11 @@ public class ChartDemoView implements Serializable {
         data.addChartDataSet(radarDataSet2);
 
         List<List<String>> labels = new ArrayList<>();
-        labels.add(new ArrayList(Arrays.asList("Process", "Excellence")));
-        labels.add(new ArrayList(Arrays.asList("Problem", "Solving")));
-        labels.add(new ArrayList(Arrays.asList("Facilitation")));
-        labels.add(new ArrayList(Arrays.asList("Project", "Mgmt")));
-        labels.add(new ArrayList(Arrays.asList("Change", "Mgmt")));
+        labels.add(new ArrayList<String>(Arrays.asList("Process", "Excellence")));
+        labels.add(new ArrayList<String>(Arrays.asList("Problem", "Solving")));
+        labels.add(new ArrayList<String>(Arrays.asList("Facilitation")));
+        labels.add(new ArrayList<String>(Arrays.asList("Project", "Mgmt")));
+        labels.add(new ArrayList<String>(Arrays.asList("Change", "Mgmt")));
         data.setLabels(labels);
 
         /* Options */
@@ -917,10 +913,7 @@ public class ChartDemoView implements Serializable {
         CartesianScales cScales = new CartesianScales();
         CartesianLinearAxes linearAxes = new CartesianLinearAxes();
         linearAxes.setOffset(true);
-        CartesianLinearTicks ticks = new CartesianLinearTicks();
-        ticks.setBeginAtZero(true);
-        linearAxes.setTicks(ticks);
-
+        linearAxes.setBeginAtZero(true);
         cScales.addYAxesData(linearAxes);
         options.setScales(cScales);
         mixedModel.setOptions(options);

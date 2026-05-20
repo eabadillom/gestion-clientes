@@ -126,9 +126,10 @@ public class SalidaDetalleDAO extends DAO implements BaseDAO<SalidaDetalle, Inte
     {
         int rows = -1;
         PreparedStatement ps = null;
+        ResultSet rs = null;
         int idx = 1;
         try {
-            ps = conn.prepareStatement(INSERT);
+            ps = conn.prepareStatement(INSERT, PreparedStatement.RETURN_GENERATED_KEYS);
 
             ps.setInt(idx++, bean.getIdSalida());
             ps.setInt(idx++, bean.getIdPartida());
@@ -136,6 +137,11 @@ public class SalidaDetalleDAO extends DAO implements BaseDAO<SalidaDetalle, Inte
             ps.setBigDecimal(idx++, bean.getPesoAprox());
 
             rows = ps.executeUpdate();
+            rs = ps.getGeneratedKeys();
+			if (rs.next()) {
+				bean.setIdSalidaDetalle(rs.getInt(1));
+			}
+            
             log.info("Registro de salida agregado: {}", bean.toString());
         } finally {
             close(ps);
