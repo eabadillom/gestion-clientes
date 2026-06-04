@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.model.PrecioServicio;
 
+@Deprecated
 public class PrecioServicioDAO extends DAO{
 
 	private static Logger log = LogManager.getLogger(PrecioServicioDAO.class);

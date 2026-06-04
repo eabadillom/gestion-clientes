@@ -8,6 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -1076,4 +1081,36 @@ public class DateUtils extends LoadProperties {
 		
 		return diaSemana;
 	}
+        
+        /*
+        * Inicializa una fecha inicio una semana
+        * atras (7 dias) con una fecha final
+        */
+        public static Date moverFechaSemanaAtras(Date fechaFin) {
+            if (fechaFin == null) {
+                throw new IllegalArgumentException("La fecha fin no puede ser nula");
+            }
+
+            Instant instant = fechaFin.toInstant();
+            Instant inicioInstant = instant.minus(7, ChronoUnit.DAYS);
+
+            return Date.from(inicioInstant);
+        }
+        
+        public static LocalDate convertirALocalDate(Date date) {
+            return date.toInstant()
+                       .atZone(ZoneId.of("GMT-6"))
+                       .toLocalDate();
+        }
+        
+        public static Date convertirADate(LocalDate fecha){
+            Date date = Date.from(fecha.atStartOfDay().atZone(ZoneId.of("GMT-6")).toInstant());
+            return date;
+        }
+        
+        public static Date convertirADate(LocalTime hora){
+            Date date = Date.from(LocalDate.now().atTime(hora).atZone(ZoneId.of("GMT-6")).toInstant());
+            return date;
+        }
+        
 }

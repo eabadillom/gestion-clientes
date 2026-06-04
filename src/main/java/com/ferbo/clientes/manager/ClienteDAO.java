@@ -21,6 +21,7 @@ import com.ferbo.clientes.model.Cliente;
  *
  * @author Ernesto Ramirez eralrago@gmail.com
  */
+@Deprecated
 public class ClienteDAO extends DAO {
 
 	private static Logger log = LogManager.getLogger(ClienteDAO.class);

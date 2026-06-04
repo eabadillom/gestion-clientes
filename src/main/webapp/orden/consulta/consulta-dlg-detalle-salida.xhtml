@@ -1,0 +1,94 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <p:dialog id="dlgDetalleSalida" widgetVar="dlgDetalleSalida" header="Orden de Retiro: #{consultarSalidas.salidaSelected.folio}" 
+        responsive="true" modal="true" hideEffect="fade" showEffect="fade" width="80%" height="300" >
+        <p:tabView id="tabView" class="ui-fluid" dynamic="true" effect="drop">
+            <p:ajax event="tabChange" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" />
+            <p:tab title="Detalle">
+                <p:outputPanel id="pnlDetalles" class="p-grid ui-fluid p-col-12" >
+                    <div class="p-field p-col-3 p-md-3">
+                        <p:outputLabel value="Transportista: " />
+                        <p:inputText value="#{consultarSalidas.salidaSelected.nombreTransportista}" readonly="true" />
+                    </div>
+                    <div class="p-field p-col-3 p-md-3">
+                        <p:outputLabel value="Placas del transporte:" />
+                        <p:inputText value="#{consultarSalidas.salidaSelected.placasTransporte}" readonly="true" />
+                    </div>
+                    <div class="p-field p-col-3 p-md-3">
+                        <p:outputLabel value="Fecha de registro:" />
+                        <p:inputText value="#{consultarSalidas.salidaSelected.fechaRegistro}" readonly="true" >
+                            <f:converter converterId="localDateConverter" />
+                        </p:inputText>
+                    </div>
+                    <div class="p-field p-col-3 p-md-3">
+                        <p:outputLabel value="Dia de salida:" />
+                        <p:inputText value="#{consultarSalidas.salidaSelected.fechaSalida}" readonly="true" >
+                            <f:converter converterId="localDateConverter" />
+                        </p:inputText>
+                    </div>
+                    <div class="p-field p-col-3 p-md-3">
+                        <p:outputLabel value="Hora de la salida:" />
+                        <p:inputText value="#{consultarSalidas.salidaSelected.horaSalida}" readonly="true" >
+                            <f:converter converterId="localTimeConverter"/>
+                        </p:inputText>
+                    </div>
+                    <div class="p-field p-col-9 p-md-9">
+                        <p:outputLabel value="Observaciones:" />
+                        <p:inputText value="#{consultarSalidas.salidaSelected.observaciones}" readonly="true" />
+                    </div>
+                </p:outputPanel>
+            </p:tab>
+            <p:tab title="Productos" >
+                <p:dataList id="dlg-productos" widgetVar="dlgProductos" value="#{consultarSalidas.listSalidaDetalle}" var="salidaDetalle" 
+                            type="definition" style="width:100%;" >
+                    <p:outputPanel id="pnlProductos" class="p-grid ui-fluid" style="width:100%;" >
+                        <div class="p-field p-col-2 p-md-2" style="display:flex;align-items:center;justify-content:center;" >
+                            <i class="pi pi-circle-fill" />
+                        </div>
+                        <div class="p-col-12 p-md-3" style="vertical-align: middle !important;">
+                            <p:outputLabel value="Producto: " />
+                            <p:inputText value="#{salidaDetalle.partida.unidadProducto.producto.descripcion}" style="width:100%;text-align:center;" disabled="true" />
+                        </div>
+                        <div class="p-col-12 p-md-3" style="vertical-align: middle !important;">
+                            <p:outputLabel value="Peso: " />
+                            <p:inputText value="#{salidaDetalle.peso} kg" style="width:100%;text-align:center;" disabled="true" />
+                        </div>
+                        <div class="p-col-12 p-md-3" style="vertical-align: middle !important;">
+                            <p:outputLabel value="Cantidad: " />
+                            <p:inputText value="#{salidaDetalle.cantidad} #{salidaDetalle.partida.unidadProducto.unidadManejo.descripcion}" style="width:100%;text-align:center;" disabled="true" />
+                        </div>
+                    </p:outputPanel>
+                    <f:facet name="footer" >
+                        <div class="p-grid ui-fluid" style="width:100%;" >
+                            <div class="p-col-12 p-md-2">
+                                <p:outputLabel value="Totales:" />
+                            </div>
+                            <div class="p-col-12 p-md-4"></div>
+                            <div class="p-col-12 p-md-3" style="text-align: left;" >
+                                <p:outputLabel value="#{consultarSalidas.totalPeso} Kg" >
+                                    <f:convertNumber maxFractionDigits="3" />
+                                </p:outputLabel>
+                            </div>
+                            <div class="p-col-12 p-md-3" style="text-align: left;" >
+                                <p:outputLabel value="#{consultarSalidas.totalCantidad} Unidad(es)"></p:outputLabel>
+                            </div>
+                        </div>
+                    </f:facet>
+                </p:dataList>
+            </p:tab>
+        </p:tabView>
+        <f:facet name="footer">
+            <p:commandButton value="Descargar Orden" icon="pi pi-file-pdf" ajax="false" actionListener="#{consultarSalidas.obtenerReporte}"
+                onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'C'}" >
+                <p:fileDownload value="#{consultarSalidas.filePDF}" />
+            </p:commandButton>
+            <p:commandButton value="Solicitar Cancelación" icon="pi pi-ban" styleClass="ui-button-danger" process="@this" onclick="PF('dialogCancelar').show()"
+                onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'A' or consultarSalidas.salidaSelected.status.clave eq 'C'}" />
+            <p:commandButton value="Cerrar" icon="pi pi-times" oncomplete="PF('dlgDetalleSalida').hide()"
+                immediate="true" class="ui-button-secondary" resetValues="true" />
+        </f:facet>
+    </p:dialog>
+</ui:composition>

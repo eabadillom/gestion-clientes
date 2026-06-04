@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.model.EstadoCuenta;
 
+@Deprecated
 public class EstadoCuentaDAO extends DAO {
 	
 	private static Logger log = LogManager.getLogger(EstadoCuentaDAO.class);

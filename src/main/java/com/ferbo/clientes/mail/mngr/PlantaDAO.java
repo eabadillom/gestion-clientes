@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.mail.beans.Planta;
 
+@Deprecated
 public class PlantaDAO extends DAO {
 	private static Logger log = LogManager.getLogger(PlantaDAO.class);
 	private static final String SELECT = "SELECT planta_cve, planta_ds, planta_abrev, planta_sufijo, planta_cod, id_usuario FROM planta ";

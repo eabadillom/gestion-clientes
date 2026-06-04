@@ -11,6 +11,7 @@ import java.util.List;
  * @param <T>
  * @param <ID>
  */
+@Deprecated
 public interface BaseDAO<T, ID> 
 {
     T toModel(ResultSet rs) throws SQLException;

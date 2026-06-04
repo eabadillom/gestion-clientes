@@ -1,0 +1,11 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <p:confirmDialog widgetVar="dialogCancelar" showEffect="fade" width="300" message="Deseas cancelar salida?" header="Confirmar" severity="warn">
+        <p:commandButton value="Sí" icon="pi pi-check" actionListener="#{consultarSalidas.cancelarOrden()}" process="@this" 
+            onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide(); PF('dialogCancelar').hide();" update="form: dt-salidas"/>
+        <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('dialogCancelar').hide()" />
+    </p:confirmDialog>
+</ui:composition>

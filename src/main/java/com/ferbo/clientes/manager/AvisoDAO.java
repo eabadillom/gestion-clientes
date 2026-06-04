@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.ferbo.clientes.model.Aviso;
 import com.ferbo.clientes.model.Cliente;
 
+@Deprecated
 public class AvisoDAO extends DAO{
 	
 	private static Logger log = LogManager.getLogger(AvisoDAO.class);

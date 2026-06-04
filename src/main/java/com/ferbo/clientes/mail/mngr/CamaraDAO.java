@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.mail.beans.Camara;
 
+@Deprecated
 public class CamaraDAO extends DAO {
 	private static final String SELECT = "SELECT camara_cve, planta_cve, camara_ds, camara_abrev FROM camara ";
 	
