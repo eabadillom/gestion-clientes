@@ -1,4 +1,4 @@
-package com.ferbo.clientes.converter;
+package com.ferbo.clientes.util;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
