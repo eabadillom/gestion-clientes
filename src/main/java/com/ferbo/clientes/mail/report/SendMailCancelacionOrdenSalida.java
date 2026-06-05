@@ -141,23 +141,23 @@ public class SendMailCancelacionOrdenSalida extends Thread
                     mailUtil.addTo(buzon);
                 }
                 
-                Planta planta = plantaDAO.buscarPorId(idPlanta).orElseThrow(() -> new RuntimeException("No se encontro la planta con ese identificador"));
-                Usuario responsablePlanta = null;
-                if (planta.getUsuario() != null) {
-                    responsablePlanta = planta.getUsuario();
-                }
-                
-                if (responsablePlanta != null) {
-                    buzon = new Correo(responsablePlanta.getMail(), responsablePlanta.getNombre() + " "
-                        + responsablePlanta.getApellido1() + " " + responsablePlanta.getApellido2());
-                    mailUtil.addCC(buzon);
-                }
-                
-                mailUtil.setMailBody(html);
-                mailUtil.setSubject(subject);
-                
-                mailUtil.sendJndiMailMessage(MailHelper.JNDI_MAIL_INVENTARIO);
             }
+            
+            Planta planta = plantaDAO.buscarPorId(idPlanta).orElseThrow(() -> new RuntimeException("No se encontro la planta con ese identificador"));
+            Usuario responsablePlanta = null;
+            if (planta.getUsuario() != null) {
+                responsablePlanta = planta.getUsuario();
+            }
+
+            if (responsablePlanta != null) {
+                buzon = new Correo(responsablePlanta.getMail(), responsablePlanta.getNombre() + " "
+                    + responsablePlanta.getApellido1() + " " + responsablePlanta.getApellido2());
+                mailUtil.addCC(buzon);
+            }
+
+            mailUtil.setMailBody(html);
+            mailUtil.setSubject(subject);
+            mailUtil.sendJndiMailMessage(MailHelper.JNDI_MAIL_INVENTARIO);
         } catch (Exception ex) {
             log.error("Problema para enviar el correo electronico para la cancelación de la orden de salida " + folio, ex);
         }
