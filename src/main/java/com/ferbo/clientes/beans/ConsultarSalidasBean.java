@@ -69,7 +69,7 @@ public class ConsultarSalidasBean implements Serializable
 
     public ConsultarSalidasBean() {
         this.fechaFin = new Date();
-        this.fechaInicio = DateUtils.moverFechaSemanaAtras(fechaFin);
+        this.fechaInicio = DateUtils.addDay(fechaFin, -7);
         
         this.context = FacesContext.getCurrentInstance();
         this.request = (HttpServletRequest) this.context.getExternalContext().getRequest();
