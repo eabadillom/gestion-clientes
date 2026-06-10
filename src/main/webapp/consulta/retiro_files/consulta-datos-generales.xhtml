@@ -5,18 +5,14 @@
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
     <p:panel id="pnl-datos-generales" header="Datos generales">
         <div class="p-grid ui-fluid">
-            <div class="p-col-12 p-md-6">
-                <p:outputLabel for="nombreCliente" value="Cliente" />
-                <p:inputText id="nombreCliente" placeholder="#{consultarSalidas.cliente.nombre}" readonly="true" />
-            </div>
-            <div class="p-col-6 p-md-3">
+            <div class="p-col-6 p-md-2">
                 <p:outputLabel for="fechaInicio" value="Del" />
                 <p:datePicker id="fechaInicio" showIcon="true" required="true" value="#{consultarSalidas.fechaInicio}" 
                     pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6" maxdate="#{consultarSalidas.fechaFin}" >
                     <p:ajax process="@this" update="fechaFin"/>
                 </p:datePicker>
             </div>
-            <div class="p-col-6 p-md-3">
+            <div class="p-col-6 p-md-2">
                 <p:outputLabel for="fechaFin" value="al" />
                 <p:datePicker id="fechaFin" showIcon="true" required="true" value="#{consultarSalidas.fechaFin}" 
                     pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6" mindate="#{consultarSalidas.fechaInicio}">
@@ -24,7 +20,8 @@
                 </p:datePicker>
             </div>
             <div class="p-col-4 p-md-2">
-                <p:commandButton value="Consultar " icon="pi pi-search" process="@this" actionListener="#{consultarSalidas.consultarSalidas}" 
+            	<p:outputLabel value="." style="color: rgba(255, 255, 255, 0);" />
+                <p:commandButton value="Buscar" icon="pi pi-search" process="@this" actionListener="#{consultarSalidas.consultarSalidas}" 
                     update="dt-salidas" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" />
             </div>
         </div>
