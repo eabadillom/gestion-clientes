@@ -8,11 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -136,216 +134,6 @@ public class DateUtils extends LoadProperties {
 		return resultado;
 	}
 	
-	/**Metodo para obtener el calculo de la fecha de liquidación. Este método considera
-	 * el cálculo sin tomar en cuenta los días de fin de semana (Sábado y Domingo) y sin
-	 * considerar días de asueto. Estos últimos se pueden leer desde un archivo
-	 * DateUtils.properties, o bien, desde una tabla en la base de datos de Scrittura.
-	 * @param fecha Fecha a partir de la cual se caculará la de Liquidación.
-	 * @param dias Dias a partir de la fecha de liquidacion para obtener el vencimiento
-	 * @return {@link Date} Fecha de Vencimiento.
-	 * @throws DateUtilsException Cuando ocurre un problema con el calculo de la fecha
-	 * de liquidación.
-	 */
-	public static Date fechaLiquidacion(Date fecha, int dias)
-	throws DateUtilsException {
-		return DateUtils.fechaLiquidacion(fecha, dias, false);
-	}
-	
-	/**Método para obtener el cálculo de la fecha de liquidación. Este método considera
-	 * el cálculo sin tomar los días de asueto. Se puede decidir a voluntad si se desea
-	 * considerar los días de fin de semana (Sábado y domingo), se puede habilitar el
-	 * parámetro quitarFinDeSemana en True. Si se desea quitar de consideración los días
-	 * de fin de semana del cálculo, simplemente se deberá establecer el parámetro
-	 * quitarFinDeSemana en False.
-	 * @param fecha Fecha a partir de la cual se calculará la Fecha de Liquidación.
-	 * @param dias
-	 * @param quitarFinDeSemana
-	 * @return Objeto {@link Date} con la Fecha de liquidación.
-	 * @throws DateUtilsException En caso de error o problema con el cálculo de la fecha
-	 * de liquidación.
-	 */
-	public static Date fechaLiquidacion(Date fecha, int dias, boolean quitarFinDeSemana)
-	throws DateUtilsException{
-		return DateUtils.fechaLiquidacion(fecha, dias, quitarFinDeSemana, false); 
-	}
-	
-	/**Método para obtener el cálculo de la fecha de liquidación. Este método puede
-	 * considerar a voluntad el considerar o no los días de fin de semana, así como los
-	 * días de asueto.<br>
-	 * Si se desea tomar en cuenta los días de fin de semana, se deberá establecer el
-	 * parámetro saltarFinDeSemana en True. Si por el contrario, se desea quitar de
-	 * consideración los días de fin de semana, entonces se deberá establecer el parámetro
-	 * saltarFinDeSemana en False.<br><br>
-	 * Si se desea tomar en cuenta los días de asueto (declarados en DateUtils.properties)
-	 * , se deberá establecer el parámetro saltarDiasAsueto en True. Si por el contrario,
-	 * se desea quitar de consideración lso días de asueto, entonces se deberá establecer
-	 * el parámetro saltarDiasAsueto en False.
-	 * @param fecha Fecha a partir d ela cual se calculará la Fecha de Liquidación.
-	 * @param dias Días de vigencia (a transcurrir hasta la fecha de Liquidación).
-	 * @param saltarFinDeSemana <br>
-	 * <li>True: Si se considerarán los días de fin de semana 
-	 * (Sábado y Domingo).</li>
-	 * <li>False, si no se considerarán los días de fin de semana.</li>
-	 * @param saltarDiasAsueto
-	 * <li>True: Si se considerarán los días de fin de asueto
-	 * (Declarados en el archivo DateUtils.properties).</li>
-	 * <li>False si no se considerarán los días de asueto.</li>
-	 * @return Objeto {@link Date} con la Fecha de Liquidación.
-	 * @throws DateUtilsException En caso de error o problema con el calculo de la fecha
-	 * de liquidación.
-	 */
-	public static Date fechaLiquidacion(Date fecha, int dias, boolean saltarFinDeSemana, boolean saltarDiasAsueto)
-	throws DateUtilsException {
-		Date    fVencimiento = null;
-		int     ctaDias      = 0;
-		boolean esDiaAsueto  = false;
-		
-		Calendar cfl = null;
-		int diaSemana = -1;
-		
-		if(dias < 0)
-			throw new DateUtilsException("El parámetro \"int dias\" tiene un valor no permitido");
-		
-		if(fecha == null)
-			throw new DateUtilsException("El parametro \"Date fecha\" tiene un valor null no permitido");
-		
-		cfl = Calendar.getInstance(TimeZone.getTimeZone("GMT-6:00"), Locale.getDefault());
-		cfl.setTime(fecha);
-		
-		while(ctaDias < dias){
-			cfl.add(Calendar.DATE, 1); //Incrementa "fecha" en un día.
-			fVencimiento = cfl.getTime();
-			if(saltarFinDeSemana){
-				diaSemana = cfl.get(Calendar.DAY_OF_WEEK);
-				switch(diaSemana){
-				case Calendar.SATURDAY:
-				case Calendar.SUNDAY:
-					continue;
-				default:
-					esDiaAsueto = DateUtils.esDiaAsueto(fVencimiento);
-					if(esDiaAsueto)
-						continue;
-					ctaDias++;
-				}
-			} else {
-				if (saltarDiasAsueto) {
-					esDiaAsueto = DateUtils.esDiaAsueto(fVencimiento);
-					if (esDiaAsueto){
-						continue;
-					}
-				}
-				ctaDias++;
-			}			
-		}
-		
-		return fVencimiento;
-	}
-	
-	/**Metodo para obtener el calculo de la fecha de liquidación. Este método considera
-	 * el cálculo sin tomar en cuenta los días de fin de semana (Sábado y Domingo) y sin
-	 * considerar días de asueto. Estos últimos se pueden leer desde un archivo
-	 * DateUtils.properties, o bien, desde una tabla en la base de datos de Scrittura.
-	 * @param Objeto {@link Connection} para enlazar a la base de datos.
-	 * @param fecha Fecha a partir de la cual se caculará la de Liquidación.
-	 * @param dias Dias a partir de la fecha de liquidacion para obtener el vencimiento
-	 * @return Objeto {@link Date} Fecha de Vencimiento.
-	 * @throws DateUtilsException Cuando ocurre un problema con el calculo de la fecha
-	 * de liquidación.
-	 */
-	public static Date fechaLiquidacion(Connection conn, Date fecha, int dias)
-	throws DateUtilsException {
-		return DateUtils.fechaLiquidacion(conn, fecha, dias, false, false);
-	}
-	
-	/**Método para obtener el cálculo de la fecha de liquidación. Este método considera
-	 * el cálculo sin tomar los días de asueto. Se puede decidir a voluntad si se desea
-	 * considerar los días de fin de semana (Sábado y domingo), se puede habilitar el
-	 * parámetro quitarFinDeSemana en True. Si se desea quitar de consideración los días
-	 * de fin de semana del cálculo, simplemente se deberá establecer el parámetro
-	 * quitarFinDeSemana en False.
-	 * @param conn Objeto {@link Connection} para enlace a la base de datos.
-	 * @param fecha Fecha a partir de la cual se calculará la Fecha de Liquidación.
-	 * @param dias
-	 * @param quitarFinDeSemana
-	 * @return Objeto {@link Date} con la Fecha de liquidación.
-	 * @throws DateUtilsException En caso de error o problema con el calculo de la fecha
-	 * de liquidación.
-	 */
-	public static Date fechaLiquidacion(Connection conn, Date fecha, int dias, boolean saltarFinDeSemana)
-	throws DateUtilsException {
-		return DateUtils.fechaLiquidacion(conn, fecha, dias, saltarFinDeSemana, false);
-	}
-	
-	/**Método para obtener el calculo de la fecha de liquidación de otra fecha dada.
-	 * @param conn Objeto {@link Connection} para el enlace a la base de datos.
-	 * @param fecha Objeto {@link Date} a partir del cual se obtendrá la fecha de vencimiento.
-	 * @param dias Días de vigencia.
-	 * @param saltarFinDeSemana
-	 * <li>True: si se descartarán los días de fin de semana.
-	 * <li>False: si NO se descartarán los días de fin de semana.
-	 * @param saltarDiasAsueto
-	 * <li>True: si se descartarán los días de asueto.
-	 * <li>False: si NO se descartarán los días de asueto.
-	 * @return Objeto {@link Date} con la Fecha de Liquidación.
-	 * @throws DateUtilsException En caso de fracaso con el cálculo de la fecha de liquidación.
-	 */
-	public static Date fechaLiquidacion(Connection conn, Date fecha, int dias, boolean saltarFinDeSemana, boolean saltarDiasAsueto)
-	throws DateUtilsException{
-		Date fVencimiento   = null;
-		int  i              = 0;
-		int  ctaDias        = 0;
-		boolean esDiaAsueto = false;
-		
-		Calendar cfl = null; //Objeto calendar representando la Fecha de Liquidación.
-		int diaSemana = -1;
-		
-		if(conn == null)
-			throw new DateUtilsException("El parametro \"Connection conn\" tiene un valor null no permitido.");
-		
-		if(fecha == null)
-			throw new DateUtilsException("El parametro \"Date fecha\" tiene un valor null no permitido.");
-		
-		if(dias < 0)
-			throw new DateUtilsException("El parametro dias tiene un valor no permitido.");
-		
-		cfl = Calendar.getInstance(TimeZone.getTimeZone("GMT-6:00"), Locale.getDefault());
-		cfl.setTime(fecha);
-		
-		for(i=0, ctaDias = 0; ctaDias < dias; i++){
-			
-			cfl.add(Calendar.DATE, 1); //Incrementa "fecha" en un día.
-			fVencimiento = cfl.getTime();
-
-			if(saltarFinDeSemana){
-				diaSemana = cfl.get(Calendar.DAY_OF_WEEK);
-				switch(diaSemana){
-				case Calendar.SATURDAY:
-				case Calendar.SUNDAY:
-					continue;
-				default:
-					
-					if (saltarDiasAsueto) {
-						esDiaAsueto = DateUtils.esDiaAsueto(conn, fVencimiento, DateUtils.UBICACION_MEXICO);
-						if (esDiaAsueto){
-							continue;
-						}
-					}
-					ctaDias++;
-				}
-			} else {
-				if (saltarDiasAsueto) {
-					esDiaAsueto = DateUtils.esDiaAsueto(conn, fVencimiento, DateUtils.UBICACION_MEXICO);
-					if (esDiaAsueto){
-						continue;
-					}
-				}
-				ctaDias++;
-			}			
-		}
-		
-		return fVencimiento;
-	}
-	
 	public static Date fechaVencimiento(Date fecha, int diasVencimiento, boolean esVigenciaNatural){
 		Date vencimiento = null;
 		Date fechaAux = null;
@@ -455,7 +243,7 @@ public class DateUtils extends LoadProperties {
 	throws DateUtilsException {
 		boolean    resultado  = false;
 		Properties conf       = null;
-		Map        mapDias    = null;
+		Map<String, String> mapDias = null;
 		int        mes        = -1;
 		String     key        = null;
 		String     value      = null;
@@ -1082,20 +870,17 @@ public class DateUtils extends LoadProperties {
 		return diaSemana;
 	}
         
-        public static LocalDate convertirALocalDate(Date date) {
-            return date.toInstant()
-                       .atZone(ZoneId.of("GMT-6"))
-                       .toLocalDate();
-        }
-        
-        public static Date convertirADate(LocalDate fecha){
-            Date date = Date.from(fecha.atStartOfDay().atZone(ZoneId.of("GMT-6")).toInstant());
-            return date;
-        }
-        
-        public static Date convertirADate(LocalTime hora){
-            Date date = Date.from(LocalDate.now().atTime(hora).atZone(ZoneId.of("GMT-6")).toInstant());
-            return date;
-        }
-        
+	public static LocalDate toLocalDate(Date date) {
+		return date.toInstant().atZone(ZoneId.of("GMT-6")).toLocalDate();
+	}
+
+	public static Date toDate(LocalDate fecha) {
+		Date date = Date.from(fecha.atStartOfDay().atZone(ZoneId.of("GMT-6")).toInstant());
+		return date;
+	}
+
+	public static Date toDate(LocalTime hora) {
+		Date date = Date.from(LocalDate.now().atTime(hora).atZone(ZoneId.of("GMT-6")).toInstant());
+		return date;
+	}
 }

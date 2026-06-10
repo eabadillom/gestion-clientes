@@ -9,13 +9,17 @@
             <p:outputLabel value="#{salidas.folio}" style="text-align: center;" />
         </p:column>
         <p:column headerText="Registro" style="text-align: center;" >
-            <p:outputLabel value="#{salidas.fechaRegistro}" style="text-align: center;" />
+            <p:outputLabel value="#{salidas.fechaRegistro}">
+            	<f:convertDateTime type="localDate" pattern="dd / MMM / yyyy" />
+            </p:outputLabel>
         </p:column>
         <p:column headerText="Salida" style="text-align: center;" >
-            <p:outputLabel value="#{salidas.fechaSalida}" style="text-align: center;" />
+            <p:outputLabel value="#{salidas.fechaSalida}">
+            	<f:convertDateTime type="localDate" pattern="dd / MMM / yyyy" />
+            </p:outputLabel>
         </p:column>
         <p:column headerText="Hora" style="text-align: center;" >
-            <p:outputLabel value="#{salidas.horaSalida}" style="text-align: center;" />
+            <p:outputLabel value="#{salidas.horaSalida}"/>
         </p:column>
         <p:column headerText="Status" style="text-align: center;" >
             <span class="customer-badge status-#{consultarSalidas.status.getStatusClass(salidas.status.clave)}" 

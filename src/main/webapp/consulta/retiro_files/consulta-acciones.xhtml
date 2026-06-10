@@ -3,7 +3,7 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:p="http://primefaces.org/ui"
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
-    <p:confirmDialog widgetVar="dialogCancelar" showEffect="fade" width="300" message="¿Deseas cancelar la salida?" header="Confirmar" severity="warn">
+    <p:confirmDialog widgetVar="dialogCancelar" showEffect="fade" width="300" message="¿Está seguro que desea solicitar la cancelación de la orden?" header="Confirmar" severity="warn">
         <p:commandButton value="Sí" icon="pi pi-check" actionListener="#{consultarSalidas.cancelarOrden()}" process="@this" 
             onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide(); PF('dialogCancelar').hide();" update="form: dt-salidas"/>
         <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('dialogCancelar').hide()" />

@@ -42,37 +42,35 @@
                 </p:outputPanel>
             </p:tab>
             <p:tab title="Productos" >
-                <p:dataList id="dlg-productos" widgetVar="dlgProductos" value="#{consultarSalidas.listSalidaDetalle}" var="salidaDetalle" 
-                            type="definition" style="width:100%;" >
-                    <p:outputPanel id="pnlProductos" class="p-grid ui-fluid" style="width:100%;" >
-                        <div class="p-field p-col-2 p-md-2" style="display:flex;align-items:center;justify-content:center;" >
+                <p:dataList id="dlg-productos" widgetVar="dlgProductos" value="#{consultarSalidas.listSalidaDetalle}" var="salidaDetalle" type="definition" style="width:100%;" >
+                    <p:outputPanel id="pnlProductos" class="p-grid ui-fluid">
+                        <div class="p-col-1 p-md-1" style="display:flex;align-items:center;justify-content:center;" >
                             <i class="pi pi-circle-fill" />
                         </div>
-                        <div class="p-col-12 p-md-3" style="vertical-align: middle !important;">
+                        <div class="p-col-11 p-md-7" style="vertical-align: middle !important;">
                             <p:outputLabel value="Producto: " />
-                            <p:inputText value="#{salidaDetalle.partida.unidadProducto.producto.descripcion}" style="width:100%;text-align:center;" disabled="true" />
+                            <p:inputText value="#{salidaDetalle.partida.unidadProducto.producto.descripcion}" style="width:100%; text-align:left;" readonly="true"  />
                         </div>
-                        <div class="p-col-12 p-md-3" style="vertical-align: middle !important;">
+                        <div class="p-col-12 p-md-2" style="vertical-align: middle !important;">
                             <p:outputLabel value="Peso: " />
-                            <p:inputText value="#{salidaDetalle.peso} kg" style="width:100%;text-align:center;" disabled="true" />
+                            <p:inputText value="#{salidaDetalle.peso} kg" style="width:100%; text-align:right;" disabled="true" />
                         </div>
-                        <div class="p-col-12 p-md-3" style="vertical-align: middle !important;">
+                        <div class="p-col-12 p-md-2" style="vertical-align: middle !important;">
                             <p:outputLabel value="Cantidad: " />
-                            <p:inputText value="#{salidaDetalle.cantidad} #{salidaDetalle.partida.unidadProducto.unidadManejo.descripcion}" style="width:100%;text-align:center;" disabled="true" />
+                            <p:inputText value="#{salidaDetalle.cantidad} #{salidaDetalle.partida.unidadProducto.unidadManejo.descripcion}" style="width:100%;text-align:right;" disabled="true" />
                         </div>
                     </p:outputPanel>
-                    <f:facet name="footer" >
-                        <div class="p-grid ui-fluid" style="width:100%;" >
-                            <div class="p-col-12 p-md-2">
+                    <f:facet name="footer">
+                        <div class="p-grid ui-fluid">
+                            <div class="p-col-12 p-md-8" style="text-align: right;">
                                 <p:outputLabel value="Totales:" />
                             </div>
-                            <div class="p-col-12 p-md-4"></div>
-                            <div class="p-col-12 p-md-3" style="text-align: left;" >
-                                <p:outputLabel value="#{consultarSalidas.totalPeso} Kg" >
+                            <div class="p-col-12 p-md-2" style="text-align: right;">
+                                <p:outputLabel value="#{consultarSalidas.totalPeso} Kg">
                                     <f:convertNumber maxFractionDigits="3" />
                                 </p:outputLabel>
                             </div>
-                            <div class="p-col-12 p-md-3" style="text-align: left;" >
+                            <div class="p-col-12 p-md-2" style="text-align: right;" >
                                 <p:outputLabel value="#{consultarSalidas.totalCantidad} Unidad(es)"></p:outputLabel>
                             </div>
                         </div>
@@ -81,11 +79,11 @@
             </p:tab>
         </p:tabView>
         <f:facet name="footer">
-            <p:commandButton value="Descargar Orden" icon="pi pi-file-pdf" ajax="false" actionListener="#{consultarSalidas.obtenerReporte}"
+            <p:commandButton value="Descargar orden" icon="pi pi-file-pdf" ajax="false" actionListener="#{consultarSalidas.obtenerReporte}"
                 onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'C'}" >
                 <p:fileDownload value="#{consultarSalidas.filePDF}" />
             </p:commandButton>
-            <p:commandButton value="Solicitar Cancelación" icon="pi pi-ban" styleClass="ui-button-danger" process="@this" onclick="PF('dialogCancelar').show()"
+            <p:commandButton value="Solicitar cancelación" icon="pi pi-ban" styleClass="ui-button-danger ui-button-outlined" process="@this" onclick="PF('dialogCancelar').show()" rendered="#{consultarSalidas.puedeCancelar()}"
                 onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'A' or consultarSalidas.salidaSelected.status.clave eq 'C'}" />
             <p:commandButton value="Cerrar" icon="pi pi-times" oncomplete="PF('dlgDetalleSalida').hide()"
                 immediate="true" class="ui-button-secondary" resetValues="true" />

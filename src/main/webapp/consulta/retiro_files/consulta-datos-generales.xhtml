@@ -12,15 +12,15 @@
             <div class="p-col-6 p-md-3">
                 <p:outputLabel for="fechaInicio" value="Del" />
                 <p:datePicker id="fechaInicio" showIcon="true" required="true" value="#{consultarSalidas.fechaInicio}" 
-                    pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6" >
-                    <p:ajax process="@this" />
+                    pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6" maxdate="#{consultarSalidas.fechaFin}" >
+                    <p:ajax process="@this" update="fechaFin"/>
                 </p:datePicker>
             </div>
             <div class="p-col-6 p-md-3">
                 <p:outputLabel for="fechaFin" value="al" />
                 <p:datePicker id="fechaFin" showIcon="true" required="true" value="#{consultarSalidas.fechaFin}" 
-                    pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6" >
-                    <p:ajax process="@this" />
+                    pattern="dd/MM/yyyy" locale="es" timeZone="GMT-6" mindate="#{consultarSalidas.fechaInicio}">
+                    <p:ajax process="@this" update="fechaInicio" />
                 </p:datePicker>
             </div>
             <div class="p-col-4 p-md-2">
