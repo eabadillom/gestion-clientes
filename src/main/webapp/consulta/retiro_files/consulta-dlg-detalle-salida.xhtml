@@ -83,7 +83,9 @@
                 onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'C'}" >
                 <p:fileDownload value="#{consultarSalidas.filePDF}" />
             </p:commandButton>
-            <p:commandButton value="Solicitar cancelación" icon="pi pi-ban" styleClass="ui-button-danger ui-button-outlined" process="@this" onclick="PF('dialogCancelar').show()" rendered="#{consultarSalidas.puedeCancelar()}"
+            <!-- <p:commandButton value="Solicitar cancelación" icon="pi pi-ban" styleClass="ui-button-danger ui-button-outlined" process="@this" onclick="PF('dialogCancelar').show()" rendered="#{consultarSalidas.puedeCancelar()}"
+                onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'A' or consultarSalidas.salidaSelected.status.clave eq 'C'}" /> -->
+            <p:commandButton value="Solicitar cancelación" icon="pi pi-ban" styleClass="ui-button-danger ui-button-outlined" process="@this" onclick="PF('dialogCancelar').show()" rendered="false"
                 onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();" disabled="${consultarSalidas.salidaSelected.status.clave eq 'A' or consultarSalidas.salidaSelected.status.clave eq 'C'}" />
             <p:commandButton value="Cerrar" icon="pi pi-times" oncomplete="PF('dlgDetalleSalida').hide()"
                 immediate="true" class="ui-button-secondary" resetValues="true" />
