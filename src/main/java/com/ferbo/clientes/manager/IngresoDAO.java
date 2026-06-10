@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.model.Ingreso;
 
+@Deprecated
 public class IngresoDAO extends DAO{
 	
 	private static Logger log = LogManager.getLogger(Ingreso.class);

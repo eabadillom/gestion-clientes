@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.ferbo.clientes.mail.beans.MedioContacto;
 
+@Deprecated
 public class MedioContactoDAO  extends DAO{
 	
 	private static final String SELECT = "SELECT id_medio, tp_medio, st_medio, id_contacto, id_mail, id_telefono FROM medio_cnt ";

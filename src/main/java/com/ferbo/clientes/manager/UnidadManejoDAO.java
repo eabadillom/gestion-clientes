@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.model.UnidadDeManejo;
 
-
+@Deprecated
 public class UnidadManejoDAO extends DAO{
 	
 	private static Logger log = LogManager.getLogger(UnidadManejoDAO.class);

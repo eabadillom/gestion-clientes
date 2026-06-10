@@ -15,6 +15,7 @@ import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.model.Inventario;
 import com.ferbo.clientes.util.Conexion;
 
+@Deprecated
 public class EmisionSalidasDAO extends DAO {
 	private static Logger log = LogManager.getLogger(EmisionSalidasDAO.class);
 

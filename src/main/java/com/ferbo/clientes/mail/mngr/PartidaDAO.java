@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.mail.beans.Partida;
 
+@Deprecated
 public class PartidaDAO extends DAO {
 	private static Logger log = LogManager.getLogger(PartidaDAO.class);
 	

@@ -14,6 +14,7 @@ import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.model.ServiciosExtras;
 import com.ferbo.clientes.util.Conexion;
 
+@Deprecated
 public class ServiciosExtrasDAO {
 
 	private static Logger log = LogManager.getLogger(ServiciosExtrasDAO.class);

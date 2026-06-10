@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import com.ferbo.clientes.model.IngresoServicio;
 
+@Deprecated
 public class IngresoServicioDAO extends DAO {
 
 	public static int insert(Connection conn, IngresoServicio ingresoServicio)throws SQLException{
