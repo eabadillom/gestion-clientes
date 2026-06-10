@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.ferbo.clientes.model.Factura;
 import com.ferbo.clientes.model.StatusFactura;
 
+@Deprecated
 public class StatusFacturaDAO extends DAO{
 	private static Logger log = LogManager.getLogger(StatusFacturaDAO.class);
     private static final String SELECT = " SELECT id, nombre, descripcion FROM status_factura ";

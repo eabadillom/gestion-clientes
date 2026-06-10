@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <p:dataTable id="dt-salidas" widgetVar="dtSalidas" var="salidas" value="#{consultarSalidas.listSalidas}" size="small"
+        rowKey="#{salidas.id}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+        <p:column headerText="Folio" style="text-align: center;" >
+            <p:outputLabel value="#{salidas.folio}" style="text-align: center;" />
+        </p:column>
+        <p:column headerText="Registro" style="text-align: center;" >
+            <p:outputLabel value="#{salidas.fechaRegistro}">
+            	<f:convertDateTime type="localDate" pattern="dd / MMM / yyyy" />
+            </p:outputLabel>
+        </p:column>
+        <p:column headerText="Salida" style="text-align: center;" >
+            <p:outputLabel value="#{salidas.fechaSalida}">
+            	<f:convertDateTime type="localDate" pattern="dd / MMM / yyyy" />
+            </p:outputLabel>
+        </p:column>
+        <p:column headerText="Hora" style="text-align: center;" >
+            <p:outputLabel value="#{salidas.horaSalida}"/>
+        </p:column>
+        <p:column headerText="Status" style="text-align: center;" >
+            <span class="customer-badge status-#{consultarSalidas.status.getStatusClass(salidas.status.clave)}" 
+                  style="width: 7rem; text-align: center;" >
+                #{consultarSalidas.status.getStatusText(salidas.status.clave)}
+            </span>
+        </p:column>
+        <p:column width="2rem" style="text-align: left;">
+            <p:commandButton icon="pi pi-bars" process="@this" action="#{consultarSalidas.obtenerDetalles(salidas)}" 
+                onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide(); PF('dlgDetalleSalida').show();" 
+                update="form:dlgDetalleSalida" />
+        </p:column>
+        <p:ajax event="page" onstart="PF('statusInfoDialog').show()" oncomplete="PF('statusInfoDialog').hide()" />
+    </p:dataTable>
+</ui:composition>

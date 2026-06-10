@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.ferbo.clientes.mail.beans.ClienteContacto;
 
+@Deprecated
 public class ClienteContactoDAO extends DAO {
 	private static final String SELECT = "SELECT id_cliente, id_contacto, st_habilitado, nb_usuario, nb_password, st_usuario, fh_alta, fh_cad_passwd, fh_ult_acceso, id, st_facturacion, st_inventario FROM cliente_contacto ";
 	private static final String INSERT = "INSERT INTO cliente_contacto (id_cliente, id_contacto, st_habilitado, nb_usuario, nb_password, st_usuario, fh_alta, fh_cad_passwd, fh_ult_acceso, st_facturacion, st_inventario) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";

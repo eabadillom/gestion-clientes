@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.model.Producto;
 
+@Deprecated
 public class ProductoDAO extends DAO {
 	
 	private static Logger log = LogManager.getLogger(ProductoDAO.class);

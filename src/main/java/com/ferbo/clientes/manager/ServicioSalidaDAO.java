@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author alberto
  */
+@Deprecated
 public class ServicioSalidaDAO extends DAO implements BaseDAO<ServicioSalida, Integer>
 {
     private static Logger log = LogManager.getLogger(ServicioSalidaDAO.class);

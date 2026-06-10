@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.ferbo.clientes.mail.beans.Usuario;
 
+@Deprecated
 public class UsuarioDAO extends DAO {
 	
 	private static Logger log = LogManager.getLogger(UsuarioDAO.class);

@@ -1,0 +1,65 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    template="/WEB-INF/template.xhtml">
+    <ui:define name="title">Consulta orden de retiro</ui:define>
+    <ui:define name="head">
+        <h:outputScript library="primefaces" name="locales/locale-es.js" />
+        <style type="text/css">
+            .customer-badge {
+                border-radius: 2px;
+                padding: .25em .5rem;
+                text-transform: uppercase;
+                font-weight: 700;
+                font-size: 12px;
+                letter-spacing: .3px;
+            }
+            .customer-badge.status-qualified { /* Verde */
+                background: #C8E6C9;
+                color: #256029;
+            }
+            .customer-badge.status-unqualified { /* Rojo */
+                background: #FFCDD2;
+                color: #C63737;
+            }
+            .customer-badge.status-proposal { /* Melón */
+                background: #FFD8B2;
+                color: #805B36;
+            }
+            .customer-badge.status-negotiation { /* Amarillo */
+                background: #FEEDAF;
+                color: #8A5340;
+            }
+            .customer-badge.status-new { /* Azul */
+                background: #B3E5FC;
+                color: #23547B;
+            }
+            .customer-badge.status-renewal { /* Morado */
+                background: #ECCFFF;
+                color: #694382;
+            }
+            .customer-badge.status-cancelled { /* Gris */
+                background: #E0E0E0;
+                color: #424242;
+            }
+        </style>
+    </ui:define>
+    <ui:define name="content">
+        <h:form id="form">
+            <ui:include src="/common/locale-es_MX.xhtml"></ui:include>
+            <ui:include src="/common/status-info.xhtml"></ui:include>
+            
+            <ui:include src="/consulta/retiro_files/consulta-datos-generales.xhtml" />
+            
+            <p:spacer style="height: 1rem;"/>
+            
+            <ui:include src="/consulta/retiro_files/consulta-salidas.xhtml" />
+            
+            <ui:include src="/consulta/retiro_files/consulta-dlg-detalle-salida.xhtml" />
+            
+            <ui:include src="/consulta/retiro_files/consulta-acciones.xhtml" />
+        </h:form>
+    </ui:define>
+</ui:composition>

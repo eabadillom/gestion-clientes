@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import com.ferbo.clientes.mail.beans.Telefono;
 
+@Deprecated
 public class TelefonoDAO extends DAO {
 	private static final String SELECT = "SELECT id_telefono, nb_telefono, st_principal, tp_telefono FROM telefono ";
 	private static final String INSERT = "";

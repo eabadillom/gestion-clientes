@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import com.ferbo.clientes.manager.DAO;
 import com.ferbo.clientes.model.SerieOrden;
 
+@Deprecated
 public class SerieOrdenDAO extends DAO {
 
 	private static final String SELECT = "SELECT id_cliente, tp_serie, id_planta, nu_serie FROM serie_orden ";

@@ -21,8 +21,6 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class LoadProperties{
 	
-	private static final String LOG_NAME = "com.ferbo.clientes.Default";
-	
 	private static Logger log = LogManager.getLogger(LoadProperties.class);
 	
 	/**Carga el archivo de propiedades filename
@@ -62,13 +60,13 @@ public abstract class LoadProperties{
 	 * @param prop {@link Properties} Objeto con las opciones de configuración del .properties.
 	 * @return {@link Map} HashMap con las propiedades de configuración.
 	 */
-	  public static Map loadMappers(String mapName, Properties prop) {
+	  public static Map<String, String> loadMappers(String mapName, Properties prop) {
 
-		Map map = new Hashtable();
+		Map<String, String> map = new Hashtable<String, String>();
 		String propName;
 		String keyName;
 
-		Enumeration em = prop.keys();
+		Enumeration<Object> em = prop.keys();
 		while (em.hasMoreElements()) {
 			propName = (String) em.nextElement();
 			if (!propName.startsWith(mapName)) {

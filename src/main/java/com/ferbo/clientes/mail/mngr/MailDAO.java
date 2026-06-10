@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 import com.ferbo.clientes.mail.beans.Mail;
 
-
+@Deprecated
 public class MailDAO extends DAO {
 	private static final String SELECT = "SELECT id_mail, nb_mail, st_principal, tp_mail FROM mail ";
 	private static final String INSERT = "INSERT INTO mail (nb_mail, st_principal, tp_mail) VALUES(?, ?, ?)";
