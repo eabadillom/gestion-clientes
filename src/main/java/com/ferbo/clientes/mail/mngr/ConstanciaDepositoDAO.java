@@ -14,6 +14,7 @@ import com.ferbo.clientes.mail.beans.ConstanciaDeposito;
 import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.DateUtilsException;
 
+@Deprecated
 public class ConstanciaDepositoDAO extends DAO {
 	
 	private static Logger log = LogManager.getLogger(ConstanciaDepositoDAO.class);

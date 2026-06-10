@@ -13,6 +13,7 @@ import com.ferbo.clientes.model.ClienteContacto;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.SecurityUtil;
 
+@Deprecated
 public class ClienteContactoDAO extends DAO {
 
 	private static Logger log = LogManager.getLogger(ClienteContactoDAO.class);

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.ferbo.clientes.mail.beans.PreSalida;
 
+@Deprecated
 public class PreSalidaDAO extends DAO {
 	private static final String SELECT = "select id_pre_salida, cd_folio_salida, st_estado, fh_salida, tm_salida, nb_placa_tte, nb_operador_tte, partida_cve, folio, nu_cantidad from pre_salida ";
 	private static final String UPDATE = "UPDATE pre_salida SET id_pre_salida = ?, cd_folio_salida = ?, st_estado = ?, fh_salida = ?, tm_salida = ?, nb_placa_tte = ?, nb_operador_tte = ?, partida_cve = ?, folio = ?, nu_cantidad = ? WHERE id_pre_salida = ? ";

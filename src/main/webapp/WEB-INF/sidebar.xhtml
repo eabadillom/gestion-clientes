@@ -21,6 +21,9 @@
                 <div class="menu">
                     <po:menu widgetVar="OmegaMenuWidget">
                         <p:menuitem id="salidas" value="Orden de retiro" icon="pi pi-sign-out" outcome="/orden/retiro"/>
+                        <p:submenu id="consultas" label="Consultar" icon="pi pi-search">
+                            <p:menuitem id="om_retiro" value="Ordenes de retiro" icon="pi pi-file" outcome="/consulta/retiro"/>
+                        </p:submenu>
                         <p:submenu id="reportes" label="Reportes" icon="pi pi-book">
                             <p:menuitem id="om_chart" value="Inventario" icon="fa fa-solid fa-warehouse" outcome="/reportes/inventario"/>
                             <p:menuitem id="om_media" value="Entradas" icon="pi pi-sign-in" outcome="/reportes/entrada"/>

@@ -26,6 +26,9 @@ hs_err_pid*
 .project
 .metadata
 
+#Other IDE files
+faces-config.NavData
+
 # Folders
 bin/
 build/
@@ -43,6 +46,5 @@ target/
 
 .idea/
 nb-configuration.xml
-/src/main/resources/META-INF/persistence.xml
 
 

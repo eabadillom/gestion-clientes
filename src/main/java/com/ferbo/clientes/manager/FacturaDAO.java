@@ -18,6 +18,7 @@ import com.ferbo.clientes.model.Factura;
 import com.ferbo.clientes.model.StatusFactura;
 import com.ferbo.clientes.model.TipoFacturacion;
 
+@Deprecated
 public class FacturaDAO extends DAO{
 	
 	private static Logger log = LogManager.getLogger(FacturaDAO.class);

@@ -12,6 +12,7 @@ import com.ferbo.clientes.model.Cliente;
 import com.ferbo.clientes.model.SerieConstancia;
 import com.ferbo.clientes.util.Conexion;
 
+@Deprecated
 public class SerieConstanciaDAO extends DAO{
 	
 	private static Logger log = LogManager.getLogger(ClienteDAO.class);

@@ -19,6 +19,7 @@ import com.ferbo.clientes.model.Salida;
  *
  * @author alberto
  */
+@Deprecated
 public class SalidaDAO extends DAO implements BaseDAO<Salida, Integer>
 {
     private static Logger log = LogManager.getLogger(SalidaDAO.class);
