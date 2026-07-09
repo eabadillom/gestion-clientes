@@ -1,0 +1,51 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<f:metadata>
+        <f:event type="preRenderView" listener="#{adeudoVencidoBean.cargarAdeudo()}" />
+    </f:metadata>
+	<ui:define name="title">Orden de retiro bloqueada</ui:define>
+	<ui:define name="head">
+		<h:outputScript library="js" name="calendar_es.js" />
+		<h:outputScript library="js" name="funciones.js" />
+		<h:outputScript library="js" name="primefaces_locale.js" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form">
+			<p:panel header="Saldo vencido">
+				<div style="text-align: center;">
+					<p:outputLabel value="Le informamos que presenta un saldo vencido, por lo que la operación se encuentra temporalmente bloqueada."></p:outputLabel>
+				</div>
+					<p:spacer style="height: 1rem;"/>
+				<div style="text-align: center;">
+					<p:outputLabel value="Le solicitamos se ponga en contacto con el área de facturación para cualquier aclaración."></p:outputLabel>
+				</div>
+			</p:panel>
+			<p:spacer style="height: 1rem;"/>
+			<p:dataTable value="#{adeudoVencidoBean.saldos}" var="saldo">
+				<p:column headerText="Factura" style="text-align: center;">
+					<p:outputLabel value="#{saldo.serie}-#{saldo.folio}"></p:outputLabel>
+				</p:column>
+				<p:column headerText="Fecha" style="text-align: center;">
+					<p:outputLabel value="#{saldo.fecha}">
+						<f:convertDateTime type="localDate" pattern="dd/ MMM / yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Atraso" style="text-align: center;">
+					<p:outputLabel value="#{saldo.diasAtraso} días">
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Saldo" style="text-align: right;">
+					<p:outputLabel value="#{saldo.saldo}">
+						<f:convertNumber type="currency" currencyCode="MXN" currencySymbol="$ " locale="es_MX" />
+					</p:outputLabel>
+				</p:column>
+			</p:dataTable>
+			<div align="center">
+				<p:commandButton value="Ver mis facturas" actionListener="#{adeudoVencidoBean.consultaFacturacion()}" />
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
