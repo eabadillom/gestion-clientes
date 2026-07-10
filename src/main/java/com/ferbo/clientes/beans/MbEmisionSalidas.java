@@ -21,8 +21,10 @@ import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -34,6 +36,9 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.file.UploadedFile;
 
+import com.ferbo.clientes.business.AdeudoVencidoException;
+import com.ferbo.clientes.business.CandadoSalidaBL;
+import com.ferbo.clientes.business.ClienteBL;
 import com.ferbo.clientes.business.InventarioBL;
 import com.ferbo.clientes.business.PlantaBL;
 import com.ferbo.clientes.business.SalidasBL;
@@ -92,9 +97,16 @@ public class MbEmisionSalidas implements Serializable {
 	private HttpSession session;
 	private Cliente cliente;
 	
+	@Inject
+	private ClienteBL clienteBO;
+	
+	@Inject
+	private CandadoSalidaBL candadoBO;
+	
 	private String folioSalida;
 	
 	public MbEmisionSalidas() {
+		this.crearSalida();
 		this.listaInventarioSelect = new ArrayList<Inventario>();
 		this.listaServiciosSelect = new ArrayList<ServiciosExtras>();
 		
@@ -121,18 +133,41 @@ public class MbEmisionSalidas implements Serializable {
 	@PostConstruct
 	public void init() {
 		Connection conn = null;
-		this.crearSalida();
+		
+		com.ferbo.gestion.core.model.cliente.Cliente cliente = null;
 		
 		try {
-			conn = Conexion.dsConexion();
+			log.info("Iniciando con la configuración del módulo...");
+			//Validar restricción de registro de salidas mediante el candado de salida.
+			cliente = clienteBO.buscar(this.cliente.getIdCliente());
+			candadoBO.validarAdeudo(cliente);
 			
-			this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, cliente);
+			conn = Conexion.dsConexion();
+			this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, this.cliente);
 			this.listaPlantas = Arrays.asList(PlantaBL.obtenerPlantas(conn));
+		} catch(AdeudoVencidoException ex) {
+			log.warn(ex.getMessage());
+			redirigirAdeudoVencido(ex);
+		} catch(ClientesException ex){
+			log.warn("Problema para continuar con la carga del módulo: {}", ex.getMessage());
 		} catch(Exception ex) {
 			log.error("Problema para obtener información de la base de datos...", ex);
 		} finally {
 			Conexion.close(conn);
 		}
+	}
+	
+	private void redirigirAdeudoVencido(AdeudoVencidoException ex) {
+		this.context = FacesContext.getCurrentInstance();
+		String contextPath = context.getExternalContext().getRequestContextPath();
+
+        try {
+        	log.info("Redirigiendo a página de error...");
+            context.getExternalContext().redirect(contextPath + "/error/retiro-bloqueado.xhtml");
+            context.responseComplete(); // detiene el ciclo de vida actual
+        } catch (IOException ioe) {
+        	log.error("Problema con la redirección...", ioe);
+        }
 	}
         
 	public void crearSalida(){

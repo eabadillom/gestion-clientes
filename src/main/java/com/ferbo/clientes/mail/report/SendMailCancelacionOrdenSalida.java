@@ -1,6 +1,6 @@
 package com.ferbo.clientes.mail.report;
 
-import com.ferbo.clientes.configuracion.ManagerTransactionManager;
+import com.ferbo.clientes.configuracion.TransactionManagerImpl;
 import com.ferbo.clientes.mail.beans.Correo;
 import com.ferbo.clientes.util.MailHelper;
 import com.ferbo.gestion.core.config.TransactionManager;
@@ -32,7 +32,7 @@ public class SendMailCancelacionOrdenSalida extends Thread {
 	private Cliente cliente = null;
 	private Salida salidaSelected = null;
 
-	private final TransactionManager transactManager = new ManagerTransactionManager();
+	private final TransactionManager transactManager = new TransactionManagerImpl();
 	private final PlantaDAO plantaDAO = new PlantaDAO(transactManager);
 	private final ClienteDAO clienteDAO = new ClienteDAO(transactManager);
 	private final ClienteContactoDAO clienteContactoDAO = new ClienteContactoDAO(transactManager);
