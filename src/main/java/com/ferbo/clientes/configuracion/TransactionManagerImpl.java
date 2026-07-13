@@ -1,14 +1,18 @@
 package com.ferbo.clientes.configuracion;
 
-import com.ferbo.gestion.core.config.TransactionManager;
-import com.ferbo.gestion.core.provider.EntityManagerProvider;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import javax.enterprise.context.Dependent;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.transaction.Transactional;
 
-public class ManagerTransactionManager implements TransactionManager 
+import com.ferbo.gestion.core.config.TransactionManager;
+import com.ferbo.gestion.core.provider.EntityManagerProvider;
+
+@Dependent
+public class TransactionManagerImpl implements TransactionManager
 {
     private EntityManagerProvider getProvider() {
         return EntityManagerFactoryProducer.getProvider();

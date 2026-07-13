@@ -1,0 +1,116 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<f:metadata>
+        <f:event type="preRenderView" listener="#{adeudoVencidoBean.cargarAdeudo()}" />
+    </f:metadata>
+	<ui:define name="title">Orden de retiro bloqueada</ui:define>
+	<ui:define name="head">
+		<h:outputScript library="js" name="calendar_es.js" />
+		<h:outputScript library="js" name="funciones.js" />
+		<h:outputScript library="js" name="primefaces_locale.js" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form">
+			<div align="center">
+				<p:panelGrid columns="2" styleClass="ui-noborder">
+					<f:facet name="header">
+						Saldo vencido
+					</f:facet>
+					<p:column colspan="2">
+						<i class="pi pi-exclamation-triangle" style="font-size:4rem; color: #A80000;" />
+					</p:column>
+					<p:column>
+						<div class="p-field">
+							<p:outputLabel value="Le informamos que su cuenta presenta un saldo vencido, por lo que la operación se encuentra temporalmente bloqueada."></p:outputLabel>
+						</div>
+						<div class="p-field">
+							<p:outputLabel value="Le solicitamos que se ponga en contacto con el área de facturación para cualquier aclaración al respecto."></p:outputLabel>
+						</div>
+					</p:column>
+				</p:panelGrid>
+			</div>
+			<p:spacer style="height: 3rem;"/>
+			<p:dataTable value="#{adeudoVencidoBean.salidasPendientes}" var="salida">
+				<f:facet name="header">
+					<p:outputLabel value="Sus órdenes de retiro pendientes"></p:outputLabel>
+				</f:facet>
+				<p:column headerText="Folio" style="text-align: center;">
+					<p:outputLabel value="#{salida.folio}" />
+				</p:column>
+				<p:column headerText="Fecha solicitud" style="text-align: center;">
+					<p:outputLabel value="#{salida.fechaRegistro}">
+						<f:convertDateTime type="localDate" pattern="dd/ MMM / yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Fecha retiro" style="text-align: center;">
+					<p:outputLabel value="#{salida.fechaSalida}">
+						<f:convertDateTime type="localDate" pattern="dd/ MMM / yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<f:facet name="footer">
+					<div>
+						<p:outputLabel value="#{adeudoVencidoBean.resumenOrdenes()}"></p:outputLabel>
+					</div>
+				</f:facet>
+			</p:dataTable>
+			<p:spacer style="height: 2rem;"/>
+			<p:dataTable value="#{adeudoVencidoBean.saldos}" var="saldo">
+				<f:facet name="header">
+					<p:outputLabel value="Sus adeudos" />
+				</f:facet>
+				<p:column headerText="Factura" style="text-align: center;">
+					<p:outputLabel value="#{saldo.serie}-#{saldo.folio}"></p:outputLabel>
+				</p:column>
+				<p:column headerText="Fecha de emisión" style="text-align: center;">
+					<p:outputLabel value="#{saldo.fecha}">
+						<f:convertDateTime type="localDate" pattern="dd/ MMM / yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Plazo de pago" style="text-align: center;">
+					<p:outputLabel value="#{adeudoVencidoBean.plazoPago(saldo)}" />
+				</p:column>
+				<p:column headerText="Vencimiento" style="text-align: center;">
+					<p:outputLabel value="#{adeudoVencidoBean.vencimiento(saldo)}">
+						<f:convertDateTime type="localDate" pattern="dd/ MMM / yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Atraso" style="text-align: center;">
+					<p:outputLabel value="#{adeudoVencidoBean.atraso(saldo)}">
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Saldo" style="text-align: right;">
+					<p:outputLabel value="#{saldo.saldo}">
+						<f:convertNumber type="currency" currencyCode="MXN" currencySymbol="$ " locale="es_MX" />
+					</p:outputLabel>
+				</p:column>
+				<p:columnGroup type="footer" >
+					<p:row>
+						<p:column colspan="5" style="text-align:left;">
+							<f:facet name="footer">
+								<div align="right">
+									<p:outputLabel value="Su adeudo total:" />
+								</div>
+							</f:facet>
+						</p:column>
+						<p:column>
+	                        <f:facet name="footer">
+								<div align="right">
+									<p:outputLabel value="#{adeudoVencidoBean.saldoTotal}">
+										<f:convertNumber type="currency" currencyCode="MXN" currencySymbol="$" locale="es_MX" />
+									</p:outputLabel>
+								</div>
+							</f:facet>
+	                    </p:column>
+					</p:row>
+				</p:columnGroup>
+			</p:dataTable>
+			<p:spacer style="height: 2rem;"/>
+			<div align="center">
+				<p:commandButton value="Ver mis facturas" actionListener="#{adeudoVencidoBean.consultaFacturacion()}" />
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

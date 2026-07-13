@@ -1,7 +1,7 @@
 package com.ferbo.clientes.business;
 
-import com.ferbo.clientes.configuracion.ManagerTransactionManager;
-import com.ferbo.clientes.dao.SalidaDAOImpl;
+import com.ferbo.clientes.configuracion.TransactionManagerImpl;
+import com.ferbo.clientes.dao.SalidaDAOExt;
 import com.ferbo.gestion.core.config.TransactionManager;
 import com.ferbo.gestion.core.model.inventario.salida.orden.Salida;
 import java.time.LocalDate;
@@ -13,9 +13,9 @@ public class ConsultaSalidasBL
 {
     private final static Logger log = LogManager.getLogger(ConsultaSalidasBL.class);
     
-    private final TransactionManager transactManager = new ManagerTransactionManager();
+    private final TransactionManager transactManager = new TransactionManagerImpl();
     
-    private final SalidaDAOImpl salidaDAO = new SalidaDAOImpl(transactManager);
+    private final SalidaDAOExt salidaDAO = new SalidaDAOExt(transactManager);
     
     public Salida salidaPorFolio(Integer idSalida)
     {
