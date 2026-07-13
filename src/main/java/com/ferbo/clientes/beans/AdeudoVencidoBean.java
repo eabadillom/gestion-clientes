@@ -69,7 +69,6 @@ public class AdeudoVencidoBean implements Serializable {
 		try {
 			FacesContext context = FacesContext.getCurrentInstance();
 		    
-		    // Si es una petición AJAX de PrimeFaces, salimos del método inmediatamente
 		    if (context.isPostback() || context.getPartialViewContext().isAjaxRequest()) {
 		        return; 
 		    }

@@ -132,7 +132,6 @@ public class MbEmisionSalidas implements Serializable {
 	@PostConstruct
 	public void init() {
 		log.info("Entrando al post-construct...");
-//		this.precarga();
 	}
 	
 	public void precarga() {
@@ -144,7 +143,7 @@ public class MbEmisionSalidas implements Serializable {
 			FacesContext facesContext = FacesContext.getCurrentInstance();
 		    
 		    if (facesContext.isPostback()) {
-		        return; // ya se cargó antes, no repetir en cada AJAX
+		        return;
 		    }
 			
 			log.info("Iniciando con la configuración del módulo...");
@@ -174,7 +173,7 @@ public class MbEmisionSalidas implements Serializable {
         try {
         	log.info("Redirigiendo a página de error...");
             context.getExternalContext().redirect(contextPath + "/error/retiro-bloqueado.xhtml");
-            context.responseComplete(); // detiene el ciclo de vida actual
+            context.responseComplete();
         } catch (IOException ioe) {
         	log.error("Problema con la redirección...", ioe);
         }
