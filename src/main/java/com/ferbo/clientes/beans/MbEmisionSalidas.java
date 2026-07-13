@@ -21,7 +21,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
 import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -132,11 +131,22 @@ public class MbEmisionSalidas implements Serializable {
 	
 	@PostConstruct
 	public void init() {
+		log.info("Entrando al post-construct...");
+//		this.precarga();
+	}
+	
+	public void precarga() {
 		Connection conn = null;
 		
 		com.ferbo.gestion.core.model.cliente.Cliente cliente = null;
 		
 		try {
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+		    
+		    if (facesContext.isPostback()) {
+		        return; // ya se cargó antes, no repetir en cada AJAX
+		    }
+			
 			log.info("Iniciando con la configuración del módulo...");
 			//Validar restricción de registro de salidas mediante el candado de salida.
 			cliente = clienteBO.buscar(this.cliente.getIdCliente());
@@ -169,7 +179,7 @@ public class MbEmisionSalidas implements Serializable {
         	log.error("Problema con la redirección...", ioe);
         }
 	}
-        
+	
 	public void crearSalida(){
 		salida = new Salida();
 	}
@@ -183,6 +193,7 @@ public class MbEmisionSalidas implements Serializable {
 			conn.commit();
 			
 			if(this.plantaSelected != null) {
+				log.info("Presentando inventario para la planta {}", this.plantaSelected.getNumero());
 				listaInventario = InventarioBL.obtenerInventario(conn, this.cliente, this.plantaSelected);
 			} else {
 				listaInventario = new ArrayList<Inventario>();
@@ -221,6 +232,7 @@ public class MbEmisionSalidas implements Serializable {
 		this.serie = SerieOrdenBL.obtenerSerie(conn, this.plantaSelected, this.cliente);
 		this.folioSalida = SerieOrdenBL.crearFolioSalida(conn, this.plantaSelected, this.cliente, this.serie);
 		log.info("Folio solicitud de salida: {}", this.folioSalida);
+		PrimeFaces.current().ajax().update("form:folioSalida");
 	}
 	
 	public void agregarInventario() {
@@ -554,7 +566,7 @@ public class MbEmisionSalidas implements Serializable {
 			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Emisión de salida", mensaje);
 		} finally {
 			Conexion.close(conn);
-			PrimeFaces.current().ajax().update(":form:messages");
+			PrimeFaces.current().ajax().update("form", "form:messages");
 		}
 	}
 

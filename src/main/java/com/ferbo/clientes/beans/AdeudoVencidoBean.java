@@ -78,12 +78,11 @@ public class AdeudoVencidoBean implements Serializable {
 			this.cliente = clienteBO.buscar(this.idCliente);
 			this.saldos = saldoBO.desglose(fechaCorte, cliente, null);
 			this.salidasEnviadas = this.salidaBO.buscarEnviadas(cliente, fechaCorte);
-			this.salidasEnviadas.forEach(item -> log.info("{}", item));
 			this.saldoTotal = this.saldos.stream()
 					.map(saldo -> saldo.getSaldo() )
 					.reduce(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), BigDecimal::add)
 					;
-			
+			log.info("El cliente presenta un saldo vencido: ${}", this.saldoTotal);
 		} catch (ClientesException ex) {
 			log.error("Problema para obtener la información del cliente...", ex);
 		}

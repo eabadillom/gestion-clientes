@@ -4,6 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/template.xhtml">
+	<f:metadata>
+        <f:event type="preRenderView" listener="#{mbEmisionSalidas.precarga()}" />
+    </f:metadata>
 	<ui:define name="title">Orden de retiro</ui:define>
 	<ui:define name="head">
 		<h:outputScript library="js" name="calendar_es.js" />
