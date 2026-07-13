@@ -23,6 +23,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -34,6 +35,9 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.file.UploadedFile;
 
+import com.ferbo.clientes.business.AdeudoVencidoException;
+import com.ferbo.clientes.business.CandadoSalidaBL;
+import com.ferbo.clientes.business.ClienteBL;
 import com.ferbo.clientes.business.InventarioBL;
 import com.ferbo.clientes.business.PlantaBL;
 import com.ferbo.clientes.business.SalidasBL;
@@ -92,9 +96,16 @@ public class MbEmisionSalidas implements Serializable {
 	private HttpSession session;
 	private Cliente cliente;
 	
+	@Inject
+	private ClienteBL clienteBO;
+	
+	@Inject
+	private CandadoSalidaBL candadoBO;
+	
 	private String folioSalida;
 	
 	public MbEmisionSalidas() {
+		this.crearSalida();
 		this.listaInventarioSelect = new ArrayList<Inventario>();
 		this.listaServiciosSelect = new ArrayList<ServiciosExtras>();
 		
@@ -120,21 +131,54 @@ public class MbEmisionSalidas implements Serializable {
 	
 	@PostConstruct
 	public void init() {
+		log.info("Entrando al post-construct...");
+	}
+	
+	public void precarga() {
 		Connection conn = null;
-		this.crearSalida();
+		
+		com.ferbo.gestion.core.model.cliente.Cliente cliente = null;
 		
 		try {
-			conn = Conexion.dsConexion();
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+		    
+		    if (facesContext.isPostback()) {
+		        return;
+		    }
 			
-			this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, cliente);
+			log.info("Iniciando con la configuración del módulo...");
+			//Validar restricción de registro de salidas mediante el candado de salida.
+			cliente = clienteBO.buscar(this.cliente.getIdCliente());
+			candadoBO.validarAdeudo(cliente);
+			
+			conn = Conexion.dsConexion();
+			this.listaServicios = ServiciosExtrasBL.obtenerSrvExtras(conn, this.cliente);
 			this.listaPlantas = Arrays.asList(PlantaBL.obtenerPlantas(conn));
+		} catch(AdeudoVencidoException ex) {
+			log.warn(ex.getMessage());
+			redirigirAdeudoVencido(ex);
+		} catch(ClientesException ex){
+			log.warn("Problema para continuar con la carga del módulo: {}", ex.getMessage());
 		} catch(Exception ex) {
 			log.error("Problema para obtener información de la base de datos...", ex);
 		} finally {
 			Conexion.close(conn);
 		}
 	}
-        
+	
+	private void redirigirAdeudoVencido(AdeudoVencidoException ex) {
+		this.context = FacesContext.getCurrentInstance();
+		String contextPath = context.getExternalContext().getRequestContextPath();
+
+        try {
+        	log.info("Redirigiendo a página de error...");
+            context.getExternalContext().redirect(contextPath + "/error/retiro-bloqueado.xhtml");
+            context.responseComplete();
+        } catch (IOException ioe) {
+        	log.error("Problema con la redirección...", ioe);
+        }
+	}
+	
 	public void crearSalida(){
 		salida = new Salida();
 	}
@@ -148,6 +192,7 @@ public class MbEmisionSalidas implements Serializable {
 			conn.commit();
 			
 			if(this.plantaSelected != null) {
+				log.info("Presentando inventario para la planta {}", this.plantaSelected.getNumero());
 				listaInventario = InventarioBL.obtenerInventario(conn, this.cliente, this.plantaSelected);
 			} else {
 				listaInventario = new ArrayList<Inventario>();
@@ -186,6 +231,7 @@ public class MbEmisionSalidas implements Serializable {
 		this.serie = SerieOrdenBL.obtenerSerie(conn, this.plantaSelected, this.cliente);
 		this.folioSalida = SerieOrdenBL.crearFolioSalida(conn, this.plantaSelected, this.cliente, this.serie);
 		log.info("Folio solicitud de salida: {}", this.folioSalida);
+		PrimeFaces.current().ajax().update("form:folioSalida");
 	}
 	
 	public void agregarInventario() {
@@ -519,7 +565,7 @@ public class MbEmisionSalidas implements Serializable {
 			FacesUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Emisión de salida", mensaje);
 		} finally {
 			Conexion.close(conn);
-			PrimeFaces.current().ajax().update(":form:messages");
+			PrimeFaces.current().ajax().update("form", "form:messages");
 		}
 	}
 

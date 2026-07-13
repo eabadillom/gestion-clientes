@@ -24,6 +24,7 @@ import com.ferbo.clientes.model.StatusSalida;
 import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.DateUtils;
 
+@Deprecated
 public class SalidasBL
 {
     private final static Logger log = LogManager.getLogger(SalidasBL.class);
