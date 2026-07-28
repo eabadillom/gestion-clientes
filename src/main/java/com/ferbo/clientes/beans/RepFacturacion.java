@@ -41,6 +41,7 @@ import com.ferbo.clientes.model.Factura;
 import com.ferbo.clientes.model.StatusFactura;
 import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.Conexion;
+import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.JasperReportUtil;
 import com.ferbo.facturama.business.CfdiBL;
 import com.ferbo.facturama.response.FileViewModel;
@@ -165,9 +166,11 @@ public class RepFacturacion implements Serializable {
 			
 			Conexion.close(conn);
 		}
-	};
+	}
 	
-	
+	public Date vencimiento(Factura factura) {
+		return DateUtils.addDay(factura.getFecha(), factura.getPlazo());
+	}
 
 	
 	public void generateReport() {
