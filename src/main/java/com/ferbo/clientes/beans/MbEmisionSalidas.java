@@ -88,6 +88,8 @@ public class MbEmisionSalidas implements Serializable {
 	private BigDecimal megabyte = new BigDecimal("1048576").setScale(2, BigDecimal.ROUND_HALF_UP);
 	private SerieOrden serie;
 	
+	private String query;
+	
 	private boolean isOrdenRegistrada = false;
 	
 	private ClienteContacto cteContacto;
@@ -205,6 +207,33 @@ public class MbEmisionSalidas implements Serializable {
 		}
 	}
 	
+	public void handleQuery() {
+		if(this.query == null || "".equalsIgnoreCase(this.query))
+			log.info("Reset query.");
+		else
+			log.info("Query: {}", this.query);
+	}
+	
+	public List<Inventario> mostrarInventario() {
+		List<Inventario> resultado = null;
+		try {
+			if(this.query == null || this.query.equalsIgnoreCase("")) {
+				resultado = this.listaInventario.stream()
+						.filter(item -> this.listaInventarioSelect.contains(item) == false)
+						.collect(Collectors.toList());
+				return resultado;
+			}
+			
+			resultado = this.listaInventario.stream()
+					.filter(item -> item.getCadena().toUpperCase().contains(query.trim().toUpperCase()))
+					.filter(item -> this.listaInventarioSelect.contains(item) == false)
+					.collect(Collectors.toList());
+		} catch(Exception ex) {
+			resultado = new ArrayList<Inventario>();
+		}
+		return resultado;
+	}
+	
 	public Boolean bloquearRetiro(Inventario inventario) {
 		Boolean respuesta = Boolean.FALSE;
 		Integer cantidadExistencia = null;
@@ -253,7 +282,7 @@ public class MbEmisionSalidas implements Serializable {
 			this.resultadoPeso(this.inventario);
 			
 			this.listaInventarioSelect.add(this.inventario);
-			
+			log.info("Proucto agregado: {}, {} {}, {} kg", this.inventario.getProducto(), this.inventario.getCantidad(), this.inventario.getUnidad(), this.inventario.getPesoAprox());
 			PrimeFaces.current().executeScript("PF('dlgDetalleRetiro').hide()");
 			mensaje = String.format("%s agregado", this.inventario.getProducto());
 			detalle = String.format("%d %s", this.inventario.getCantidad(), this.inventario.getUnidad());
@@ -424,20 +453,6 @@ public class MbEmisionSalidas implements Serializable {
 			FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Horario no laboral", "Ha seleccionado un horario no laboral, por lo que se realizará el cargo de servicios extras. El horario laboral es de 7:00am a 5:00pm.");
 			PrimeFaces.current().ajax().update("form:messages");
 		}
-	}
-	
-	public List<Inventario> mostrarInventario() {
-		List<Inventario> resultado = null;
-		Set<Inventario> setInventarioSelect;
-		try {
-			setInventarioSelect = new HashSet<Inventario>(this.listaInventarioSelect);
-			resultado = this.listaInventario.stream()
-					.filter(item -> setInventarioSelect.contains(item) == false)
-					.collect(Collectors.toList());
-		} catch(Exception ex) {
-			resultado = new ArrayList<Inventario>();
-		}
-		return resultado;
 	}
 	
 	public Integer numeroProductos() {
@@ -778,5 +793,13 @@ public class MbEmisionSalidas implements Serializable {
 
 	public void setInventario(Inventario inventario) {
 		this.inventario = inventario;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
 	}
 }

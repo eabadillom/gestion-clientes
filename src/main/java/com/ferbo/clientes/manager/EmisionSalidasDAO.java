@@ -38,6 +38,7 @@ public class EmisionSalidasDAO extends DAO {
 			+ "		parEnt.partida_cve AS partida_cve, \n"
 			+ "		cddEnt.folio_cliente AS folio_cliente, \n"
 			+ "		cddEnt.folio AS folio, \n"
+			+ "     cddEnt.fecha_ingreso as fecha_ingreso, \n"
 			+ "		plt.PLANTA_DS, \n"
 			+ "		plt.planta_abrev \n"
 			+ "	FROM partida parEnt \n"
@@ -114,6 +115,7 @@ public class EmisionSalidasDAO extends DAO {
 		bean.setFolioCliente(rs.getString("folio_cliente"));
 		bean.setPlantaNombre(rs.getString("PLANTA_DS"));
 		bean.setPlantaAbrev(rs.getString("planta_abrev"));
+		bean.setFechaIngreso(getDate(rs.getDate("fecha_ingreso")));
 		
 		return bean;
 	}
