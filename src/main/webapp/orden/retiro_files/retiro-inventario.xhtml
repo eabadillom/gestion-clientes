@@ -3,25 +3,37 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
-
+			
+			<p:panel>
+				<div>
+					<p:outputLabel value="Buscar por fecha de ingreso, folio de entrada, producto, contenedor, lote o caducidad" style="font-style: italic; font-weight: bold;" />
+				</div>
+				<div>
+					<span class="ui-input-icon-left">
+				        <i class="pi pi-search" />
+						<p:inputText value="#{mbEmisionSalidas.query}">
+							<p:ajax event="keyup" delay="400" process="@this" listener="#{mbEmisionSalidas.handleQuery()}" update="dt-products" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();"/>
+						</p:inputText>
+				    </span>
+				</div>
+			</p:panel>
+			
 			<p:dataTable id="dt-products" widgetVar="dtProducts" var="inventario" value="#{mbEmisionSalidas.mostrarInventario()}" size="small"
 				rowKey="#{inventario.partidaClave}"
 				paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
-				<f:facet name="header">
-					<div class="products-table-header">
-						<span class="filter-container ui-input-icon-left">
-							<i class="pi pi-search"></i>
-							<p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar por folio de entrada o producto" />
-						</span>
-					</div>
-				</f:facet>
+				
 				<p:column width="1rem">
 	                <p:rowToggler/>
 	            </p:column>
-				<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" width="6rem" filterable="true" filterBy="#{inventario.folioCliente}">
+				<p:column headerText="Folio" sortBy="#{inventario.folioCliente}" width="6rem" filterable="true">
 					<h:outputText value="#{inventario.folioCliente}" />
 				</p:column>
-				<p:column headerText="Producto" sortBy="#{inventario.producto}" width="auto" filterBy="#{inventario.producto}">
+				<p:column headerText="Ingreso" sortBy="#{inventario.fechaIngreso}" width="6rem">
+					<p:outputLabel value="#{inventario.fechaIngreso}">
+						<f:convertDateTime locale="es_MX" pattern="dd/MM/yyyy" timeZone="GMT-6" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Producto" sortBy="#{inventario.producto}" width="auto" >
 					<p:badge severity="warning" value="#{inventario.cantidadReservada}" visible="#{inventario.cantidadReservada ne null}" styleClass="mr-2">
 						<h:outputText value="#{inventario.producto}" />
 					</p:badge>
@@ -46,7 +58,7 @@
 						</div>
 						<div class="p-col-2 p-md-2">
 							<p:outputLabel for="@next" value="Caducidad"/>
-							<p:datePicker value="#{inventario.caducidad}" readonly="true"/>
+							<p:datePicker value="#{inventario.caducidad}" locale="es_MX" pattern="dd/MM/yyyy" timeZone="GMT-6" readonly="true"/>
 						</div>
 						<div class="p-col-2 p-md-2">
 							<p:outputLabel for="@next" value="Lote"/>
@@ -60,6 +72,7 @@
 				</p:rowExpansion>
 				<p:columnGroup type="footer">
 					<p:row>
+						<p:column style="text-align: left;"/>
 						<p:column style="text-align: left;"/>
 						<p:column style="text-align: left;"/>
 						<p:column footerText="#{mbEmisionSalidas.numeroProductos()} seleccionado#{mbEmisionSalidas.numeroProductos() ne 1 ? 's' : ''}" style="text-align: left;"/>

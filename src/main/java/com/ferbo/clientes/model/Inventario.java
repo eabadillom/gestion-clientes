@@ -1,7 +1,7 @@
 package com.ferbo.clientes.model;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 import java.util.Objects;
 
 public class Inventario {
@@ -23,9 +23,11 @@ public class Inventario {
 	private BigDecimal peso;
 	private String     folioCliente;
 	private Integer    folio;
+	private Date       fechaIngreso;
 	private boolean    habilitado;
 	private String     plantaNombre;
 	private String     plantaAbrev;
+	private String     cadena;
 	
 	@Override
 	public int hashCode() {
@@ -239,5 +241,21 @@ public class Inventario {
 
 	public void setPedimento(String pedimento) {
 		this.pedimento = pedimento;
+	}
+
+	public String getCadena() {
+		return cadena;
+	}
+
+	public void setCadena(String cadena) {
+		this.cadena = cadena;
+	}
+
+	public Date getFechaIngreso() {
+		return fechaIngreso;
+	}
+
+	public void setFechaIngreso(Date fechaIngreso) {
+		this.fechaIngreso = fechaIngreso;
 	}
 }
