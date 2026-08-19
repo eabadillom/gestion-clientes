@@ -59,6 +59,7 @@ import com.ferbo.clientes.util.ClientesException;
 import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.FacesUtils;
+import com.ferbo.clientes.util.StringTools;
 
 @Named(value = "mbEmisionSalidas")
 @ViewScoped
@@ -89,6 +90,7 @@ public class MbEmisionSalidas implements Serializable {
 	private SerieOrden serie;
 	
 	private String query;
+	private Boolean allTerms = Boolean.FALSE;
 	
 	private boolean isOrdenRegistrada = false;
 	
@@ -207,6 +209,13 @@ public class MbEmisionSalidas implements Serializable {
 		}
 	}
 	
+	public void handleAllTerms() {
+		if(this.allTerms) 
+			log.info("Todos los terminos.");
+		else
+			log.info("Alguno de los terminos.");
+	}
+	
 	public void handleQuery() {
 		if(this.query == null || "".equalsIgnoreCase(this.query))
 			log.info("Reset query.");
@@ -216,6 +225,7 @@ public class MbEmisionSalidas implements Serializable {
 	
 	public List<Inventario> mostrarInventario() {
 		List<Inventario> resultado = null;
+		String[] terminos;
 		try {
 			if(this.query == null || this.query.equalsIgnoreCase("")) {
 				resultado = this.listaInventario.stream()
@@ -224,10 +234,22 @@ public class MbEmisionSalidas implements Serializable {
 				return resultado;
 			}
 			
-			resultado = this.listaInventario.stream()
-					.filter(item -> item.getCadena().toUpperCase().contains(query.trim().toUpperCase()))
-					.filter(item -> this.listaInventarioSelect.contains(item) == false)
-					.collect(Collectors.toList());
+			terminos = this.query.split(" ");
+			
+			if(this.allTerms) {
+				log.info("Busqueda con todos los terminos...");
+				resultado = this.listaInventario.stream()
+						.filter(item -> StringTools.containsAllTerms(item.getCadena(), terminos))
+						.filter(item -> this.listaInventarioSelect.contains(item) == false)
+						.collect(Collectors.toList());
+			} else {
+				log.info("Busqueda con alguno de los terminos...");
+				resultado = this.listaInventario.stream()
+						.filter(item -> StringTools.containsAnyTerm(item.getCadena(), terminos))
+						.filter(item -> this.listaInventarioSelect.contains(item) == false)
+						.collect(Collectors.toList());
+			}
+			
 		} catch(Exception ex) {
 			resultado = new ArrayList<Inventario>();
 		}
@@ -801,5 +823,13 @@ public class MbEmisionSalidas implements Serializable {
 
 	public void setQuery(String query) {
 		this.query = query;
+	}
+
+	public Boolean getAllTerms() {
+		return allTerms;
+	}
+
+	public void setAllTerms(Boolean allTerms) {
+		this.allTerms = allTerms;
 	}
 }

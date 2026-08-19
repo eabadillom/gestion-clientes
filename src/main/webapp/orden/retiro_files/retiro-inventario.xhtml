@@ -5,14 +5,20 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 			
 			<p:panel>
-				<div>
+				<div style="padding-bottom: 0.6rem;">
 					<p:outputLabel value="Buscar por fecha de ingreso, folio de entrada, producto, contenedor, lote o caducidad" style="font-style: italic; font-weight: bold;" />
 				</div>
 				<div>
+				    <span>
+				    	<p:selectBooleanButton value="#{mbEmisionSalidas.allTerms}" onIcon="pi pi-circle-on" onLabel="Buscar con todos los términos" offIcon="pi pi-circle-off" offLabel="Buscar con alguno de los términos">
+				    		<p:ajax process="@this" listener="#{mbEmisionSalidas.handleAllTerms()}" update="dt-products" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();"></p:ajax>
+				    	</p:selectBooleanButton>
+				    </span>
+				    <p:spacer style="width: 1rem;" />
 					<span class="ui-input-icon-left">
 				        <i class="pi pi-search" />
-						<p:inputText value="#{mbEmisionSalidas.query}">
-							<p:ajax event="keyup" delay="400" process="@this" listener="#{mbEmisionSalidas.handleQuery()}" update="dt-products" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();"/>
+						<p:inputText value="#{mbEmisionSalidas.query}" placeholder="Escriba un término">
+							<p:ajax event="keyup" delay="700" process="@this" listener="#{mbEmisionSalidas.handleQuery()}" update="dt-products" onstart="PF('statusInfoDialog').show();" oncomplete="PF('statusInfoDialog').hide();"/>
 						</p:inputText>
 				    </span>
 				</div>
