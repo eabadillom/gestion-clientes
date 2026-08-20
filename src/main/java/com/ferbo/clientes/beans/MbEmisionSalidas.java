@@ -237,13 +237,13 @@ public class MbEmisionSalidas implements Serializable {
 			terminos = this.query.split(" ");
 			
 			if(this.allTerms) {
-				log.info("Busqueda con todos los terminos...");
+				log.debug("Busqueda con todos los terminos...");
 				resultado = this.listaInventario.stream()
 						.filter(item -> StringTools.containsAllTerms(item.getCadena(), terminos))
 						.filter(item -> this.listaInventarioSelect.contains(item) == false)
 						.collect(Collectors.toList());
 			} else {
-				log.info("Busqueda con alguno de los terminos...");
+				log.debug("Busqueda con alguno de los terminos...");
 				resultado = this.listaInventario.stream()
 						.filter(item -> StringTools.containsAnyTerm(item.getCadena(), terminos))
 						.filter(item -> this.listaInventarioSelect.contains(item) == false)
