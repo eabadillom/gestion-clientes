@@ -39,10 +39,13 @@ import com.ferbo.clientes.business.AdeudoVencidoException;
 import com.ferbo.clientes.business.CandadoSalidaBL;
 import com.ferbo.clientes.business.ClienteBL;
 import com.ferbo.clientes.business.InventarioBL;
+import com.ferbo.clientes.business.NotificacionBL;
 import com.ferbo.clientes.business.PlantaBL;
 import com.ferbo.clientes.business.SalidasBL;
 import com.ferbo.clientes.business.SerieOrdenBL;
 import com.ferbo.clientes.business.ServiciosExtrasBL;
+import com.ferbo.clientes.client.NotificacionGestion;
+import com.ferbo.clientes.dto.NotificacionDTO;
 import com.ferbo.clientes.mail.beans.Adjunto;
 import com.ferbo.clientes.mail.beans.Planta;
 import com.ferbo.clientes.mail.report.SendMailOrdenSalida;
@@ -60,6 +63,7 @@ import com.ferbo.clientes.util.Conexion;
 import com.ferbo.clientes.util.DateUtils;
 import com.ferbo.clientes.util.FacesUtils;
 import com.ferbo.clientes.util.StringTools;
+import com.ferbo.tools.exception.SystemException;
 
 @Named(value = "mbEmisionSalidas")
 @ViewScoped
@@ -107,6 +111,9 @@ public class MbEmisionSalidas implements Serializable {
 	private CandadoSalidaBL candadoBO;
 	
 	private String folioSalida;
+        
+        @Inject
+        private NotificacionBL notificacionBL;
 	
 	public MbEmisionSalidas() {
 		this.crearSalida();
@@ -588,6 +595,12 @@ public class MbEmisionSalidas implements Serializable {
             sendMail.add(this.archivosList);
             sendMail.start();
             
+            NotificacionDTO notificacion = notificacionBL.getNuevaOrdenRetiro();
+            
+            NotificacionGestion notificacionToGestion = new NotificacionGestion(notificacion);
+            
+            notificacionToGestion.start();
+            
             mensaje = String.format("Su orden de salida %s se generó correctamente. Recibirá copia de su orden vía correo electrónico.", this.folioSalida);
             FacesUtils.addMessage(FacesMessage.SEVERITY_INFO, "Emisión de salida", mensaje);
 		} catch(ClientesException ex) {
@@ -595,7 +608,9 @@ public class MbEmisionSalidas implements Serializable {
 			Conexion.rollback(conn);
 			mensaje = ex.getMessage();
 			FacesUtils.addMessage(FacesMessage.SEVERITY_WARN, "Emisión de salida", mensaje);
-		} catch (Exception ex) {
+		} catch (SystemException ex) {
+                        log.warn("Error al momento de notificar la orden de salida al sistema de gestion: {}", ex.getMessage(), ex);
+                } catch (Exception ex) {
 			log.error("Problema con la emisión de salidas...", ex);
 			Conexion.rollback(conn);
 			mensaje = "Su solicitud no se pudo generar.\nFavor de comunicarse con el administrador del sistema.";
