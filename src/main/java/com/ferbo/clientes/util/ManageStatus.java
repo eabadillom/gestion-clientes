@@ -8,7 +8,8 @@ enum StatusClass
     NEGOTIATION,//Amarillo
     NEW, //Azul
     RENEWAL, //Morado 
-    CANCELLED; // Gris
+    CANCELLED, //GRIS
+    EXPIRED; // Gris
 }
 
 enum StatusText 
@@ -16,7 +17,8 @@ enum StatusText
     ENVIADA,
     APROBADA,
     RECHAZADA,
-    CANCELADA;
+    CANCELADA, 
+    EXPIRADA;
 }
 
 public class ManageStatus 
@@ -43,6 +45,8 @@ public class ManageStatus
             case "C":
                 mensaje = StatusClass.CANCELLED.toString().toLowerCase();
                 break;
+            case "X":
+                mensaje = StatusClass.EXPIRED.toString().toLowerCase();
         }
         return mensaje;
     }
@@ -63,6 +67,9 @@ public class ManageStatus
                 break;
             case "C":
                 mensaje = StatusText.CANCELADA.toString().toLowerCase();
+                break;
+            case "X":
+                mensaje = StatusText.EXPIRADA.toString().toLowerCase();
                 break;
         }
         return mensaje;
