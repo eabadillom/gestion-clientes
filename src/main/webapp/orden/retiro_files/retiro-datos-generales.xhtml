@@ -25,14 +25,14 @@
 					</div>
 					<div class="p-col-12 p-md-6">
 						<p:outputLabel for="nombreOperador" value="Nombre del Operador" />
-							<p:inputText id="nombreOperador" value="#{mbEmisionSalidas.salida.nombreTransportista}" required="true" requiredMessage="Nombre del Operador requerido" oninput="this.value = this.value.toUpperCase()" disabled="#{mbEmisionSalidas.salida.idSalida ne null}">
+							<p:inputText id="nombreOperador" value="#{mbEmisionSalidas.salida.nombreTransportista}" maxlength="100" required="true" requiredMessage="Nombre del Operador requerido" oninput="this.value = this.value.toUpperCase()" disabled="#{mbEmisionSalidas.salida.idSalida ne null}">
 								<p:ajax process="@this"/>
 							</p:inputText>
 							<p:message for="nombreOperador" />
 					</div>
 					<div class="p-col-6 p-md-3">
 						<p:outputLabel for="placasUnidad" value="Placas Unidad" />
-						<p:inputText id="placasUnidad" value="#{mbEmisionSalidas.salida.placasTransporte}" required="true" requiredMessage="Placas de Unidad requerida" oninput="this.value = this.value.toUpperCase()" disabled="#{mbEmisionSalidas.salida.idSalida ne null}">
+						<p:inputText id="placasUnidad" value="#{mbEmisionSalidas.salida.placasTransporte}" maxlength="10" required="true" requiredMessage="Placas de Unidad requerida" oninput="this.value = this.value.toUpperCase()" disabled="#{mbEmisionSalidas.salida.idSalida ne null}">
 							<p:ajax process="@this" />
 						</p:inputText>
 						<p:message for="placasUnidad" />
