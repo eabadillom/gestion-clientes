@@ -48,3 +48,5 @@ target/
 nb-configuration.xml
 
 
+/.apt_generated/
+/.apt_generated_tests/
