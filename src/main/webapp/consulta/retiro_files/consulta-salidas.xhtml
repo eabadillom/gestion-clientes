@@ -22,9 +22,9 @@
             <p:outputLabel value="#{salidas.horaSalida}"/>
         </p:column>
         <p:column headerText="Status" style="text-align: center;" >
-            <span class="customer-badge status-#{consultarSalidas.status.getStatusClass(salidas.status.clave)}" 
+            <span class="customer-badge status-#{consultarSalidas.status.getStatusClass(consultarSalidas.verificarExpiracion(salidas))}" 
                   style="width: 7rem; text-align: center;" >
-                #{consultarSalidas.status.getStatusText(salidas.status.clave)}
+                #{consultarSalidas.status.getStatusText(consultarSalidas.verificarExpiracion(salidas))}
             </span>
         </p:column>
         <p:column width="2rem" style="text-align: left;">

@@ -288,6 +288,18 @@ public class ConsultarSalidasBean implements Serializable {
 			FacesContext.getCurrentInstance().addMessage(null, message);
 		}
 	}
+        
+        public String verificarExpiracion(Salida salida) {
+            
+            LocalDate hoy = LocalDate.now();
+            LocalDate fechaSalida = salida.getFechaSalida();
+            String statusActual = salida.getStatus().getClave(); 
+            
+            if (fechaSalida.isBefore(hoy) && "E".equalsIgnoreCase(statusActual)) {
+                return "X";
+            }
+            return statusActual;
+        }
 
 	public Cliente getCliente() {
 		return cliente;
