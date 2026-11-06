@@ -564,6 +564,18 @@ public class MbEmisionSalidas implements Serializable {
 			FacesUtils.requireNonNull(this.salida.getPlacasTransporte(), "Favor de llenar el campo de las placas");
 			FacesUtils.requireNonNull(this.salida.getObservaciones(), "Favor de llenar el campo de las obervaciones");
 			FacesUtils.requireNonNull(this.cliente, "Favor de seleccionar al cliente");
+                        
+                        if(this.salida.getPlacasTransporte().length() > 10) {
+                            throw new ClientesException("Las placas no deben exceder de los 10 caracteres.");
+                        }
+                        
+                        if(this.salida.getNombreTransportista().length() > 100) {
+                            throw new ClientesException("El nombre del operador no debe exceder de los 100 caracteres.");
+                        }
+                        
+                        if(this.salida.getObservaciones().length() > 200) {
+                            throw new ClientesException("Las observaciones no deben exceder de los 200 caracteres.");
+                        }
 
 			this.salida = SalidasBL.guardarSalida(conn, this.folioSalida, this.cliente, this.cteContacto, this.salida, this.fecha);
 			
